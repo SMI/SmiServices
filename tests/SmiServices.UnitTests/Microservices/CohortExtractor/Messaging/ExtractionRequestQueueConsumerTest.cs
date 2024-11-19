@@ -20,9 +20,9 @@ namespace SmiServices.UnitTests.Microservices.CohortExtractor.Messaging
 {
     public class ExtractionRequestQueueConsumerTest
     {
-        #region Fixture Methods 
+        #region Fixture Methods
 
-        private IFileSystem _fileSystem;
+        private static readonly IFileSystem _fileSystem = new MockFileSystem();
 
         [OneTimeSetUp]
         public void OneTimeSetUp()
@@ -40,7 +40,6 @@ namespace SmiServices.UnitTests.Microservices.CohortExtractor.Messaging
         [SetUp]
         public void SetUp()
         {
-            _fileSystem = new MockFileSystem();
         }
 
         [TearDown]

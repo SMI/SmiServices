@@ -38,25 +38,28 @@ namespace SmiServices.UnitTests.Microservices.CohortPackager.Execution.ExtractJo
         public void OneTimeTearDown() { }
 
         [SetUp]
-        public void SetUp() { }
+        public void SetUp()
+        {
+            _extractionDatabase = new TestExtractionDatabase();
+            _mockSessionHandle.Reset();
+        }
 
         [TearDown]
         public void TearDown() { }
 
-        private sealed class TestMongoClient : StubMongoClient
+        private static TestExtractionDatabase _extractionDatabase = new();
+        private static readonly Mock<IClientSessionHandle> _mockSessionHandle = new();
+
+        private static IMongoClient GetTestMongoClient()
         {
-            public readonly TestExtractionDatabase ExtractionDatabase = new();
-            public readonly Mock<IClientSessionHandle> MockSessionHandle = new();
+            _extractionDatabase = new TestExtractionDatabase();
 
-            public override IMongoDatabase GetDatabase(string name, MongoDatabaseSettings? settings = null)
-            {
-                if (name == ExtractionDatabaseName)
-                    return ExtractionDatabase;
-                throw new ArgumentException(null, nameof(name));
-            }
-
-            // NOTE(rkm 2020-03-10) We don't actually implement transaction rollback as we only need to be able to start with a fresh collection for each test
-            public override IClientSessionHandle StartSession(ClientSessionOptions? options = null, CancellationToken cancellationToken = new CancellationToken()) => MockSessionHandle.Object;
+            var m = new Mock<IMongoClient>();
+            m.Setup(static m => m.GetDatabase(ExtractionDatabaseName, It.IsAny<MongoDatabaseSettings>()))
+                .Returns(_extractionDatabase);
+            m.Setup(static m => m.StartSession(It.IsAny<ClientSessionOptions>(), It.IsAny<CancellationToken>()))
+                .Returns(_mockSessionHandle.Object);
+            return m.Object;
         }
 
         /// <summary>
@@ -250,12 +253,12 @@ namespace SmiServices.UnitTests.Microservices.CohortPackager.Execution.ExtractJo
                 ProducerProcessID = 1234,
             };
 
-            var client = new TestMongoClient();
+            var client = GetTestMongoClient();
             var store = new MongoExtractJobStore(client, ExtractionDatabaseName, _dateTimeProvider);
 
             store.PersistMessageToStore(testExtractionRequestInfoMessage, testHeader);
 
-            Dictionary<Guid, MongoExtractJobDoc> docs = client.ExtractionDatabase.InProgressCollection.Documents;
+            Dictionary<Guid, MongoExtractJobDoc> docs = _extractionDatabase.InProgressCollection.Documents;
             Assert.That(docs, Has.Count.EqualTo(1));
             MongoExtractJobDoc extractJob = docs.Values.ToList()[0];
 
@@ -298,8 +301,8 @@ namespace SmiServices.UnitTests.Microservices.CohortPackager.Execution.ExtractJo
               isNoFilterExtraction: true,
               null);
 
-            var client = new TestMongoClient();
-            client.ExtractionDatabase.CompletedJobCollection.InsertOne(new MongoCompletedExtractJobDoc(job, DateTime.Now));
+            var client = GetTestMongoClient();
+            _extractionDatabase.CompletedJobCollection.InsertOne(new MongoCompletedExtractJobDoc(job, DateTime.Now));
 
             var store = new MongoExtractJobStore(client, ExtractionDatabaseName, _dateTimeProvider);
 
@@ -360,12 +363,12 @@ namespace SmiServices.UnitTests.Microservices.CohortPackager.Execution.ExtractJo
                 ProducerProcessID = 1234,
             };
 
-            var client = new TestMongoClient();
+            var client = GetTestMongoClient();
             var store = new MongoExtractJobStore(client, ExtractionDatabaseName, _dateTimeProvider);
 
             store.PersistMessageToStore(testExtractFileCollectionInfoMessage, header);
 
-            Dictionary<Guid, MongoExpectedFilesDoc> docs = client.ExtractionDatabase.ExpectedFilesCollections[$"expectedFiles_{jobId}"].Documents;
+            Dictionary<Guid, MongoExpectedFilesDoc> docs = _extractionDatabase.ExpectedFilesCollections[$"expectedFiles_{jobId}"].Documents;
             Assert.That(docs, Has.Count.EqualTo(1));
             MongoExpectedFilesDoc extractJob = docs.Values.ToList()[0];
 
@@ -414,7 +417,7 @@ namespace SmiServices.UnitTests.Microservices.CohortPackager.Execution.ExtractJo
                 ProducerProcessID = 1234,
             };
 
-            var client = new TestMongoClient();
+            var client = GetTestMongoClient();
             var store = new MongoExtractJobStore(client, ExtractionDatabaseName, _dateTimeProvider);
 
             Assert.DoesNotThrow(() => store.PersistMessageToStore(testExtractFileCollectionInfoMessage, header));
@@ -423,7 +426,7 @@ namespace SmiServices.UnitTests.Microservices.CohortPackager.Execution.ExtractJo
         [Test]
         public void TestPersistMessageToStoreImpl_ExtractFileStatusMessage()
         {
-            var client = new TestMongoClient();
+            var client = GetTestMongoClient();
             var store = new MongoExtractJobStore(client, ExtractionDatabaseName, _dateTimeProvider);
 
             Guid jobId = Guid.NewGuid();
@@ -442,7 +445,7 @@ namespace SmiServices.UnitTests.Microservices.CohortPackager.Execution.ExtractJo
 
             store.PersistMessageToStore(testExtractFileStatusMessage, header);
 
-            Dictionary<Guid, MongoFileStatusDoc> docs = client.ExtractionDatabase.StatusCollections[$"statuses_{jobId}"].Documents;
+            Dictionary<Guid, MongoFileStatusDoc> docs = _extractionDatabase.StatusCollections[$"statuses_{jobId}"].Documents;
             Assert.That(docs, Has.Count.EqualTo(1));
             MongoFileStatusDoc statusDoc = docs.Values.ToList()[0];
 
@@ -478,8 +481,8 @@ namespace SmiServices.UnitTests.Microservices.CohortPackager.Execution.ExtractJo
               isNoFilterExtraction: true,
               null);
 
-            var client = new TestMongoClient();
-            client.ExtractionDatabase.CompletedJobCollection.InsertOne(new MongoCompletedExtractJobDoc(job, DateTime.Now));
+            var client = GetTestMongoClient();
+            _extractionDatabase.CompletedJobCollection.InsertOne(new MongoCompletedExtractJobDoc(job, DateTime.Now));
 
             var store = new MongoExtractJobStore(client, ExtractionDatabaseName, _dateTimeProvider);
 
@@ -504,7 +507,7 @@ namespace SmiServices.UnitTests.Microservices.CohortPackager.Execution.ExtractJo
         [Test]
         public void TestPersistMessageToStoreImpl_IsIdentifiableMessage()
         {
-            var client = new TestMongoClient();
+            var client = GetTestMongoClient();
             var store = new MongoExtractJobStore(client, ExtractionDatabaseName, _dateTimeProvider);
 
             Guid jobId = Guid.NewGuid();
@@ -523,7 +526,7 @@ namespace SmiServices.UnitTests.Microservices.CohortPackager.Execution.ExtractJo
 
             store.PersistMessageToStore(testIsIdentifiableMessage, header);
 
-            Dictionary<Guid, MongoFileStatusDoc> docs = client.ExtractionDatabase.StatusCollections[$"statuses_{jobId}"].Documents;
+            Dictionary<Guid, MongoFileStatusDoc> docs = _extractionDatabase.StatusCollections[$"statuses_{jobId}"].Documents;
             Assert.That(docs, Has.Count.EqualTo(1));
             MongoFileStatusDoc statusDoc = docs.Values.ToList()[0];
 
@@ -541,7 +544,7 @@ namespace SmiServices.UnitTests.Microservices.CohortPackager.Execution.ExtractJo
         [Test]
         public void TestGetReadJobsImpl()
         {
-            Guid jobId = Guid.NewGuid();
+            var jobId = Guid.NewGuid();
             var testJob = new MongoExtractJobDoc(
                 jobId,
                 MongoExtractionMessageHeaderDoc.FromMessageHeader(jobId, new MessageHeader(), _dateTimeProvider),
@@ -574,51 +577,51 @@ namespace SmiServices.UnitTests.Microservices.CohortPackager.Execution.ExtractJo
                 VerifiedFileStatus.NotIdentifiable,
                 "Verified");
 
-            var client = new TestMongoClient();
+            var client = GetTestMongoClient();
             var store = new MongoExtractJobStore(client, ExtractionDatabaseName, _dateTimeProvider);
 
             // Assert that jobs marked as failed are not returned
-            client.ExtractionDatabase.InProgressCollection.InsertOne(testJob);
-            client.ExtractionDatabase.InProgressCollection.RejectChanges = true;
+            _extractionDatabase.InProgressCollection.InsertOne(testJob);
+            _extractionDatabase.InProgressCollection.RejectChanges = true;
             Assert.That(store.GetReadyJobs(), Is.Empty);
 
             // Assert that an in progress job is not returned
-            client = new TestMongoClient();
+            client = GetTestMongoClient();
             store = new MongoExtractJobStore(client, ExtractionDatabaseName, _dateTimeProvider);
             testJob.JobStatus = ExtractJobStatus.WaitingForCollectionInfo;
-            client.ExtractionDatabase.InProgressCollection.InsertOne(testJob);
-            client.ExtractionDatabase.InProgressCollection.RejectChanges = true;
+            _extractionDatabase.InProgressCollection.InsertOne(testJob);
+            _extractionDatabase.InProgressCollection.RejectChanges = true;
             Assert.That(store.GetReadyJobs(), Is.Empty);
 
             // Check we handle a bad ReplaceOneResult
-            client = new TestMongoClient();
+            client = GetTestMongoClient();
             store = new MongoExtractJobStore(client, ExtractionDatabaseName, _dateTimeProvider);
             testJob.JobStatus = ExtractJobStatus.WaitingForCollectionInfo;
-            client.ExtractionDatabase.InProgressCollection.InsertOne(testJob);
-            client.ExtractionDatabase.InProgressCollection.RejectChanges = true;
-            client.ExtractionDatabase.ExpectedFilesCollections[$"expectedFiles_{jobId}"] = new MockExtractCollection<Guid, MongoExpectedFilesDoc>();
-            client.ExtractionDatabase.ExpectedFilesCollections[$"expectedFiles_{jobId}"].InsertOne(testMongoExpectedFilesDoc);
+            _extractionDatabase.InProgressCollection.InsertOne(testJob);
+            _extractionDatabase.InProgressCollection.RejectChanges = true;
+            _extractionDatabase.ExpectedFilesCollections[$"expectedFiles_{jobId}"] = new MockExtractCollection<Guid, MongoExpectedFilesDoc>();
+            _extractionDatabase.ExpectedFilesCollections[$"expectedFiles_{jobId}"].InsertOne(testMongoExpectedFilesDoc);
             Assert.Throws<ApplicationException>(() => store.GetReadyJobs());
 
             // Check happy path
-            client = new TestMongoClient();
+            client = GetTestMongoClient();
             store = new MongoExtractJobStore(client, ExtractionDatabaseName, _dateTimeProvider);
             testJob.JobStatus = ExtractJobStatus.WaitingForCollectionInfo;
-            client.ExtractionDatabase.InProgressCollection.InsertOne(testJob);
-            client.ExtractionDatabase.ExpectedFilesCollections[$"expectedFiles_{jobId}"] = new MockExtractCollection<Guid, MongoExpectedFilesDoc>();
-            client.ExtractionDatabase.ExpectedFilesCollections[$"expectedFiles_{jobId}"].InsertOne(testMongoExpectedFilesDoc);
+            _extractionDatabase.InProgressCollection.InsertOne(testJob);
+            _extractionDatabase.ExpectedFilesCollections[$"expectedFiles_{jobId}"] = new MockExtractCollection<Guid, MongoExpectedFilesDoc>();
+            _extractionDatabase.ExpectedFilesCollections[$"expectedFiles_{jobId}"].InsertOne(testMongoExpectedFilesDoc);
             Assert.Multiple(() =>
             {
                 Assert.That(store.GetReadyJobs(), Is.Empty);
-                Assert.That(client.ExtractionDatabase.InProgressCollection.Documents.Single().Value.JobStatus, Is.EqualTo(ExtractJobStatus.WaitingForStatuses));
+                Assert.That(_extractionDatabase.InProgressCollection.Documents.Single().Value.JobStatus, Is.EqualTo(ExtractJobStatus.WaitingForStatuses));
             });
-            client.ExtractionDatabase.StatusCollections[$"statuses_{jobId}"] = new MockExtractCollection<Guid, MongoFileStatusDoc>();
-            client.ExtractionDatabase.StatusCollections[$"statuses_{jobId}"].InsertOne(testMongoFileStatusDoc);
+            _extractionDatabase.StatusCollections[$"statuses_{jobId}"] = new MockExtractCollection<Guid, MongoFileStatusDoc>();
+            _extractionDatabase.StatusCollections[$"statuses_{jobId}"].InsertOne(testMongoFileStatusDoc);
             ExtractJobInfo job = store.GetReadyJobs().Single();
             Assert.Multiple(() =>
             {
                 Assert.That(job.JobStatus, Is.EqualTo(ExtractJobStatus.ReadyForChecks));
-                Assert.That(client.ExtractionDatabase.InProgressCollection.Documents.Single().Value.JobStatus, Is.EqualTo(ExtractJobStatus.ReadyForChecks));
+                Assert.That(_extractionDatabase.InProgressCollection.Documents.Single().Value.JobStatus, Is.EqualTo(ExtractJobStatus.ReadyForChecks));
             });
         }
 
@@ -658,79 +661,79 @@ namespace SmiServices.UnitTests.Microservices.CohortPackager.Execution.ExtractJo
                 VerifiedFileStatus.NotIdentifiable,
                 "Verified");
 
-            var client = new TestMongoClient();
+            var client = GetTestMongoClient();
             var store = new MongoExtractJobStore(client, ExtractionDatabaseName, _dateTimeProvider);
 
             // Assert that an exception is thrown for a non-existent job
             Assert.Throws<ApplicationException>(() => store.MarkJobCompleted(Guid.NewGuid()));
-            client.MockSessionHandle.Verify(x => x.AbortTransaction(It.IsAny<CancellationToken>()), Times.Once);
-            client.MockSessionHandle.Verify(x => x.CommitTransaction(It.IsAny<CancellationToken>()), Times.Never);
+            _mockSessionHandle.Verify(x => x.AbortTransaction(It.IsAny<CancellationToken>()), Times.Once);
+            _mockSessionHandle.Verify(x => x.CommitTransaction(It.IsAny<CancellationToken>()), Times.Never);
 
             // Assert that an exception is thrown for a job which is marked as failed
-            client = new TestMongoClient();
+            client = GetTestMongoClient();
             store = new MongoExtractJobStore(client, ExtractionDatabaseName, _dateTimeProvider);
-            client.ExtractionDatabase.InProgressCollection.InsertOne(testJob);
-            client.MockSessionHandle.Reset();
+            _extractionDatabase.InProgressCollection.InsertOne(testJob);
+            _mockSessionHandle.Reset();
             Assert.Throws<ApplicationException>(() => store.MarkJobCompleted(Guid.NewGuid()));
-            client.MockSessionHandle.Verify(x => x.AbortTransaction(It.IsAny<CancellationToken>()), Times.Once);
-            client.MockSessionHandle.Verify(x => x.CommitTransaction(It.IsAny<CancellationToken>()), Times.Never);
+            _mockSessionHandle.Verify(x => x.AbortTransaction(It.IsAny<CancellationToken>()), Times.Once);
+            _mockSessionHandle.Verify(x => x.CommitTransaction(It.IsAny<CancellationToken>()), Times.Never);
 
             // Check that we handle a failed insertion
-            client = new TestMongoClient();
+            client = GetTestMongoClient();
             store = new MongoExtractJobStore(client, ExtractionDatabaseName, _dateTimeProvider);
             testJob.JobStatus = ExtractJobStatus.Completed;
-            client.ExtractionDatabase.InProgressCollection.InsertOne(testJob);
-            client.ExtractionDatabase.CompletedJobCollection.RejectChanges = true;
-            client.MockSessionHandle.Reset();
+            _extractionDatabase.InProgressCollection.InsertOne(testJob);
+            _extractionDatabase.CompletedJobCollection.RejectChanges = true;
+            _mockSessionHandle.Reset();
             Assert.Throws<Exception>(() => store.MarkJobCompleted(jobId));
-            client.MockSessionHandle.Verify(x => x.AbortTransaction(It.IsAny<CancellationToken>()), Times.Once);
-            client.MockSessionHandle.Verify(x => x.CommitTransaction(It.IsAny<CancellationToken>()), Times.Never);
+            _mockSessionHandle.Verify(x => x.AbortTransaction(It.IsAny<CancellationToken>()), Times.Once);
+            _mockSessionHandle.Verify(x => x.CommitTransaction(It.IsAny<CancellationToken>()), Times.Never);
 
             // Check we handle a bad DeleteResult
-            client = new TestMongoClient();
+            client = GetTestMongoClient();
             store = new MongoExtractJobStore(client, ExtractionDatabaseName, _dateTimeProvider);
-            client.ExtractionDatabase.InProgressCollection.RejectChanges = true;
-            client.MockSessionHandle.Reset();
+            _extractionDatabase.InProgressCollection.RejectChanges = true;
+            _mockSessionHandle.Reset();
             Assert.Throws<ApplicationException>(() => store.MarkJobCompleted(jobId));
-            client.MockSessionHandle.Verify(x => x.AbortTransaction(It.IsAny<CancellationToken>()), Times.Once);
-            client.MockSessionHandle.Verify(x => x.CommitTransaction(It.IsAny<CancellationToken>()), Times.Never);
+            _mockSessionHandle.Verify(x => x.AbortTransaction(It.IsAny<CancellationToken>()), Times.Once);
+            _mockSessionHandle.Verify(x => x.CommitTransaction(It.IsAny<CancellationToken>()), Times.Never);
 
             // Check we handle missing expectedFiles collection
-            client = new TestMongoClient();
+            client = GetTestMongoClient();
             store = new MongoExtractJobStore(client, ExtractionDatabaseName, _dateTimeProvider);
-            client.ExtractionDatabase.InProgressCollection.InsertOne(testJob);
-            client.MockSessionHandle.Reset();
+            _extractionDatabase.InProgressCollection.InsertOne(testJob);
+            _mockSessionHandle.Reset();
             Assert.Throws<ApplicationException>(() => store.MarkJobCompleted(jobId));
-            client.MockSessionHandle.Verify(x => x.AbortTransaction(It.IsAny<CancellationToken>()), Times.Once);
-            client.MockSessionHandle.Verify(x => x.CommitTransaction(It.IsAny<CancellationToken>()), Times.Never);
+            _mockSessionHandle.Verify(x => x.AbortTransaction(It.IsAny<CancellationToken>()), Times.Once);
+            _mockSessionHandle.Verify(x => x.CommitTransaction(It.IsAny<CancellationToken>()), Times.Never);
 
             // Check we handle missing statuses collection
-            client = new TestMongoClient();
+            client = GetTestMongoClient();
             store = new MongoExtractJobStore(client, ExtractionDatabaseName, _dateTimeProvider);
-            client.ExtractionDatabase.InProgressCollection.InsertOne(testJob);
-            client.ExtractionDatabase.ExpectedFilesCollections[$"expectedFiles_{jobId}"] = new MockExtractCollection<Guid, MongoExpectedFilesDoc>();
-            client.ExtractionDatabase.ExpectedFilesCollections[$"expectedFiles_{jobId}"].InsertOne(testMongoExpectedFilesDoc);
-            client.MockSessionHandle.Reset();
+            _extractionDatabase.InProgressCollection.InsertOne(testJob);
+            _extractionDatabase.ExpectedFilesCollections[$"expectedFiles_{jobId}"] = new MockExtractCollection<Guid, MongoExpectedFilesDoc>();
+            _extractionDatabase.ExpectedFilesCollections[$"expectedFiles_{jobId}"].InsertOne(testMongoExpectedFilesDoc);
+            _mockSessionHandle.Reset();
             Assert.Throws<ApplicationException>(() => store.MarkJobCompleted(jobId));
-            client.MockSessionHandle.Verify(x => x.AbortTransaction(It.IsAny<CancellationToken>()), Times.Once);
-            client.MockSessionHandle.Verify(x => x.CommitTransaction(It.IsAny<CancellationToken>()), Times.Never);
+            _mockSessionHandle.Verify(x => x.AbortTransaction(It.IsAny<CancellationToken>()), Times.Once);
+            _mockSessionHandle.Verify(x => x.CommitTransaction(It.IsAny<CancellationToken>()), Times.Never);
 
             // Check happy path
-            client = new TestMongoClient();
+            client = GetTestMongoClient();
             store = new MongoExtractJobStore(client, ExtractionDatabaseName, _dateTimeProvider);
-            client.ExtractionDatabase.InProgressCollection.InsertOne(testJob);
-            client.ExtractionDatabase.ExpectedFilesCollections[$"expectedFiles_{jobId}"] = new MockExtractCollection<Guid, MongoExpectedFilesDoc>();
-            client.ExtractionDatabase.ExpectedFilesCollections[$"expectedFiles_{jobId}"].InsertOne(testMongoExpectedFilesDoc);
-            client.ExtractionDatabase.StatusCollections[$"statuses_{jobId}"] = new MockExtractCollection<Guid, MongoFileStatusDoc>();
-            client.ExtractionDatabase.StatusCollections[$"statuses_{jobId}"].InsertOne(testMongoFileStatusDoc);
-            client.MockSessionHandle.Reset();
+            _extractionDatabase.InProgressCollection.InsertOne(testJob);
+            _extractionDatabase.ExpectedFilesCollections[$"expectedFiles_{jobId}"] = new MockExtractCollection<Guid, MongoExpectedFilesDoc>();
+            _extractionDatabase.ExpectedFilesCollections[$"expectedFiles_{jobId}"].InsertOne(testMongoExpectedFilesDoc);
+            _extractionDatabase.StatusCollections[$"statuses_{jobId}"] = new MockExtractCollection<Guid, MongoFileStatusDoc>();
+            _extractionDatabase.StatusCollections[$"statuses_{jobId}"].InsertOne(testMongoFileStatusDoc);
+            _mockSessionHandle.Reset();
             store.MarkJobCompleted(jobId);
-            client.MockSessionHandle.Verify(x => x.AbortTransaction(It.IsAny<CancellationToken>()), Times.Never);
-            client.MockSessionHandle.Verify(x => x.CommitTransaction(It.IsAny<CancellationToken>()), Times.Once);
+            _mockSessionHandle.Verify(x => x.AbortTransaction(It.IsAny<CancellationToken>()), Times.Never);
+            _mockSessionHandle.Verify(x => x.CommitTransaction(It.IsAny<CancellationToken>()), Times.Once);
             Assert.Multiple(() =>
             {
-                Assert.That(client.ExtractionDatabase.ExpectedFilesCollections, Has.Count.EqualTo(1));
-                Assert.That(client.ExtractionDatabase.StatusCollections, Has.Count.EqualTo(1));
+                Assert.That(_extractionDatabase.ExpectedFilesCollections, Has.Count.EqualTo(1));
+                Assert.That(_extractionDatabase.StatusCollections, Has.Count.EqualTo(1));
             });
         }
 
@@ -753,45 +756,45 @@ namespace SmiServices.UnitTests.Microservices.CohortPackager.Execution.ExtractJo
                 isNoFilterExtraction: true,
                 null);
 
-            var client = new TestMongoClient();
+            var client = GetTestMongoClient();
             var store = new MongoExtractJobStore(client, ExtractionDatabaseName, _dateTimeProvider);
 
             // Assert that an exception is thrown for a non-existent job
             Assert.Throws<ApplicationException>(() => store.MarkJobFailed(Guid.NewGuid(), new Exception()));
-            client.MockSessionHandle.Verify(x => x.AbortTransaction(It.IsAny<CancellationToken>()), Times.Once);
-            client.MockSessionHandle.Verify(x => x.CommitTransaction(It.IsAny<CancellationToken>()), Times.Never);
+            _mockSessionHandle.Verify(x => x.AbortTransaction(It.IsAny<CancellationToken>()), Times.Once);
+            _mockSessionHandle.Verify(x => x.CommitTransaction(It.IsAny<CancellationToken>()), Times.Never);
 
             // Assert that a job can't be failed twice
-            client = new TestMongoClient();
+            client = GetTestMongoClient();
             store = new MongoExtractJobStore(client, ExtractionDatabaseName, _dateTimeProvider);
-            client.ExtractionDatabase.InProgressCollection.InsertOne(testJob);
-            client.MockSessionHandle.Reset();
+            _extractionDatabase.InProgressCollection.InsertOne(testJob);
+            _mockSessionHandle.Reset();
             Assert.Throws<ApplicationException>(() => store.MarkJobFailed(jobId, new Exception()));
-            client.MockSessionHandle.Verify(x => x.AbortTransaction(It.IsAny<CancellationToken>()), Times.Once);
-            client.MockSessionHandle.Verify(x => x.CommitTransaction(It.IsAny<CancellationToken>()), Times.Never);
+            _mockSessionHandle.Verify(x => x.AbortTransaction(It.IsAny<CancellationToken>()), Times.Once);
+            _mockSessionHandle.Verify(x => x.CommitTransaction(It.IsAny<CancellationToken>()), Times.Never);
 
             // Check we handle a bad ReplaceOneResult
-            client = new TestMongoClient();
+            client = GetTestMongoClient();
             store = new MongoExtractJobStore(client, ExtractionDatabaseName, _dateTimeProvider);
             testJob.JobStatus = ExtractJobStatus.WaitingForCollectionInfo;
-            client.ExtractionDatabase.InProgressCollection.InsertOne(testJob);
-            client.ExtractionDatabase.InProgressCollection.RejectChanges = true;
-            client.MockSessionHandle.Reset();
+            _extractionDatabase.InProgressCollection.InsertOne(testJob);
+            _extractionDatabase.InProgressCollection.RejectChanges = true;
+            _mockSessionHandle.Reset();
             Assert.Throws<ApplicationException>(() => store.MarkJobFailed(jobId, new Exception()));
-            client.MockSessionHandle.Verify(x => x.AbortTransaction(It.IsAny<CancellationToken>()), Times.Once);
-            client.MockSessionHandle.Verify(x => x.CommitTransaction(It.IsAny<CancellationToken>()), Times.Never);
+            _mockSessionHandle.Verify(x => x.AbortTransaction(It.IsAny<CancellationToken>()), Times.Once);
+            _mockSessionHandle.Verify(x => x.CommitTransaction(It.IsAny<CancellationToken>()), Times.Never);
 
             // Check happy path
-            client = new TestMongoClient();
+            client = GetTestMongoClient();
             store = new MongoExtractJobStore(client, ExtractionDatabaseName, _dateTimeProvider);
             testJob.JobStatus = ExtractJobStatus.WaitingForCollectionInfo;
             testJob.FailedJobInfoDoc = null;
-            client.ExtractionDatabase.InProgressCollection.InsertOne(testJob);
-            client.MockSessionHandle.Reset();
+            _extractionDatabase.InProgressCollection.InsertOne(testJob);
+            _mockSessionHandle.Reset();
             store.MarkJobFailed(jobId, new Exception("TestMarkJobFailedImpl"));
-            client.MockSessionHandle.Verify(x => x.AbortTransaction(It.IsAny<CancellationToken>()), Times.Never);
-            client.MockSessionHandle.Verify(x => x.CommitTransaction(It.IsAny<CancellationToken>()), Times.Once);
-            Dictionary<Guid, MongoExtractJobDoc> docs = client.ExtractionDatabase.InProgressCollection.Documents;
+            _mockSessionHandle.Verify(x => x.AbortTransaction(It.IsAny<CancellationToken>()), Times.Never);
+            _mockSessionHandle.Verify(x => x.CommitTransaction(It.IsAny<CancellationToken>()), Times.Once);
+            Dictionary<Guid, MongoExtractJobDoc> docs = _extractionDatabase.InProgressCollection.Documents;
             Assert.That(docs, Has.Count.EqualTo(1));
             MongoExtractJobDoc failedDoc = docs[jobId];
             Assert.Multiple(() =>
@@ -807,7 +810,7 @@ namespace SmiServices.UnitTests.Microservices.CohortPackager.Execution.ExtractJo
         {
             // Arrange
 
-            var client = new TestMongoClient();
+            var client = GetTestMongoClient();
             var store = new MongoExtractJobStore(client, ExtractionDatabaseName, _dateTimeProvider);
 
             Guid jobId = Guid.NewGuid();
@@ -836,7 +839,7 @@ namespace SmiServices.UnitTests.Microservices.CohortPackager.Execution.ExtractJo
             // Assert
 
             Assert.That(
-                client.ExtractionDatabase.StatusCollections[$"statuses_{jobId}"].Documents, Has.Count
+                _extractionDatabase.StatusCollections[$"statuses_{jobId}"].Documents, Has.Count
 .EqualTo(nMessages));
         }
 
@@ -845,7 +848,7 @@ namespace SmiServices.UnitTests.Microservices.CohortPackager.Execution.ExtractJo
         {
             // Arrange
 
-            var client = new TestMongoClient();
+            var client = GetTestMongoClient();
             var store = new MongoExtractJobStore(client, ExtractionDatabaseName, _dateTimeProvider);
 
             // Act

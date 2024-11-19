@@ -14,7 +14,7 @@ namespace SmiServices.UnitTests.Microservices.CohortExtractor
         #region Fixture Methods
 
         private ExtractionRequestMessage _requestMessage = null!;
-        private IFileSystem _fileSystem;
+        private IFileSystem _fileSystem = new MockFileSystem();
 
         [OneTimeSetUp]
         public void OneTimeSetUp()
