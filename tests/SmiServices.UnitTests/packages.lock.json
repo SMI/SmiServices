@@ -905,9 +905,7 @@
           "RabbitMQ.Client": "[6.8.1, )",
           "StackExchange.Redis": "[2.8.16, )",
           "System.IO.Abstractions": "[21.1.3, )",
-          "YamlDotNet": "[16.2.0, )",
-          "fo-dicom": "[5.1.4, )",
-          "fo-dicom.Imaging.ImageSharp": "[5.1.4, )"
+          "YamlDotNet": "[16.2.0, )"
         }
       },
       "CommandLineParser": {
@@ -950,11 +948,11 @@
       "fo-dicom.Imaging.ImageSharp": {
         "type": "CentralTransitive",
         "requested": "[5.1.4, )",
-        "resolved": "5.1.4",
-        "contentHash": "FIUwSt2Rac7F09o50WZobzldvgitLx13uXhfbbyDfbdaojrKL0AbBSpMX6HbkNXTose5WuiE1bqCmpKRMn8FAQ==",
+        "resolved": "5.1.3",
+        "contentHash": "nKpcbSfYNN9emzm3Q3NpWGxM5v8Eww3lvM7vWd9a+AmgKy8TtmcbHuZSPYqd6aMnTibEErXhDPkjts+fzbvYMQ==",
         "dependencies": {
-          "SixLabors.ImageSharp": "3.1.5",
-          "fo-dicom": "5.1.4"
+          "SixLabors.ImageSharp": "3.1.4",
+          "fo-dicom": "5.1.3"
         }
       },
       "HIC.DicomTypeTranslation": {

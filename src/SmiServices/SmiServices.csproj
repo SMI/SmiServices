@@ -9,8 +9,6 @@
         <PackageReference Include="CommandLineParser" />
         <PackageReference Include="CsvHelper" />
         <PackageReference Include="Equ" />
-        <PackageReference Include="fo-dicom" />
-        <PackageReference Include="fo-dicom.Imaging.ImageSharp" />
         <PackageReference Include="HIC.DicomTypeTranslation" />
         <PackageReference Include="HIC.FAnsiSql" />
         <PackageReference Include="HIC.RDMP.Dicom" />
