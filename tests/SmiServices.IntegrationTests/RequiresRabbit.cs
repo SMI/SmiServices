@@ -11,7 +11,7 @@ namespace SmiServices.IntegrationTests
 {
     [AttributeUsage(AttributeTargets.Method | AttributeTargets.Class | AttributeTargets.Interface |
                     AttributeTargets.Assembly, AllowMultiple = true)]
-    public class RequiresRabbit : RequiresExternalService
+    public sealed class RequiresRabbit : RequiresExternalService
     {
         public static readonly Lazy<IConnection> Connection = new(GetConnectionFactory);
 
@@ -19,8 +19,7 @@ namespace SmiServices.IntegrationTests
         {
             try
             {
-                using var model = Connection.Value.CreateModel();
-                model.ExchangeDeclare("TEST.ControlExchange", ExchangeType.Topic, durable: true);
+                CheckExchange();
                 return null;
             }
             catch (BrokerUnreachableException e)
@@ -42,6 +41,12 @@ namespace SmiServices.IntegrationTests
             factory.SocketReadTimeout = TimeSpan.FromSeconds(5);
             factory.SocketWriteTimeout = TimeSpan.FromSeconds(5);
             return factory.CreateConnection();
+        }
+
+        public void CheckExchange()
+        {
+            using var model = Connection.Value.CreateModel();
+            model.ExchangeDeclare("TEST.ControlExchange", ExchangeType.Topic, durable: true);
         }
     }
 }
