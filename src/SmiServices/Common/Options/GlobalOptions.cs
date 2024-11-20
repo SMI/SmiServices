@@ -15,6 +15,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using RabbitMQ.Client;
+using YamlDotNet.Serialization;
 using DatabaseType = FAnsi.DatabaseType;
 
 namespace SmiServices.Common.Options
@@ -636,6 +637,7 @@ namespace SmiServices.Common.Options
             _connectionCache = new Lazy<IConnection>(CreateConnection);
         }
 
+        [YamlIgnore]
         public IConnection Connection => _connectionCache.Value;
         public string RabbitMqHostName { get; set; } = "localhost";
         public int RabbitMqHostPort { get; set; } = 5672;
