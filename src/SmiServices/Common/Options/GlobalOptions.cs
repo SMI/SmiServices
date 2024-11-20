@@ -621,14 +621,15 @@ namespace SmiServices.Common.Options
     /// </summary>
     public class RabbitOptions : IOptions
     {
-        private IConnection CreateConnection => new ConnectionFactory
-        {
-            HostName = RabbitMqHostName,
-            Port = RabbitMqHostPort,
-            VirtualHost = RabbitMqVirtualHost,
-            UserName = RabbitMqUserName,
-            Password = RabbitMqPassword
-        }.CreateConnection();
+        private IConnection CreateConnection() =>
+            new ConnectionFactory
+            {
+                HostName = RabbitMqHostName,
+                Port = RabbitMqHostPort,
+                VirtualHost = RabbitMqVirtualHost,
+                UserName = RabbitMqUserName,
+                Password = RabbitMqPassword
+            }.CreateConnection();
 
         private readonly Lazy<IConnection> _connectionCache;
 
