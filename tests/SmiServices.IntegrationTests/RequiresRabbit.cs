@@ -24,9 +24,9 @@ namespace SmiServices.IntegrationTests
 
             try
             {
-                using var conn = factory.CreateConnectionAsync().Result;
-                using var model = conn.CreateChannelAsync().Result;
-                model.ExchangeDeclareAsync("TEST.ControlExchange", ExchangeType.Topic, durable: true).Wait();
+                using var conn = factory.CreateConnection();
+                using var model = conn.CreateModel();
+                model.ExchangeDeclare("TEST.ControlExchange", ExchangeType.Topic, durable: true);
                 return null;
             }
             catch (BrokerUnreachableException e)
