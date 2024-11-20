@@ -1,6 +1,5 @@
 
 using NUnit.Framework;
-using NUnit.Framework.Internal;
 using RabbitMQ.Client;
 using RabbitMQ.Client.Exceptions;
 using System;
@@ -14,9 +13,8 @@ namespace SmiServices.IntegrationTests
                     AttributeTargets.Assembly, AllowMultiple = true)]
     public class RequiresRabbit : RequiresExternalService
     {
-        protected override void ApplyToContextImpl(TestExecutionContext context)
+        protected override string? ApplyToContextImpl()
         {
-
             var factory = GetConnectionFactory();
             factory.ContinuationTimeout = TimeSpan.FromSeconds(5);
             factory.HandshakeContinuationTimeout = TimeSpan.FromSeconds(5);
@@ -26,9 +24,10 @@ namespace SmiServices.IntegrationTests
 
             try
             {
-                using var conn = factory.CreateConnection();
-                using var model = conn.CreateModel();
-                model.ExchangeDeclare("TEST.ControlExchange", ExchangeType.Topic, durable: true);
+                using var conn = factory.CreateConnectionAsync().Result;
+                using var model = conn.CreateChannelAsync().Result;
+                model.ExchangeDeclareAsync("TEST.ControlExchange", ExchangeType.Topic, durable: true).Wait();
+                return null;
             }
             catch (BrokerUnreachableException e)
             {
@@ -40,26 +39,17 @@ namespace SmiServices.IntegrationTests
                 sb.AppendLine($"UserName:    {factory.UserName}");
                 sb.AppendLine($"Port:        {factory.Port}");
 
-                string msg = $"Could not connect to RabbitMQ {Environment.NewLine}{sb}{Environment.NewLine}{e.Message}";
-
-                // NOTE(rkm 2021-01-30) Don't fail for Windows CI builds
-                bool shouldFail = FailIfUnavailable && !Environment.OSVersion.ToString().Contains("windows", StringComparison.CurrentCultureIgnoreCase);
-
-                if (shouldFail)
-                    Assert.Fail(msg);
-                else
-                    Assert.Ignore(msg);
+                return $"Could not connect to RabbitMQ {Environment.NewLine}{sb}{Environment.NewLine}{e.Message}";
             }
         }
 
         public static ConnectionFactory GetConnectionFactory()
         {
-            IDeserializer deserializer = new DeserializerBuilder()
+            var deserializer = new DeserializerBuilder()
                 .IgnoreUnmatchedProperties()
                 .Build();
 
             return deserializer.Deserialize<ConnectionFactory>(new StreamReader(Path.Combine(TestContext.CurrentContext.TestDirectory, "Rabbit.yaml")));
         }
-
     }
 }
