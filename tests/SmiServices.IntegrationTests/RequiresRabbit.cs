@@ -13,43 +13,35 @@ namespace SmiServices.IntegrationTests
                     AttributeTargets.Assembly, AllowMultiple = true)]
     public class RequiresRabbit : RequiresExternalService
     {
+        public static readonly Lazy<IConnection> Connection = new(GetConnectionFactory);
+
         protected override string? ApplyToContextImpl()
         {
-            var factory = GetConnectionFactory();
-            factory.ContinuationTimeout = TimeSpan.FromSeconds(5);
-            factory.HandshakeContinuationTimeout = TimeSpan.FromSeconds(5);
-            factory.RequestedConnectionTimeout = TimeSpan.FromSeconds(5);
-            factory.SocketReadTimeout = TimeSpan.FromSeconds(5);
-            factory.SocketWriteTimeout = TimeSpan.FromSeconds(5);
-
             try
             {
-                using var conn = factory.CreateConnection();
-                using var model = conn.CreateModel();
+                using var model = Connection.Value.CreateModel();
                 model.ExchangeDeclare("TEST.ControlExchange", ExchangeType.Topic, durable: true);
                 return null;
             }
             catch (BrokerUnreachableException e)
             {
-                StringBuilder sb = new();
-
-                sb.AppendLine($"Uri:         {factory.Uri}");
-                sb.AppendLine($"Host:        {factory.HostName}");
-                sb.AppendLine($"VirtualHost: {factory.VirtualHost}");
-                sb.AppendLine($"UserName:    {factory.UserName}");
-                sb.AppendLine($"Port:        {factory.Port}");
-
-                return $"Could not connect to RabbitMQ {Environment.NewLine}{sb}{Environment.NewLine}{e.Message}";
+                return $"Could not connect to RabbitMQ{Environment.NewLine}{e.Message}";
             }
         }
 
-        public static ConnectionFactory GetConnectionFactory()
+        private static IConnection GetConnectionFactory()
         {
             var deserializer = new DeserializerBuilder()
                 .IgnoreUnmatchedProperties()
                 .Build();
-
-            return deserializer.Deserialize<ConnectionFactory>(new StreamReader(Path.Combine(TestContext.CurrentContext.TestDirectory, "Rabbit.yaml")));
+            var factory = deserializer.Deserialize<ConnectionFactory>(
+                new StreamReader(Path.Combine(TestContext.CurrentContext.TestDirectory, "Rabbit.yaml")));
+            factory.ContinuationTimeout = TimeSpan.FromSeconds(5);
+            factory.HandshakeContinuationTimeout = TimeSpan.FromSeconds(5);
+            factory.RequestedConnectionTimeout = TimeSpan.FromSeconds(5);
+            factory.SocketReadTimeout = TimeSpan.FromSeconds(5);
+            factory.SocketWriteTimeout = TimeSpan.FromSeconds(5);
+            return factory.CreateConnection();
         }
     }
 }

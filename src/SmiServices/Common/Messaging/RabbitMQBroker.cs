@@ -73,15 +73,7 @@ namespace SmiServices.Common.Messaging
             if (string.IsNullOrWhiteSpace(hostId))
                 throw new ArgumentException("RabbitMQ host ID required", nameof(hostId));
 
-            var connectionFactory = new ConnectionFactory()
-            {
-                HostName = rabbitOptions.RabbitMqHostName,
-                VirtualHost = rabbitOptions.RabbitMqVirtualHost,
-                Port = rabbitOptions.RabbitMqHostPort,
-                UserName = rabbitOptions.RabbitMqUserName,
-                Password = rabbitOptions.RabbitMqPassword
-            };
-            _connection = connectionFactory.CreateConnection(hostId);
+            _connection = rabbitOptions.Connection;
             _connection.ConnectionBlocked += (s, a) => _logger.Warn($"ConnectionBlocked (Reason: {a.Reason})");
             _connection.ConnectionUnblocked += (s, a) => _logger.Warn("ConnectionUnblocked");
 
