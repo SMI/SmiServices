@@ -17,17 +17,20 @@ def main(argv: Optional[Sequence[str]] = None) -> int:
 
     parser = argparse.ArgumentParser()
     DC.add_args(parser)
+    # "clean" needs an argument due to
+    # https://github.com/dotnet/sdk/issues/27488
     parser.add_argument(
         "--clean",
-        action="store_true",
-        help="Cleanup any existing files",
+        metavar="RID",
+        help="Cleanup any existing files. You must specify the RID",
     )
     args = parser.parse_args(argv)
 
-    if args.clean:
+    if args.clean is not None:
         cmd = (
             "dotnet",
             "clean",
+            "--runtime", args.clean,
             "--verbosity", "quiet",
             "--nologo",
         )
