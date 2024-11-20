@@ -27,6 +27,7 @@ namespace SmiServices.Common.Messaging
 
         private readonly string _processName;
         private readonly string _processId;
+        private readonly IConnection _connection;
 
         private const string ControlQueueBindingKey = "smi.control.all.*";
 
@@ -42,12 +43,13 @@ namespace SmiServices.Common.Messaging
             ArgumentNullException.ThrowIfNull(controlExchangeName);
             ArgumentNullException.ThrowIfNull(stopEvent);
 
+            _connection = rabbitOptions.Connection;
             _processName = processName.ToLower();
             _processId = processId.ToString();
 
             ControlConsumerOptions.QueueName = $"Control.{_processName}{_processId}";
 
-            SetupControlQueueForHost(rabbitOptions.Connection, controlExchangeName);
+            SetupControlQueueForHost(controlExchangeName);
 
             StopHost += () => stopEvent("Control message stop");
         }
@@ -140,8 +142,7 @@ namespace SmiServices.Common.Messaging
         /// </summary>
         public override void Shutdown()
         {
-            using IConnection connection = _factory.CreateConnection(_processName + _processId + "-ControlQueueShutdown");
-            using IModel model = connection.CreateModel();
+            using var model = _connection.CreateModel();
             Logger.Debug($"Deleting control queue: {ControlConsumerOptions.QueueName}");
             model.QueueDelete(ControlConsumerOptions.QueueName);
         }
@@ -156,11 +157,10 @@ namespace SmiServices.Common.Messaging
         /// Creates a one-time connection to set up the required control queue and bindings on the RabbitMQ server.
         /// The connection is disposed and StartConsumer(...) can then be called on the parent MessageBroker with ControlConsumerOptions
         /// </summary>
-        /// <param name="connection"></param>
         /// <param name="controlExchangeName"></param>
-        private void SetupControlQueueForHost(IConnection connection, string controlExchangeName)
+        private void SetupControlQueueForHost(string controlExchangeName)
         {
-            using var model = connection.CreateModel();
+            using var model = _connection.CreateModel();
             try
             {
                 model.ExchangeDeclarePassive(controlExchangeName);
