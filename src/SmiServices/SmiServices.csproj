@@ -25,6 +25,7 @@
         <PackageReference Include="RabbitMQ.Client" />
         <PackageReference Include="StackExchange.Redis" />
         <PackageReference Include="System.IO.Abstractions" />
+        <PackageReference Include="System.Private.Uri" />
         <PackageReference Include="YamlDotNet" />
     </ItemGroup>
     <ItemGroup>
