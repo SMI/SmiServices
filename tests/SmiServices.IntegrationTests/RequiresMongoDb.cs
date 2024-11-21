@@ -2,7 +2,6 @@
 using MongoDB.Bson;
 using MongoDB.Driver;
 using NUnit.Framework;
-using NUnit.Framework.Internal;
 using System;
 using System.IO;
 using YamlDotNet.Serialization;
@@ -12,9 +11,9 @@ namespace SmiServices.IntegrationTests
     [AttributeUsage(AttributeTargets.Method | AttributeTargets.Class | AttributeTargets.Interface | AttributeTargets.Assembly, AllowMultiple = true)]
     public class RequiresMongoDb : RequiresExternalService
     {
-        protected override void ApplyToContextImpl(TestExecutionContext context)
+        protected override string? ApplyToContextImpl()
         {
-            MongoClientSettings address = GetMongoClientSettings();
+            var address = GetMongoClientSettings();
 
             Console.WriteLine("Checking the following configuration:" + Environment.NewLine + address);
 
@@ -26,23 +25,18 @@ namespace SmiServices.IntegrationTests
             }
             catch (Exception e)
             {
-                string msg =
+                return
                     e is MongoNotPrimaryException
-                    ? "Connected to non-primary MongoDB server. Check replication is enabled"
-                    : $"Could not connect to MongoDB at {address}";
-
-                msg += $": {e}";
-
-                if (FailIfUnavailable)
-                    Assert.Fail(msg);
-                else
-                    Assert.Ignore(msg);
+                        ? "Connected to non-primary MongoDB server. Check replication is enabled"
+                        : $"Could not connect to MongoDB at {address}: {e}";
             }
+
+            return null;
         }
 
         public static MongoClientSettings GetMongoClientSettings()
         {
-            IDeserializer deserializer = new DeserializerBuilder()
+            var deserializer = new DeserializerBuilder()
                 .IgnoreUnmatchedProperties()
                 .Build();
 

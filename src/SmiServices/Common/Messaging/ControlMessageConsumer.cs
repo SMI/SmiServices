@@ -27,8 +27,7 @@ namespace SmiServices.Common.Messaging
 
         private readonly string _processName;
         private readonly string _processId;
-
-        private readonly IConnectionFactory _factory;
+        private readonly IConnection _connection;
 
         private const string ControlQueueBindingKey = "smi.control.all.*";
 
@@ -41,24 +40,17 @@ namespace SmiServices.Common.Messaging
             Action<string> stopEvent)
         {
             ArgumentNullException.ThrowIfNull(processName);
+            ArgumentNullException.ThrowIfNull(controlExchangeName);
+            ArgumentNullException.ThrowIfNull(stopEvent);
+
+            _connection = rabbitOptions.Connection;
             _processName = processName.ToLower();
             _processId = processId.ToString();
 
             ControlConsumerOptions.QueueName = $"Control.{_processName}{_processId}";
 
-            _factory = new ConnectionFactory()
-            {
-                HostName = rabbitOptions.RabbitMqHostName,
-                VirtualHost = rabbitOptions.RabbitMqVirtualHost,
-                Port = rabbitOptions.RabbitMqHostPort,
-                UserName = rabbitOptions.RabbitMqUserName,
-                Password = rabbitOptions.RabbitMqPassword
-            };
-
-            ArgumentNullException.ThrowIfNull(controlExchangeName);
             SetupControlQueueForHost(controlExchangeName);
 
-            ArgumentNullException.ThrowIfNull(stopEvent);
             StopHost += () => stopEvent("Control message stop");
         }
 
@@ -150,8 +142,7 @@ namespace SmiServices.Common.Messaging
         /// </summary>
         public override void Shutdown()
         {
-            using IConnection connection = _factory.CreateConnection(_processName + _processId + "-ControlQueueShutdown");
-            using IModel model = connection.CreateModel();
+            using var model = _connection.CreateModel();
             Logger.Debug($"Deleting control queue: {ControlConsumerOptions.QueueName}");
             model.QueueDelete(ControlConsumerOptions.QueueName);
         }
@@ -169,8 +160,7 @@ namespace SmiServices.Common.Messaging
         /// <param name="controlExchangeName"></param>
         private void SetupControlQueueForHost(string controlExchangeName)
         {
-            using IConnection connection = _factory.CreateConnection($"{_processName}{_processId}-ControlQueueSetup");
-            using IModel model = connection.CreateModel();
+            using var model = _connection.CreateModel();
             try
             {
                 model.ExchangeDeclarePassive(controlExchangeName);

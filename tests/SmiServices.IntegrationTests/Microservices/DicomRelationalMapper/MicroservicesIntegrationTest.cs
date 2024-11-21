@@ -60,7 +60,7 @@ namespace SmiServices.IntegrationTests.Microservices.DicomRelationalMapper
             _globals = new GlobalOptionsFactory().Load(nameof(MicroservicesIntegrationTest));
 
             _globals.UseTestValues(
-                RequiresRabbit.GetConnectionFactory(),
+                RequiresRabbit.Connection.Value,
                 RequiresMongoDb.GetMongoClientSettings(),
                 RequiresRelationalDb.GetRelationalDatabaseConnectionStrings(),
                 ((TableRepository)RepositoryLocator.CatalogueRepository).ConnectionStringBuilder,

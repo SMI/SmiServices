@@ -20,7 +20,7 @@ namespace SmiServices.IntegrationTests.Common
         /// <param name="dataExportConnectionStringBuilder">Connection string to RDMP data export database e.g. TEST_DataExport</param>
         public static void UseTestValues(
             this GlobalOptions g,
-            ConnectionFactory? rabbit,
+            IConnection? rabbit,
             MongoClientSettings? mongo,
             RequiresRelationalDb.ConStrs? relational,
             DbConnectionStringBuilder? catalogueConnectionString,
@@ -28,11 +28,8 @@ namespace SmiServices.IntegrationTests.Common
         )
         {
             //Rabbit
-            g.RabbitOptions!.RabbitMqHostName = rabbit?.HostName!;
-            g.RabbitOptions.RabbitMqHostPort = rabbit?.Port ?? -1;
-            g.RabbitOptions.RabbitMqVirtualHost = rabbit?.VirtualHost;
-            g.RabbitOptions.RabbitMqUserName = rabbit?.UserName;
-            g.RabbitOptions.RabbitMqPassword = rabbit?.Password;
+            g.RabbitOptions!.RabbitMqHostName = rabbit?.Endpoint.HostName!;
+            g.RabbitOptions.RabbitMqHostPort = rabbit?.Endpoint.Port ?? -1;
 
             //RDMP
             g.RDMPOptions!.CatalogueConnectionString = catalogueConnectionString?.ConnectionString;

@@ -47,7 +47,6 @@ public class DicomLoaderTests : DatabaseTests
     }
 
     [Test]
-    [RequiresExternalService]
     public void BatchLoadTest()
     {
         DicomDataset[] testImages;

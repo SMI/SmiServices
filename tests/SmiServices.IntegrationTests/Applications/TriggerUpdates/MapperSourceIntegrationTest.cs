@@ -126,7 +126,7 @@ namespace SmiServices.IntegrationTests.Applications.TriggerUpdates
             };
 
             globals.UseTestValues(
-                RequiresRabbit.GetConnectionFactory(),
+                RequiresRabbit.Connection.Value,
                 RequiresMongoDb.GetMongoClientSettings(),
                 RequiresRelationalDb.GetRelationalDatabaseConnectionStrings(),
                 ((TableRepository)RepositoryLocator.CatalogueRepository).ConnectionStringBuilder,
