@@ -70,7 +70,7 @@ repos:
               .github/ISSUE_TEMPLATE/.*md|
           )$
   - repo: https://github.com/tcort/markdown-link-check
-    rev: "v3.13.6"
+    rev: "v3.12.2"
     hooks:
       - id: markdown-link-check
         args: [--quiet, --config, .meta/markdown-link-check.json]
