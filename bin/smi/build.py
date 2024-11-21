@@ -28,6 +28,7 @@ def main(argv: Optional[Sequence[str]] = None) -> int:
         cmd = (
             "dotnet",
             "clean",
+            "-p:UseCurrentRuntimeIdentifier=True",
             "--verbosity", "quiet",
             "--nologo",
         )
