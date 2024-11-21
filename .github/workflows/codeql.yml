@@ -32,6 +32,10 @@ jobs:
       - name: Build Python
         if: ${{ matrix.language == 'python' }}
         uses: github/codeql-action/autobuild@v3
+      - name: setup .NET
+        if: ${{ matrix.language == 'csharp' }}
+        # NOTE(rkm 2022-02-20) Uses global.json
+        uses: actions/setup-dotnet@v4.1.0
       - name: Build .Net
         if: ${{ matrix.language == 'csharp' }}
         run: ./bin/smi/build.py -c Release
