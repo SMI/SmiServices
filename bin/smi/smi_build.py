@@ -1,22 +1,19 @@
 #!/usr/bin/env python3
-
 import argparse
 import os
-import platform
 import sys
-from typing import Optional
-from typing import Sequence
+from collections.abc import Sequence
 
-sys.path.append(os.path.join(os.path.dirname(__file__), '..'))
-import common as C
+import dotnet_common as dc
 
-import dotnetCommon as DC
+sys.path.append(os.path.join(os.path.dirname(__file__), ".."))
+import common as c  # noqa: E402
 
 
-def main(argv: Optional[Sequence[str]] = None) -> int:
+def main(argv: Sequence[str] | None = None) -> int:
 
     parser = argparse.ArgumentParser()
-    DC.add_args(parser)
+    dc.add_args(parser)
     parser.add_argument(
         "--clean",
         action="store_true",
@@ -24,19 +21,22 @@ def main(argv: Optional[Sequence[str]] = None) -> int:
     )
     args = parser.parse_args(argv)
 
+    cmd: tuple[str, ...]
+
     if args.clean:
         cmd = (
             "dotnet",
             "clean",
             "-p:UseCurrentRuntimeIdentifier=True",
-            "--verbosity", "quiet",
+            "--verbosity",
+            "quiet",
             "--nologo",
         )
-        C.run(cmd)
+        c.run(cmd)
 
     # NOTE This isn't necessarily needed, but the lockfile processing isn't
     # otherwise transparent in the build output
-    if C.is_ci():
+    if c.is_ci():
         cmd = (
             "dotnet",
             "restore",
@@ -46,19 +46,21 @@ def main(argv: Optional[Sequence[str]] = None) -> int:
             "--locked-mode",
             "--force",
         )
-        C.run(cmd)
+        c.run(cmd)
 
     cmd = (
         "dotnet",
         "build",
         "-warnaserror",
         "--use-current-runtime",
-        "--configuration", args.configuration,
-        "--no-restore" if C.is_ci() else "",
-        "--verbosity", "quiet",
+        "--configuration",
+        args.configuration,
+        "--no-restore" if c.is_ci() else "",
+        "--verbosity",
+        "quiet",
         "--nologo",
     )
-    C.run(cmd)
+    c.run(cmd)
 
     return 0
 

@@ -65,10 +65,10 @@ jobs:
         # NOTE(rkm 2022-02-20) Uses global.json
         uses: actions/setup-dotnet@v4.1.0
       - name: download tessdata
-        run: ./bin/smi/downloadTessdata.py
+        run: ./bin/smi/download_tessdata.py
       - name: "[linux] start services"
         if: ${{ matrix.os == 'linux' }}
-        run: ./bin/smi/startDockerLinux.py ${{ env.db-password }}
+        run: ./bin/smi/smi_start_docker_linux.py ${{ env.db-password }}
       - name: "[linux] re-write database strings"
         if: ${{ matrix.os == 'linux' }}
         run: |
@@ -96,7 +96,7 @@ jobs:
           set -euxo pipefail
           cov=""
           [ "${{ matrix.os }}" == "windows" ] && cov="--no-coverage"
-          ./bin/smi/buildTestPackage.py \
+          ./bin/smi/smi_build_test_package.py \
               ${{ needs.init.outputs.build_ref }} \
               "$cov"
       - name: upload coverage to codecov
@@ -139,12 +139,12 @@ jobs:
           cache: maven
       - name: "[linux] start services"
         if: ${{ matrix.os == 'linux' }}
-        run: ./bin/ctp/startDockerLinux.py
+        run: ./bin/ctp/ctp_start_docker_linux.py
       - name: "[windows] skip integration tests"
         if: ${{ matrix.os == 'windows' }}
         run: echo "JAVA_TESTS=--skip-integration-tests" >> $GITHUB_ENV
       - name: build, test, and package ctp
-        run: ./bin/ctp/buildTestPackage.py --install-libs ${{ needs.init.outputs.build_ref }} ${{ env.JAVA_TESTS }}
+        run: ./bin/ctp/ctp_build_test_package.py --install-libs ${{ needs.init.outputs.build_ref }} ${{ env.JAVA_TESTS }}
       - name: "[linux] upload packages"
         if: ${{ matrix.os == 'linux' }}
         uses: actions/upload-artifact@v4

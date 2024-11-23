@@ -1,12 +1,10 @@
 #!/usr/bin/env python3
-
 import argparse
 import re
-from typing import Optional
-from typing import Sequence
+from collections.abc import Sequence
 
 
-def main(argv: Optional[Sequence[str]] = None) -> int:
+def main(argv: Sequence[str] | None = None) -> int:
 
     parser = argparse.ArgumentParser()
     parser.add_argument("tag", help="The git tag for the release")
@@ -36,7 +34,8 @@ def main(argv: Optional[Sequence[str]] = None) -> int:
         f.write(content)
 
     print(f"Wrote {output_file}")
+    return 0
 
 
 if __name__ == "__main__":
-    exit(main())
+    raise SystemExit(main())

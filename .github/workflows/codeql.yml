@@ -38,11 +38,11 @@ jobs:
         uses: actions/setup-dotnet@v4.1.0
       - name: Build .Net
         if: ${{ matrix.language == 'csharp' }}
-        run: ./bin/smi/build.py -c Release
+        run: ./bin/smi/smi_build.py -c Release
       - name: Build java
         if: ${{ matrix.language == 'java' }}
         # NOTE(rkm 2023-03-21) Ensure test code is detected but don't actually run anything
-        run: ./bin/ctp/test.py --install-libs -DskipTests
+        run: ./bin/ctp/ctp_test.py --install-libs -DskipTests
       - name: SecurityCodescan
         if: ${{ matrix.language == 'csharp' }}
         run: |
