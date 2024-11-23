@@ -1,17 +1,14 @@
 #!/usr/bin/env python3
-
 import os
 import sys
-from pathlib import Path
 
-sys.path.append(os.path.join(os.path.dirname(__file__), '..'))
-import common as C
+import java_common
 
-import javaCommon as JC
+sys.path.append(os.path.join(os.path.dirname(__file__), ".."))
+import common as c  # noqa: E402
 
-
-_CTP_LIB_DIR = Path(f"{C.PROJ_ROOT}/lib/ctp")
-assert _CTP_LIB_DIR.is_dir()
+_CTP_LIB_DIR = f"{c.PROJ_ROOT}/lib/ctp"
+assert os.path.isdir(_CTP_LIB_DIR), "Could not find CTP libs dir"
 
 _CTP_JARS = [
     "CTP",
@@ -31,9 +28,10 @@ _DAT_JARS = [
 def main() -> int:
 
     base_cmd = (
-        JC.mvn_exe(),
-        "--quiet", "--no-transfer-progress",
-        "install:install-file"
+        java_common.mvn_exe(),
+        "--quiet",
+        "--no-transfer-progress",
+        "install:install-file",
     )
 
     base_jar_cmd = (
@@ -43,7 +41,7 @@ def main() -> int:
         "-DgeneratePom=true",
     )
     for j in _CTP_JARS:
-        C.run(
+        c.run(
             (
                 *base_jar_cmd,
                 f"-DartifactId={j}",
@@ -53,7 +51,7 @@ def main() -> int:
             cwd=_CTP_LIB_DIR,
         )
     for j in _DAT_JARS:
-        C.run(
+        c.run(
             (
                 *base_jar_cmd,
                 f"-DartifactId={j}",
@@ -63,7 +61,7 @@ def main() -> int:
             cwd=_CTP_LIB_DIR,
         )
 
-    C.run(
+    c.run(
         (
             *base_cmd,
             "-Dfile=DAT.jar",

@@ -1,5 +1,4 @@
 #!/usr/bin/env python3
-
 import argparse
 import os
 import shutil
@@ -8,17 +7,15 @@ import sys
 import tempfile
 import urllib.request
 import zipfile
-from pathlib import Path
-from typing import Sequence
-from typing import Optional
+from collections.abc import Sequence
 
-sys.path.append(os.path.join(os.path.dirname(__file__), '..'))
-import common as C
+sys.path.append(os.path.join(os.path.dirname(__file__), ".."))
+import common  # noqa: E402
 
-_RDMP_CLI_DIR = (C.PROJ_ROOT / "rdmp-cli").resolve()
+_RDMP_CLI_DIR = f"{common.PROJ_ROOT}/rdmp-cli"
 
 
-def main(argv: Optional[Sequence[str]] = None) -> int:
+def main(argv: Sequence[str] | None = None) -> int:
 
     parser = argparse.ArgumentParser()
     parser.add_argument(
@@ -27,16 +24,16 @@ def main(argv: Optional[Sequence[str]] = None) -> int:
     parser.add_argument(
         "--clean",
         action="store_true",
-        help="Delete the file and re-download if it already exists"
+        help="Delete the file and re-download if it already exists",
     )
     args = parser.parse_args(argv)
 
     if args.clean:
         shutil.rmtree(_RDMP_CLI_DIR)
-    elif _RDMP_CLI_DIR.is_dir():
+    elif os.path.isdir(_RDMP_CLI_DIR):
         print(f"Error: {_RDMP_CLI_DIR} exists")
         return 1
-    _RDMP_CLI_DIR.mkdir()
+    os.mkdir(_RDMP_CLI_DIR)
 
     platform = "linux" if os.name == "posix" else "win"
     url = (
@@ -45,13 +42,13 @@ def main(argv: Optional[Sequence[str]] = None) -> int:
     )
     print(f"Downloading {url}")
     with tempfile.TemporaryDirectory() as tmpdir:
-        _file = Path(tmpdir) / f"rdmp-cli-{args.version}-x64.zip"
+        _file = f"{tmpdir}/rdmp-cli-{args.version}-x64.zip"
         urllib.request.urlretrieve(url, _file)
 
         with zipfile.ZipFile(_file) as zf:
             zf.extractall(path=_RDMP_CLI_DIR)
 
-    rdmp = _RDMP_CLI_DIR / ("rdmp.exe" if os.name == "nt" else "rdmp")
+    rdmp = f"{_RDMP_CLI_DIR}/{'rdmp.exe' if os.name == 'nt' else 'rdmp'}"
     st = os.stat(rdmp)
     os.chmod(rdmp, st.st_mode | stat.S_IXUSR | stat.S_IXGRP)
 

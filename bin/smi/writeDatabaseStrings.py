@@ -1,17 +1,20 @@
 #!/usr/bin/env python3
-
 import argparse
 import os
 import sys
 
-sys.path.append(os.path.join(os.path.dirname(__file__), '..'))
-import common as C
+sys.path.append(os.path.join(os.path.dirname(__file__), ".."))
+import common  # noqa: E402
 
-_RELATIONAL_YAML = (C.PROJ_ROOT / "tests/SmiServices.UnitTests/RelationalDatabases.yaml").resolve()
-assert _RELATIONAL_YAML.is_file()
+_RELATIONAL_YAML = (
+    f"{common.PROJ_ROOT}/tests/SmiServices.UnitTests/RelationalDatabases.yaml"
+)
+assert os.path.isfile(_RELATIONAL_YAML), f"YAML file does not exist: {_RELATIONAL_YAML}"
 
-_TEST_DBS_TXT = (C.PROJ_ROOT / "tests/SmiServices.UnitTests/TestDatabases.txt").resolve()
-assert _TEST_DBS_TXT.is_file()
+_TEST_DBS_TXT = f"{common.PROJ_ROOT}/tests/SmiServices.UnitTests/TestDatabases.txt"
+assert os.path.isfile(
+    _TEST_DBS_TXT,
+), f"Test databases file does not exist: {_TEST_DBS_TXT}"
 
 
 def main() -> int:
@@ -31,11 +34,16 @@ def main() -> int:
         if "localdb" in args.mssql_server:
             f.write(f"SqlServer: 'Server={args.mssql_server};'\n")
         else:
-            f.write(f"SqlServer: 'Server={args.mssql_server};User Id=sa;Password={args.db_password};TrustServerCertificate=true;'\n")
+            f.write(
+                f"SqlServer: 'Server={args.mssql_server};User Id=sa;"
+                f"Password={args.db_password};TrustServerCertificate=true;'\n",
+            )
 
         # NOTE(rkm 2022-02-27) We don't run MySQL in Windows in GitHub actions
-        if not (os.name == "nt" and C.is_ci()):
-            f.write(f"MySql: 'server=127.0.0.1;Uid=root;Pwd={args.db_password};sslmode=None'\n")
+        if not (os.name == "nt" and common.is_ci()):
+            f.write(
+                f"MySql: 'server=127.0.0.1;Uid=root;Pwd={args.db_password};sslmode=None'\n",
+            )
 
     with open(_RELATIONAL_YAML) as f:
         print(f"{_RELATIONAL_YAML}:")
@@ -46,8 +54,10 @@ def main() -> int:
         f.write("Prefix: TEST_\n")
         f.write("Username: sa\n")
         f.write(f"Password: {args.db_password}\n")
-        if not (os.name == "nt" and C.is_ci()):
-            f.write(f"MySql: server=127.0.0.1;Uid=root;Pwd={args.db_password};sslmode=None\n")
+        if not (os.name == "nt" and common.is_ci()):
+            f.write(
+                f"MySql: server=127.0.0.1;Uid=root;Pwd={args.db_password};sslmode=None\n",
+            )
 
     with open(_TEST_DBS_TXT) as f:
         print(f"{_TEST_DBS_TXT}:")

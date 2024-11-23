@@ -1,15 +1,11 @@
 #!/usr/bin/env python3
-
 import collections
-import glob
 import os
 import re
-import sys
 
-import common as C
+import common as c
 
-
-_VERB_CS_PATH = f"{C.PROJ_ROOT}/src/SmiServices/ServiceVerbs.cs"
+_VERB_CS_PATH = f"{c.PROJ_ROOT}/src/SmiServices/ServiceVerbs.cs"
 _VERB_RE = re.compile(r'\[Verb\(("\S*?")')
 
 
@@ -63,7 +59,7 @@ def main() -> int:
 
     for tool_type in ("application", "service"):
         for tool in tools[tool_type]:
-            doc_path = f"{C.PROJ_ROOT}/docs/{tool_type}s/{tool}.md"
+            doc_path = f"{c.PROJ_ROOT}/docs/{tool_type}s/{tool}.md"
             if not os.path.isfile(doc_path):
                 print(f"Missing {doc_path}")
                 rc |= 1

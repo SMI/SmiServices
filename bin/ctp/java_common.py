@@ -10,8 +10,9 @@ def add_common_args(
     parser.add_argument(
         "--install-libs",
         action="store_true",
-        help="Install the CTP libraries if specified"
+        help="Install the CTP libraries if specified",
     )
 
+
 def mvn_exe() -> str:
-    return  "mvn" if os.name == "posix" else "mvn.cmd"
+    return "mvn" if os.name == "posix" else "mvn.cmd"

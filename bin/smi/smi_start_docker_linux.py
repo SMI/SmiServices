@@ -1,21 +1,22 @@
 #!/usr/bin/env python3
-
 import os
 import platform
 import sys
 
-sys.path.append(os.path.join(os.path.dirname(__file__), '..'))
-import common as C
+sys.path.append(os.path.join(os.path.dirname(__file__), ".."))
+import common  # noqa: E402
 
 _PLAT = "-arm" if platform.processor() == "arm" else ""
 _COMPOSE_FILE_NAME = f"linux-dotnet{_PLAT}.yml"
-_COMPOSE_FILE_PATH = (C.PROJ_ROOT / "utils/docker-compose" / _COMPOSE_FILE_NAME).resolve()
-assert _COMPOSE_FILE_PATH.is_file()
+_COMPOSE_FILE_PATH = f"{common.PROJ_ROOT}/utils/docker-compose/{_COMPOSE_FILE_NAME}"
+assert os.path.isfile(
+    _COMPOSE_FILE_PATH,
+), f"Compose file does not exist: {_COMPOSE_FILE_PATH}"
 
 
 def main() -> int:
 
-    parser = C.get_docker_parser()
+    parser = common.get_docker_parser()
     parser.add_argument(
         "db_password",
     )
@@ -23,7 +24,7 @@ def main() -> int:
 
     docker = "podman" if args.podman else "docker"
 
-    C.start_containers(
+    common.start_containers(
         _COMPOSE_FILE_PATH,
         docker=docker,
         env={
@@ -40,11 +41,14 @@ def main() -> int:
 
     # Start MongoDB replication
     cmd = (
-        docker, "exec",
+        docker,
+        "exec",
         "mongodb",
-        "/usr/bin/mongo", "--eval", 'rs.initiate({_id:"rs0",members:[{_id:0,host:"localhost:27017"}]})',
+        "/usr/bin/mongo",
+        "--eval",
+        'rs.initiate({_id:"rs0",members:[{_id:0,host:"localhost:27017"}]})',
     )
-    C.run(cmd)
+    common.run(cmd)
 
     return 0
 
