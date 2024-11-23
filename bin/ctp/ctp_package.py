@@ -42,19 +42,18 @@ def main(argv: Sequence[str] | None = None) -> int:
     )
     common.run(cmd)
 
-    zips = {
+    zips = tuple(
         x
         for x in glob.glob(
             f"{common.PROJ_ROOT}/src/**/*deploy-distribution.zip",
             recursive=True,
         )
-    }
+    )
     assert 1 == len(zips), "Expected 1 zip file (CTP)"
-    for zip_path in zips:
-        shutil.copyfile(
-            zip_path,
-            f"{dist_tag_dir}/{zip_path.split('-')[0]}-{args.tag}.zip",
-        )
+    shutil.copyfile(
+        zips[0],
+        f"{dist_tag_dir}/{os.path.basename(zips[0]).split('-')[0]}-{args.tag}.zip",
+    )
 
     common.create_checksums(dist_tag_dir, "ctp")
 
