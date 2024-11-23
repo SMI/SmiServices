@@ -164,7 +164,7 @@ jobs:
   upload-to-release:
     if: contains(github.ref, 'refs/tags/v')
     needs: [init, smi, ctp]
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-24.04
     steps:
       - name: "[linux] enable disk caching"
         run: sudo apt-get install -y libeatmydata1
