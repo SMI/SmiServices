@@ -31,6 +31,9 @@ jobs:
       matrix: ${{ steps.matrix.outputs.matrix }}
       build_ref: ${{ steps.build_ref.outputs.build_ref }}
     steps:
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ env.python-version }}
       - name: checkout
         uses: actions/checkout@v4
       - name: set matrix
@@ -59,6 +62,9 @@ jobs:
       - name: "[linux] enable disk caching"
         if: ${{ matrix.os == 'linux' }}
         run: sudo apt-get install -y libeatmydata1
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ env.python-version }}
       - name: checkout
         uses: actions/checkout@v4
       - name: setup .NET

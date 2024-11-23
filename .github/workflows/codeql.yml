@@ -10,6 +10,9 @@ on:
   schedule:
     - cron: "0 5 * * *"
 
+env:
+  python-version: 3.10
+
 jobs:
   analyze:
     name: Analyze
@@ -23,6 +26,9 @@ jobs:
       matrix:
         language: ["csharp", "java", "python"]
     steps:
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ env.python-version }}
       - name: Checkout repository
         uses: actions/checkout@v4
       - name: Initialize CodeQL
