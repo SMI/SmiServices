@@ -17,7 +17,6 @@ internal class ExtractionRequestInfoMessageConsumerTests
     [OneTimeSetUp]
     public void OneTimeSetUp()
     {
-        TestLogger.Setup();
     }
 
     [OneTimeTearDown]

@@ -20,7 +20,6 @@ public class ProgramTests
     public void OneTimeSetUp()
     {
         SmiCliInit.InitSmiLogging = false;
-        TestLogger.Setup();
     }
 
     [OneTimeTearDown]

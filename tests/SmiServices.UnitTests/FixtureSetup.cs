@@ -9,6 +9,8 @@ internal class FixtureSetup
     [OneTimeSetUp]
     public void OneTimeSetUp()
     {
+        LoggerFixture.Setup();
+
         MessageHeader.CurrentProgramName = nameof(UnitTests);
     }
 }

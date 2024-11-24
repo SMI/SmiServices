@@ -2,9 +2,9 @@ using NLog;
 using NLog.Config;
 using NLog.Targets;
 
-namespace SmiServices.UnitTests.Common
+namespace SmiServices.UnitTests
 {
-    public static class TestLogger
+    public static class LoggerFixture
     {
         private const string TestLoggerName = "TestLogger";
 

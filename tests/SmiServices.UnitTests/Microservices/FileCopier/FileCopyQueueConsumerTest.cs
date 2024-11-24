@@ -22,7 +22,6 @@ namespace SmiServices.UnitTests.Microservices.FileCopier
         [OneTimeSetUp]
         public void OneTimeSetUp()
         {
-            TestLogger.Setup();
         }
 
         [OneTimeTearDown]

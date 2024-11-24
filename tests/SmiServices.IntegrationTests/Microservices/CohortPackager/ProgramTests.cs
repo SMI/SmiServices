@@ -25,7 +25,6 @@ internal class ProgramTests
     [OneTimeSetUp]
     public void OneTimeSetUp()
     {
-        TestLogger.Setup();
     }
 
     [OneTimeTearDown]

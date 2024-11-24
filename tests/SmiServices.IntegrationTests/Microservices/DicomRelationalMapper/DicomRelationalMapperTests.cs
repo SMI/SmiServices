@@ -37,7 +37,6 @@ namespace SmiServices.IntegrationTests.Microservices.DicomRelationalMapper
             _helper = new DicomRelationalMapperTestHelper();
             _helper.SetupSuite(db, RepositoryLocator, _globals, typeof(DicomDatasetCollectionSource));
 
-            TestLogger.Setup();
         }
 
         [Test]

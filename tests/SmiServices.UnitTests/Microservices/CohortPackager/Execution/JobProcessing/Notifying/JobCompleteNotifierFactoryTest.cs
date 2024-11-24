@@ -13,7 +13,6 @@ namespace SmiServices.UnitTests.Microservices.CohortPackager.Execution.JobProces
         [OneTimeSetUp]
         public void OneTimeSetUp()
         {
-            TestLogger.Setup();
         }
 
         [OneTimeTearDown]

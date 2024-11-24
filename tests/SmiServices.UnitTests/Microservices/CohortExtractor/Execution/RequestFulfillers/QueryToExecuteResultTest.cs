@@ -13,7 +13,6 @@ namespace SmiServices.UnitTests.Microservices.CohortExtractor.Execution.RequestF
         [OneTimeSetUp]
         public void OneTimeSetUp()
         {
-            TestLogger.Setup();
         }
 
         [OneTimeTearDown]
