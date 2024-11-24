@@ -17,7 +17,6 @@ internal class AnonFailedMessageConsumerTests
     [OneTimeSetUp]
     public void OneTimeSetUp()
     {
-        TestLogger.Setup();
     }
 
     [OneTimeTearDown]

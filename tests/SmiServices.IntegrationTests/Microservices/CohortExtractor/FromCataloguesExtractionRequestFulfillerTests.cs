@@ -30,7 +30,6 @@ namespace SmiServices.IntegrationTests.Microservices.CohortExtractor
         {
             base.SetUp();
 
-            TestLogger.Setup();
         }
 
 

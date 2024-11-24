@@ -9,6 +9,8 @@ internal class FixtureSetup
     [OneTimeSetUp]
     public void OneTimeSetUp()
     {
+        UnitTests.LoggerFixture.Setup();
+
         MessageHeader.CurrentProgramName = nameof(IntegrationTests);
     }
 }

@@ -32,7 +32,6 @@ namespace SmiServices.IntegrationTests.Common.Messaging
         [OneTimeSetUp]
         public void OneTimeSetUp()
         {
-            TestLogger.Setup();
             _testOptions = new GlobalOptionsFactory().Load(nameof(RabbitMQBrokerTests));
 
             _testProducerOptions = new ProducerOptions

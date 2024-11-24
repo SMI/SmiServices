@@ -13,7 +13,6 @@ namespace SmiServices.UnitTests.Common.Options
         public void OneTimeSetUp()
         {
             SmiCliInit.InitSmiLogging = false;
-            TestLogger.Setup();
         }
 
         [OneTimeTearDown]

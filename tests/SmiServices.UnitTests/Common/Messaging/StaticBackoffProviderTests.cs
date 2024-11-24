@@ -8,7 +8,6 @@ internal class StaticBackoffProviderTests
     [OneTimeSetUp]
     public void OneTimeSetUp()
     {
-        TestLogger.Setup();
     }
 
     [Test]

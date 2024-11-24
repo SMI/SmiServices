@@ -20,7 +20,6 @@ namespace SmiServices.UnitTests.Applications.DicomDirectoryProcessor
         [OneTimeSetUp]
         public void OneTimeSetUp()
         {
-            TestLogger.Setup();
         }
 
         [Test]

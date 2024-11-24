@@ -22,7 +22,6 @@ namespace SmiServices.IntegrationTests.Common.MongoDB
         [OneTimeSetUp]
         public void OneTimeSetUp()
         {
-            TestLogger.Setup();
 
             GlobalOptions globalOptions = new GlobalOptionsFactory().Load(nameof(MongoQueryParserTests));
             _mongoOptions = globalOptions.MongoDatabases!.DicomStoreOptions!;

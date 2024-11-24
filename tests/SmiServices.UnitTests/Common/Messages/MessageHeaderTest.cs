@@ -23,7 +23,6 @@ namespace SmiServices.UnitTests.Common.Messages
         [OneTimeSetUp]
         public void OneTimeSetUp()
         {
-            TestLogger.Setup();
         }
 
         [OneTimeTearDown]

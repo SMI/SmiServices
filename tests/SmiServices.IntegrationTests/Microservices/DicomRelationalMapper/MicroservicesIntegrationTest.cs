@@ -55,8 +55,6 @@ namespace SmiServices.IntegrationTests.Microservices.DicomRelationalMapper
 
         private void SetupSuite(DiscoveredDatabase server, bool persistentRaw = false, string? modalityPrefix = null)
         {
-            TestLogger.Setup();
-
             _globals = new GlobalOptionsFactory().Load(nameof(MicroservicesIntegrationTest));
 
             _globals.UseTestValues(
@@ -422,7 +420,6 @@ namespace SmiServices.IntegrationTests.Microservices.DicomRelationalMapper
         }
         private void RunTest(DirectoryInfo dir, int numberOfExpectedRows, Action<FileSystemOptions>? adjustFileSystemOptions = null)
         {
-            TestLogger.Setup();
             var logger = LogManager.GetLogger("MicroservicesIntegrationTest");
 
             _globals.FileSystemOptions!.FileSystemRoot = TestContext.CurrentContext.TestDirectory;

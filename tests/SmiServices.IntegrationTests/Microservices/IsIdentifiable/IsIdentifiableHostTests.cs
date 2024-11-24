@@ -15,7 +15,6 @@ namespace SmiServices.IntegrationTests.Microservices.IsIdentifiable
         [OneTimeSetUp]
         public void OneTimeSetUp()
         {
-            TestLogger.Setup();
         }
 
         /// <summary>

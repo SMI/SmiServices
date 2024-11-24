@@ -27,7 +27,6 @@ namespace SmiServices.UnitTests.Microservices.CohortExtractor.Messaging
         [OneTimeSetUp]
         public void OneTimeSetUp()
         {
-            TestLogger.Setup();
         }
 
         [OneTimeTearDown]
