@@ -13,7 +13,7 @@
     <PackageVersion Include="HIC.DicomTypeTranslation" Version="4.1.5" />
     <PackageVersion Include="HIC.FAnsiSql" Version="3.2.7" />
     <PackageVersion Include="HIC.RDMP.Dicom" Version="7.1.0" />
-    <PackageVersion Include="HIC.RDMP.Plugin" Version="8.3.0" />
+    <PackageVersion Include="HIC.RDMP.Plugin" Version="8.3.1" />
     <PackageVersion Include="IsIdentifiable" Version="0.4.0" />
     <PackageVersion Include="LibArchive.Net" Version="0.1.5" />
     <PackageVersion Include="LineReader" Version="0.1.0" />
@@ -33,7 +33,7 @@
     <PackageVersion Include="YamlDotNet" Version="16.2.1" />
     <!-- Test Packages -->
     <PackageVersion Include="HIC.BadMedicine.Dicom" Version="0.1.1" />
-    <PackageVersion Include="HIC.RDMP.Plugin.Test" Version="8.3.0" />
+    <PackageVersion Include="HIC.RDMP.Plugin.Test" Version="8.3.1" />
     <PackageVersion Include="Microsoft.CodeCoverage" Version="17.12.0" />
     <PackageVersion Include="Microsoft.NET.Test.Sdk" Version="17.12.0" />
     <PackageVersion Include="Moq" Version="4.20.72" />
