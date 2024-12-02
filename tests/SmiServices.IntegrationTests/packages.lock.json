@@ -908,7 +908,7 @@
           "StackExchange.Redis": "[2.8.16, )",
           "System.IO.Abstractions": "[21.1.3, )",
           "System.Private.Uri": "[4.3.2, )",
-          "YamlDotNet": "[16.2.0, )"
+          "YamlDotNet": "[16.2.1, )"
         }
       },
       "smiservices.unittests": {
@@ -1208,9 +1208,9 @@
       },
       "YamlDotNet": {
         "type": "CentralTransitive",
-        "requested": "[16.2.0, )",
-        "resolved": "16.2.0",
-        "contentHash": "iKVYog7JNiFOTr4gMHSjCqrGFD2NyABUHgSkRq9XR8A2+fsWepSWTpjHAOnKo1LVAHjy33o6I0u6lo5Ng0NtAw=="
+        "requested": "[16.2.1, )",
+        "resolved": "16.2.1",
+        "contentHash": "im6zTVgesjcfTRfuMpnx51Rg2svWenp/3q5XBfcIzgj8PNIkkSD2xEl9HWcVi2SaJPP9XcXUdzed9gSDEuf1TA=="
       }
     },
     "net9.0/linux-x64": {
