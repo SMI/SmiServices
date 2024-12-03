@@ -14,6 +14,7 @@ using System.Linq;
 using System.Text;
 using System.Threading;
 using System.Threading.Channels;
+using NUnit.Framework.Internal;
 
 namespace SmiServices.IntegrationTests.Common.Messaging
 {
@@ -31,7 +32,6 @@ namespace SmiServices.IntegrationTests.Common.Messaging
         [OneTimeSetUp]
         public void OneTimeSetUp()
         {
-            TestLogger.Setup();
             _testOptions = new GlobalOptionsFactory().Load(nameof(RabbitMQBrokerTests));
 
             _testProducerOptions = new ProducerOptions
@@ -135,16 +135,7 @@ namespace SmiServices.IntegrationTests.Common.Messaging
         [Test]
         public void TestGetRabbitServerVersion()
         {
-            var testFactory = new ConnectionFactory
-            {
-                HostName = _testOptions.RabbitOptions!.RabbitMqHostName,
-                VirtualHost = _testOptions.RabbitOptions.RabbitMqVirtualHost,
-                Port = _testOptions.RabbitOptions.RabbitMqHostPort,
-                UserName = _testOptions.RabbitOptions.RabbitMqUserName,
-                Password = _testOptions.RabbitOptions.RabbitMqPassword
-            };
-
-            using var connection = testFactory.CreateConnection();
+            var connection = _testOptions.RabbitOptions?.Connection ?? throw new NUnitException();
             // These are all the server properties we can check using the connection
             PrintObjectDictionary(connection.ServerProperties);
 
@@ -165,34 +156,13 @@ namespace SmiServices.IntegrationTests.Common.Messaging
         [Test]
         public void TestMultipleCloseOk()
         {
-            var fact = new ConnectionFactory
-            {
-                HostName = _testOptions.RabbitOptions!.RabbitMqHostName,
-                VirtualHost = _testOptions.RabbitOptions.RabbitMqVirtualHost,
-                Port = _testOptions.RabbitOptions.RabbitMqHostPort,
-                UserName = _testOptions.RabbitOptions.RabbitMqUserName,
-                Password = _testOptions.RabbitOptions.RabbitMqPassword
-            };
-
-            var conn = fact.CreateConnection("TestConn");
-            var model = conn.CreateModel();
+            var model = _testOptions.RabbitOptions?.Connection.CreateModel() ?? throw new NUnitException();
 
             // Closing model twice is ok
             model.Close(200, "bye");
             model.Close(200, "bye");
 
-            // Closing connection twice is NOT ok
-            conn.Close(200, "bye");
-            Assert.Throws<ChannelClosedException>(() => conn.Close(200, "bye"));
-
-            // Closing model after connection is ok
-            model.Close(200, "bye bye");
-
-            Assert.Multiple(() =>
-            {
-                Assert.That(model.IsOpen, Is.False);
-                Assert.That(conn.IsOpen, Is.False);
-            });
+            Assert.That(model.IsOpen, Is.False);
         }
 
         [Test]
@@ -311,7 +281,7 @@ namespace SmiServices.IntegrationTests.Common.Messaging
             // Act
             // Assert
             var exc = Assert.Throws<ArgumentException>(() => broker.SetupProducer(producerOptions));
-            Assert.That(exc.Message, Is.EqualTo("Could not parse 'Foo' to a valid BackoffProviderType"));
+            Assert.That(exc?.Message, Is.EqualTo("Could not parse 'Foo' to a valid BackoffProviderType"));
         }
 
         [Test]

@@ -11,6 +11,52 @@ A raw git diff can be seen [here][unreleased].
 
 <!--next-->
 
+## [5.10.3] 2024-11-18
+
+### Bugfix
+
+- [#2003](https://github.com/SMI/SmiServices/pull/2003) by rkm. Fix UpdateValues/Updater to work with postgres
+
+### Meta
+
+- [#1997](https://github.com/SMI/SmiServices/pull/1997) by rkm. Specify RuntimeIdentifier in Directory.Build.props so VS knows which one to pick. Required since SelfContained was set
+
+## [5.10.2] 2024-11-17
+
+### Bugfix
+
+- [#1996](https://github.com/SMI/SmiServices/pull/1996) by rkm. Ensure MapperSource properly quotes values for postgres
+
+## [5.10.1] 2024-11-15
+
+### Bugfix
+
+- [#1993](https://github.com/SMI/SmiServices/pull/1993) by rkm. Add `SelfContained` property, now required for .NET 8+
+
+## [5.10.0] 2024-11-15
+
+### Bugfix
+
+- [#1956](https://github.com/SMI/SmiServices/pull/1956) by rkm. Publish SmiServices only to fix NETSDK1194 warning
+- [#1962](https://github.com/SMI/SmiServices/pull/1962) by rkm. Fixup namespaces in test projects
+- [#1963](https://github.com/SMI/SmiServices/pull/1963) by rkm. Set MessageHeader.CurrentProgramName once at the start of each test fixture (project / assembly) instead of individually in each test. Fixes cases where tests would fail if run individually.
+- [#1991](https://github.com/SMI/SmiServices/pull/1991) by rkm. Support postgres in IdentifierMapper server discovery
+
+### Change
+
+- [#1847](https://github.com/SMI/SmiServices/pull/1847) by rkm. Enable MSBuildTreatWarningsAsErrors and warnaserror
+
+- [#1957](https://github.com/SMI/SmiServices/pull/1957) by rkm. Refactor project path resolvers in CohortExtractor:
+
+  - `DefaultProjectPathResolver` is now `StudySeriesOriginalFilenameProjectPathResolver`
+  - Undo handling UIDs with leading dot (#1506) as this was causing difficulties with path lookups elsewhere
+  - Add `StudySeriesSOPProjectPathResolver` which generates filenames using SOPInstanceUID instead of the original file name. This is now the default path resolver
+  - Disallow null Study/Series/SOPInstanceUID values, which should never occur in practice
+
+### Meta
+
+- [#1875](https://github.com/SMI/SmiServices/pull/1875) by rkm. Enable Nuget packages restore with lockfile
+
 ## [5.9.0] 2024-10-03
 
 ### Feature
@@ -207,7 +253,7 @@ A raw git diff can be seen [here][unreleased].
 - [#1450](https://github.com/SMI/SmiServices/pull/1450) by darshad-github. Update contributing.md with feature branch workflow guidelines
 - [#1451](https://github.com/SMI/SmiServices/pull/1451) by rkm. adopt dotnet central package management (CPM)
 - [#1468](https://github.com/SMI/SmiServices/pull/1468) by rkm. switch rabbitmq docker-compose images to include management plugin
-- [#1494](https://github.com/SMI/SmiServices/pull/1494) by rkm. \[actions\] replace deprecated set-output with GITHUB_OUTPUT
+- [#1494](https://github.com/SMI/SmiServices/pull/1494) by rkm. [actions] replace deprecated set-output with GITHUB_OUTPUT
 - [#1496](https://github.com/SMI/SmiServices/pull/1496) by rkm. add CodeQL scan
 
 ## [5.3.0] 2022-11-08
@@ -307,7 +353,7 @@ A raw git diff can be seen [here][unreleased].
 
 ### Bugfix
 
-- [#1087](https://github.com/SMI/SmiServices/pull/1087) by rkm. \[CI\] Misc. CI
+- [#1087](https://github.com/SMI/SmiServices/pull/1087) by rkm. [CI] Misc. CI
   fixes
   - Fixes the build scripts to respect any intermediate non-zero return
     codes
@@ -881,7 +927,7 @@ A raw git diff can be seen [here][unreleased].
 
 ### Added
 
-- \[breaking\] Add identifiable extraction support
+- [breaking] Add identifiable extraction support
   - New service "FileCopier" which sits in place of CTP for identifiable
     extractions and copies source files to their output dirs
   - Changes to MongoDB extraction schema, but backwards compatibility has
@@ -902,7 +948,7 @@ A raw git diff can be seen [here][unreleased].
 
 ### Changed
 
-- \[breaking\] Environment variables are no longer required. Previous settings
+- [breaking] Environment variables are no longer required. Previous settings
   now appear in configuration file
   - Environment variable `SMI_LOGS_ROOT` is now `GlobalOptions.LogsRoot`
   - Environment variable `MONGO_SERVICE_PASSWORD` is now
@@ -1004,7 +1050,7 @@ A raw git diff can be seen [here][unreleased].
   - Records in the referenced table will blacklist where any UID is found
     (StudyInstanceUID, SeriesInstanceUID or SOPInstanceUID). This allows
     blacklisting an entire study or only specific images.
-  - \[breaking\] Config on live system may need updated
+  - [breaking] Config on live system may need updated
 - Change the extraction directory generation to be
   `<projname>/image-requests/<extractname>`. Fixes
   [MVP Service #159](https://dev.azure.com/smiops/MVP%20Service/_workitems/edit/159/)
@@ -1057,8 +1103,8 @@ A raw git diff can be seen [here][unreleased].
 
 ### Changed
 
-- \[Breaking\] Promote the PT modality to its own collection in MongoDB
-- \[Breaking\] Renamed `RedisHost` to `RedisConnectionString` in the config
+- [Breaking] Promote the PT modality to its own collection in MongoDB
+- [Breaking] Renamed `RedisHost` to `RedisConnectionString` in the config
   options for clarity
 - Update to .Net Core 3.1 (supported until Dec 2022) since 2.2 support ended
   last year
@@ -1144,12 +1190,12 @@ A raw git diff can be seen [here][unreleased].
 
 ## [1.5.0] - 2020-03-05
 
-- \[Breaking\] Updated RabbitMQ extraction config to match extraction plan v2
+- [Breaking] Updated RabbitMQ extraction config to match extraction plan v2
 - Refactor Java exception handling and use of threads
-- `TessDirectory` option in \[IsIdentifiable\] now expects tesseract models file
+- `TessDirectory` option in [IsIdentifiable] now expects tesseract models file
   to exist (no longer downloads it on demand)
 - Added support for outsourcing classification (e.g. NLP) to other processes
-  via TCP (entered in \[SocketRules\] in `Rules.yaml`)
+  via TCP (entered in [SocketRules] in `Rules.yaml`)
 - IsIdentifiable NLP text classification now outsourced via TCP to any
   services configured in
   - StanfordNER implementation written in Java
@@ -1420,6 +1466,10 @@ First stable release after importing the repository from the private
 [5.1.1]: https://github.com/SMI/SmiServices/compare/v5.1.0...v5.1.1
 [5.1.2]: https://github.com/SMI/SmiServices/compare/v5.1.1...v5.1.2
 [5.1.3]: https://github.com/SMI/SmiServices/compare/v5.1.2...v5.1.3
+[5.10.0]: https://github.com/SMI/SmiServices/compare/v5.9.0...v5.10.0
+[5.10.1]: https://github.com/SMI/SmiServices/compare/v5.10.0...v5.10.1
+[5.10.2]: https://github.com/SMI/SmiServices/compare/v5.10.1...v5.10.2
+[5.10.3]: https://github.com/SMI/SmiServices/compare/v5.10.2...v5.10.3
 [5.2.0]: https://github.com/SMI/SmiServices/compare/v5.1.3...v5.2.0
 [5.3.0]: https://github.com/SMI/SmiServices/compare/v5.2.0...v5.3.0
 [5.4.0]: https://github.com/SMI/SmiServices/compare/v5.3.0...v5.4.0
@@ -1431,4 +1481,4 @@ First stable release after importing the repository from the private
 [5.7.2]: https://github.com/SMI/SmiServices/compare/v5.7.1...v5.7.2
 [5.8.0]: https://github.com/SMI/SmiServices/compare/v5.7.2...v5.8.0
 [5.9.0]: https://github.com/SMI/SmiServices/compare/v5.8.0...v5.9.0
-[unreleased]: https://github.com/SMI/SmiServices/compare/v5.9.0...main
+[unreleased]: https://github.com/SMI/SmiServices/compare/v5.10.3...main

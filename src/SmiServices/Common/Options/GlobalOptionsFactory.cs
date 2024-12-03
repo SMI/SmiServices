@@ -35,17 +35,17 @@ namespace SmiServices.Common.Options
         {
             fileSystem ??= new FileSystem();
 
-            IDeserializer deserializer = new DeserializerBuilder()
-                                    .WithObjectFactory(GetGlobalOption)
-                                    .IgnoreUnmatchedProperties()
-                                    .Build();
+            var deserializer = new DeserializerBuilder()
+                .WithObjectFactory(GetGlobalOption)
+                .IgnoreUnmatchedProperties()
+                .Build();
 
             if (!fileSystem.File.Exists(configFilePath))
                 throw new ArgumentException($"Could not find config file '{configFilePath}'");
 
             var yamlContents = fileSystem.File.ReadAllText(configFilePath);
             var globals = deserializer.Deserialize<GlobalOptions?>(yamlContents)
-                ?? throw new Exception("Did not deserialize a GlobalOptions object from the provided YAML file. Does it contain at least one valid key?");
+                          ?? throw new Exception("Did not deserialize a GlobalOptions object from the provided YAML file. Does it contain at least one valid key?");
 
             globals.HostProcessName = hostProcessName;
 

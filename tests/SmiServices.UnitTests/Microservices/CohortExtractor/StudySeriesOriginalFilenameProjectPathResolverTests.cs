@@ -13,18 +13,12 @@ namespace SmiServices.UnitTests.Microservices.CohortExtractor
     {
         #region Fixture Methods
 
-        private ExtractionRequestMessage _requestMessage = null!;
-        private IFileSystem _fileSystem;
+        private ExtractionRequestMessage _requestMessage = new() { IsIdentifiableExtraction = false };
+        private IFileSystem _fileSystem = new MockFileSystem();
 
         [OneTimeSetUp]
         public void OneTimeSetUp()
         {
-            TestLogger.Setup();
-
-            _requestMessage = new ExtractionRequestMessage
-            {
-                IsIdentifiableExtraction = false,
-            };
         }
 
         [OneTimeTearDown]

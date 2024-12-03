@@ -590,8 +590,6 @@ namespace SmiServices.IntegrationTests.Microservices.IdentifierMapper
         [Test]
         public void TestIdentifierSwap_ControlQueueRefresh()
         {
-            TestLogger.Setup();
-
             var mockSwapper = new Mock<ISwapIdentifiers>();
 
 

@@ -10,12 +10,11 @@ namespace SmiServices.UnitTests.Microservices.CohortExtractor
 {
     public class NoSuffixProjectPathResolverTests
     {
-        private IFileSystem _fileSystem;
+        private IFileSystem _fileSystem = new MockFileSystem();
 
         [SetUp]
         public void SetUp()
         {
-            TestLogger.Setup();
             _fileSystem = new MockFileSystem();
         }
 

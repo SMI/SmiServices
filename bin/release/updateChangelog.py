@@ -6,39 +6,29 @@ import argparse
 import collections
 import datetime
 import fileinput
+import glob
 import json
+import os
 import subprocess
-import sys
 import urllib.request
-from pathlib import Path
-from typing import Dict
-from typing import Optional
-from typing import Sequence
-from typing import Union
+from collections.abc import Sequence
 
-
-_NEWS_DIR = Path("./news/")
+_NEWS_DIR = "./news/"
 _MARKER = "<!--next-->"
 _UNRELEASED_LINK = "[unreleased]:"
 
 _ORG = "SMI"
 _REPO = "SmiServices"
 
-_STR_LIKE = Union[str, Path]
 
-
-def _run(cmd: Sequence[_STR_LIKE]):
+def _run(cmd: Sequence[str]) -> None:
     subprocess.check_call(("echo", *cmd))
     subprocess.check_call(cmd)
 
 
 def _get_pr_author(pr_ref: int) -> str:
 
-    url = (
-        f"https://api.github.com/repos/"
-        f"{_ORG}/{_REPO}/"
-        f"pulls/{pr_ref}"
-    )
+    url = f"https://api.github.com/repos/" f"{_ORG}/{_REPO}/" f"pulls/{pr_ref}"
     try:
         resp = urllib.request.urlopen(url)
     except urllib.error.HTTPError as e:
@@ -47,12 +37,15 @@ def _get_pr_author(pr_ref: int) -> str:
     return data["user"]["login"]
 
 
-def _print_fragments(version: str, fragments: Dict[str, Dict[int, str]]) -> None:
+def _print_fragments(version: str, fragments: dict[str, dict[int, str]]) -> None:
 
     today = datetime.datetime.today().strftime("%Y-%m-%d")
     print(f"## [{version[1:]}] {today}")
 
-    def _print_type_fragment(frag_type: str, fragments: Dict[str, Dict[int, str]]):
+    def _print_type_fragment(
+        frag_type: str,
+        fragments: dict[str, dict[int, str]],
+    ) -> None:
         print(f"\n### {frag_type.capitalize()}\n")
         for pr_ref in sorted(fragments[frag_type]):
             first, *rest = fragments[frag_type][pr_ref].splitlines()
@@ -97,7 +90,7 @@ def _print_links(last_tag: str, next_tag: str) -> None:
     print(diff_link_str)
 
 
-def main(argv: Optional[Sequence[str]] = None) -> int:
+def main(argv: Sequence[str] | None = None) -> int:
 
     parser = argparse.ArgumentParser()
     parser.add_argument(
@@ -111,13 +104,13 @@ def main(argv: Optional[Sequence[str]] = None) -> int:
     args = parser.parse_args(argv)
 
     # Gather the news files for the next release
-    fragments = collections.defaultdict(dict)
-    fragment_files = list(_NEWS_DIR.glob("*-*.md"))
+    fragments: dict[str, dict[int, str]] = collections.defaultdict(dict)
+    fragment_files = list(glob.glob(f"{_NEWS_DIR}/*-*.md"))
     for fragment_file in fragment_files:
         with open(fragment_file) as f:
             contents = f.read()
-        pr_ref, _, frag_type = fragment_file.stem.partition("-")
-        fragments[frag_type][pr_ref] = contents
+        pr_ref, _, frag_type = os.path.splitext(fragment_file)[0].partition("-")
+        fragments[frag_type][int(pr_ref)] = contents
 
     # Write-out the new CHANGELOG
     with fileinput.FileInput("CHANGELOG.md", inplace=True) as f:
@@ -134,8 +127,9 @@ def main(argv: Optional[Sequence[str]] = None) -> int:
     # Now delete all the news files
     for news_file in fragment_files:
         cmd = (
-            "git", "rm",
-            news_file
+            "git",
+            "rm",
+            news_file,
         )
         _run(cmd)
 

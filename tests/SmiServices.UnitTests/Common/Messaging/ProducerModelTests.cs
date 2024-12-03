@@ -15,7 +15,6 @@ internal class ProducerModelTests
     [OneTimeSetUp]
     public void OneTimeSetUp()
     {
-        TestLogger.Setup();
     }
 
     [Test]
@@ -66,7 +65,7 @@ internal class ProducerModelTests
         // Act
         // Assert
         var exc = Assert.Throws<ApplicationException>(() => producerModel.SendMessage(message, inResponseTo: null, routingKey: null));
-        Assert.That(exc.Message, Is.EqualTo("Could not confirm message published after timeout"));
+        Assert.That(exc?.Message, Is.EqualTo("Could not confirm message published after timeout"));
     }
 
     [Test]

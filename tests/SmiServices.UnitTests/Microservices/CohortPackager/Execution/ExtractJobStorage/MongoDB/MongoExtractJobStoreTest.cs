@@ -31,14 +31,17 @@ namespace SmiServices.UnitTests.Microservices.CohortPackager.Execution.ExtractJo
         [OneTimeSetUp]
         public void OneTimeSetUp()
         {
-            TestLogger.Setup();
         }
 
         [OneTimeTearDown]
         public void OneTimeTearDown() { }
 
         [SetUp]
-        public void SetUp() { }
+        public void SetUp()
+        {
+            _extractionDatabase = new TestExtractionDatabase();
+            _mockSessionHandle.Reset();
+        }
 
         [TearDown]
         public void TearDown() { }
@@ -46,18 +49,16 @@ namespace SmiServices.UnitTests.Microservices.CohortPackager.Execution.ExtractJo
         private static TestExtractionDatabase _extractionDatabase = new();
         private static readonly Mock<IClientSessionHandle> _mockSessionHandle = new();
 
-        private static IMongoClient getTestMongoClient()
+        private static IMongoClient GetTestMongoClient()
         {
             _extractionDatabase = new TestExtractionDatabase();
-            var mongo = new Mock<IMongoClient>();
-            mongo.Setup(static x => x.GetDatabase(ExtractionDatabaseName, It.IsAny<MongoDatabaseSettings>()))
+
+            var m = new Mock<IMongoClient>();
+            m.Setup(static m => m.GetDatabase(ExtractionDatabaseName, It.IsAny<MongoDatabaseSettings>()))
                 .Returns(_extractionDatabase);
-            mongo.Setup(static x => x.StartSession(It.IsAny<ClientSessionOptions>(),It.IsAny<CancellationToken>())).Returns(static () =>
-            {
-                _mockSessionHandle.Reset();
-                return _mockSessionHandle.Object;
-            });
-            return mongo.Object;
+            m.Setup(static m => m.StartSession(It.IsAny<ClientSessionOptions>(), It.IsAny<CancellationToken>()))
+                .Returns(_mockSessionHandle.Object);
+            return m.Object;
         }
 
         /// <summary>
@@ -251,7 +252,7 @@ namespace SmiServices.UnitTests.Microservices.CohortPackager.Execution.ExtractJo
                 ProducerProcessID = 1234,
             };
 
-            var client = getTestMongoClient();
+            var client = GetTestMongoClient();
             var store = new MongoExtractJobStore(client, ExtractionDatabaseName, _dateTimeProvider);
 
             store.PersistMessageToStore(testExtractionRequestInfoMessage, testHeader);
@@ -299,7 +300,7 @@ namespace SmiServices.UnitTests.Microservices.CohortPackager.Execution.ExtractJo
               isNoFilterExtraction: true,
               null);
 
-            var client = getTestMongoClient();
+            var client = GetTestMongoClient();
             _extractionDatabase.CompletedJobCollection.InsertOne(new MongoCompletedExtractJobDoc(job, DateTime.Now));
 
             var store = new MongoExtractJobStore(client, ExtractionDatabaseName, _dateTimeProvider);
@@ -361,7 +362,7 @@ namespace SmiServices.UnitTests.Microservices.CohortPackager.Execution.ExtractJo
                 ProducerProcessID = 1234,
             };
 
-            var client = getTestMongoClient();
+            var client = GetTestMongoClient();
             var store = new MongoExtractJobStore(client, ExtractionDatabaseName, _dateTimeProvider);
 
             store.PersistMessageToStore(testExtractFileCollectionInfoMessage, header);
@@ -415,7 +416,7 @@ namespace SmiServices.UnitTests.Microservices.CohortPackager.Execution.ExtractJo
                 ProducerProcessID = 1234,
             };
 
-            var client = getTestMongoClient();
+            var client = GetTestMongoClient();
             var store = new MongoExtractJobStore(client, ExtractionDatabaseName, _dateTimeProvider);
 
             Assert.DoesNotThrow(() => store.PersistMessageToStore(testExtractFileCollectionInfoMessage, header));
@@ -424,7 +425,7 @@ namespace SmiServices.UnitTests.Microservices.CohortPackager.Execution.ExtractJo
         [Test]
         public void TestPersistMessageToStoreImpl_ExtractFileStatusMessage()
         {
-            var client = getTestMongoClient();
+            var client = GetTestMongoClient();
             var store = new MongoExtractJobStore(client, ExtractionDatabaseName, _dateTimeProvider);
 
             Guid jobId = Guid.NewGuid();
@@ -479,7 +480,7 @@ namespace SmiServices.UnitTests.Microservices.CohortPackager.Execution.ExtractJo
               isNoFilterExtraction: true,
               null);
 
-            var client = getTestMongoClient();
+            var client = GetTestMongoClient();
             _extractionDatabase.CompletedJobCollection.InsertOne(new MongoCompletedExtractJobDoc(job, DateTime.Now));
 
             var store = new MongoExtractJobStore(client, ExtractionDatabaseName, _dateTimeProvider);
@@ -505,7 +506,7 @@ namespace SmiServices.UnitTests.Microservices.CohortPackager.Execution.ExtractJo
         [Test]
         public void TestPersistMessageToStoreImpl_IsIdentifiableMessage()
         {
-            var client = getTestMongoClient();
+            var client = GetTestMongoClient();
             var store = new MongoExtractJobStore(client, ExtractionDatabaseName, _dateTimeProvider);
 
             Guid jobId = Guid.NewGuid();
@@ -542,7 +543,7 @@ namespace SmiServices.UnitTests.Microservices.CohortPackager.Execution.ExtractJo
         [Test]
         public void TestGetReadJobsImpl()
         {
-            Guid jobId = Guid.NewGuid();
+            var jobId = Guid.NewGuid();
             var testJob = new MongoExtractJobDoc(
                 jobId,
                 MongoExtractionMessageHeaderDoc.FromMessageHeader(jobId, new MessageHeader(), _dateTimeProvider),
@@ -575,7 +576,7 @@ namespace SmiServices.UnitTests.Microservices.CohortPackager.Execution.ExtractJo
                 VerifiedFileStatus.NotIdentifiable,
                 "Verified");
 
-            var client = getTestMongoClient();
+            var client = GetTestMongoClient();
             var store = new MongoExtractJobStore(client, ExtractionDatabaseName, _dateTimeProvider);
 
             // Assert that jobs marked as failed are not returned
@@ -584,7 +585,7 @@ namespace SmiServices.UnitTests.Microservices.CohortPackager.Execution.ExtractJo
             Assert.That(store.GetReadyJobs(), Is.Empty);
 
             // Assert that an in progress job is not returned
-            client = getTestMongoClient();
+            client = GetTestMongoClient();
             store = new MongoExtractJobStore(client, ExtractionDatabaseName, _dateTimeProvider);
             testJob.JobStatus = ExtractJobStatus.WaitingForCollectionInfo;
             _extractionDatabase.InProgressCollection.InsertOne(testJob);
@@ -592,7 +593,7 @@ namespace SmiServices.UnitTests.Microservices.CohortPackager.Execution.ExtractJo
             Assert.That(store.GetReadyJobs(), Is.Empty);
 
             // Check we handle a bad ReplaceOneResult
-            client = getTestMongoClient();
+            client = GetTestMongoClient();
             store = new MongoExtractJobStore(client, ExtractionDatabaseName, _dateTimeProvider);
             testJob.JobStatus = ExtractJobStatus.WaitingForCollectionInfo;
             _extractionDatabase.InProgressCollection.InsertOne(testJob);
@@ -602,7 +603,7 @@ namespace SmiServices.UnitTests.Microservices.CohortPackager.Execution.ExtractJo
             Assert.Throws<ApplicationException>(() => store.GetReadyJobs());
 
             // Check happy path
-            client = getTestMongoClient();
+            client = GetTestMongoClient();
             store = new MongoExtractJobStore(client, ExtractionDatabaseName, _dateTimeProvider);
             testJob.JobStatus = ExtractJobStatus.WaitingForCollectionInfo;
             _extractionDatabase.InProgressCollection.InsertOne(testJob);
@@ -659,7 +660,7 @@ namespace SmiServices.UnitTests.Microservices.CohortPackager.Execution.ExtractJo
                 VerifiedFileStatus.NotIdentifiable,
                 "Verified");
 
-            var client = getTestMongoClient();
+            var client = GetTestMongoClient();
             var store = new MongoExtractJobStore(client, ExtractionDatabaseName, _dateTimeProvider);
 
             // Assert that an exception is thrown for a non-existent job
@@ -668,7 +669,7 @@ namespace SmiServices.UnitTests.Microservices.CohortPackager.Execution.ExtractJo
             _mockSessionHandle.Verify(x => x.CommitTransaction(It.IsAny<CancellationToken>()), Times.Never);
 
             // Assert that an exception is thrown for a job which is marked as failed
-            client = getTestMongoClient();
+            client = GetTestMongoClient();
             store = new MongoExtractJobStore(client, ExtractionDatabaseName, _dateTimeProvider);
             _extractionDatabase.InProgressCollection.InsertOne(testJob);
             _mockSessionHandle.Reset();
@@ -677,7 +678,7 @@ namespace SmiServices.UnitTests.Microservices.CohortPackager.Execution.ExtractJo
             _mockSessionHandle.Verify(x => x.CommitTransaction(It.IsAny<CancellationToken>()), Times.Never);
 
             // Check that we handle a failed insertion
-            client = getTestMongoClient();
+            client = GetTestMongoClient();
             store = new MongoExtractJobStore(client, ExtractionDatabaseName, _dateTimeProvider);
             testJob.JobStatus = ExtractJobStatus.Completed;
             _extractionDatabase.InProgressCollection.InsertOne(testJob);
@@ -688,7 +689,7 @@ namespace SmiServices.UnitTests.Microservices.CohortPackager.Execution.ExtractJo
             _mockSessionHandle.Verify(x => x.CommitTransaction(It.IsAny<CancellationToken>()), Times.Never);
 
             // Check we handle a bad DeleteResult
-            client = getTestMongoClient();
+            client = GetTestMongoClient();
             store = new MongoExtractJobStore(client, ExtractionDatabaseName, _dateTimeProvider);
             _extractionDatabase.InProgressCollection.RejectChanges = true;
             _mockSessionHandle.Reset();
@@ -697,7 +698,7 @@ namespace SmiServices.UnitTests.Microservices.CohortPackager.Execution.ExtractJo
             _mockSessionHandle.Verify(x => x.CommitTransaction(It.IsAny<CancellationToken>()), Times.Never);
 
             // Check we handle missing expectedFiles collection
-            client = getTestMongoClient();
+            client = GetTestMongoClient();
             store = new MongoExtractJobStore(client, ExtractionDatabaseName, _dateTimeProvider);
             _extractionDatabase.InProgressCollection.InsertOne(testJob);
             _mockSessionHandle.Reset();
@@ -706,7 +707,7 @@ namespace SmiServices.UnitTests.Microservices.CohortPackager.Execution.ExtractJo
             _mockSessionHandle.Verify(x => x.CommitTransaction(It.IsAny<CancellationToken>()), Times.Never);
 
             // Check we handle missing statuses collection
-            client = getTestMongoClient();
+            client = GetTestMongoClient();
             store = new MongoExtractJobStore(client, ExtractionDatabaseName, _dateTimeProvider);
             _extractionDatabase.InProgressCollection.InsertOne(testJob);
             _extractionDatabase.ExpectedFilesCollections[$"expectedFiles_{jobId}"] = new MockExtractCollection<Guid, MongoExpectedFilesDoc>();
@@ -717,7 +718,7 @@ namespace SmiServices.UnitTests.Microservices.CohortPackager.Execution.ExtractJo
             _mockSessionHandle.Verify(x => x.CommitTransaction(It.IsAny<CancellationToken>()), Times.Never);
 
             // Check happy path
-            client = getTestMongoClient();
+            client = GetTestMongoClient();
             store = new MongoExtractJobStore(client, ExtractionDatabaseName, _dateTimeProvider);
             _extractionDatabase.InProgressCollection.InsertOne(testJob);
             _extractionDatabase.ExpectedFilesCollections[$"expectedFiles_{jobId}"] = new MockExtractCollection<Guid, MongoExpectedFilesDoc>();
@@ -754,7 +755,7 @@ namespace SmiServices.UnitTests.Microservices.CohortPackager.Execution.ExtractJo
                 isNoFilterExtraction: true,
                 null);
 
-            var client = getTestMongoClient();
+            var client = GetTestMongoClient();
             var store = new MongoExtractJobStore(client, ExtractionDatabaseName, _dateTimeProvider);
 
             // Assert that an exception is thrown for a non-existent job
@@ -763,7 +764,7 @@ namespace SmiServices.UnitTests.Microservices.CohortPackager.Execution.ExtractJo
             _mockSessionHandle.Verify(x => x.CommitTransaction(It.IsAny<CancellationToken>()), Times.Never);
 
             // Assert that a job can't be failed twice
-            client = getTestMongoClient();
+            client = GetTestMongoClient();
             store = new MongoExtractJobStore(client, ExtractionDatabaseName, _dateTimeProvider);
             _extractionDatabase.InProgressCollection.InsertOne(testJob);
             _mockSessionHandle.Reset();
@@ -772,7 +773,7 @@ namespace SmiServices.UnitTests.Microservices.CohortPackager.Execution.ExtractJo
             _mockSessionHandle.Verify(x => x.CommitTransaction(It.IsAny<CancellationToken>()), Times.Never);
 
             // Check we handle a bad ReplaceOneResult
-            client = getTestMongoClient();
+            client = GetTestMongoClient();
             store = new MongoExtractJobStore(client, ExtractionDatabaseName, _dateTimeProvider);
             testJob.JobStatus = ExtractJobStatus.WaitingForCollectionInfo;
             _extractionDatabase.InProgressCollection.InsertOne(testJob);
@@ -783,7 +784,7 @@ namespace SmiServices.UnitTests.Microservices.CohortPackager.Execution.ExtractJo
             _mockSessionHandle.Verify(x => x.CommitTransaction(It.IsAny<CancellationToken>()), Times.Never);
 
             // Check happy path
-            client = getTestMongoClient();
+            client = GetTestMongoClient();
             store = new MongoExtractJobStore(client, ExtractionDatabaseName, _dateTimeProvider);
             testJob.JobStatus = ExtractJobStatus.WaitingForCollectionInfo;
             testJob.FailedJobInfoDoc = null;
@@ -808,7 +809,7 @@ namespace SmiServices.UnitTests.Microservices.CohortPackager.Execution.ExtractJo
         {
             // Arrange
 
-            var client = getTestMongoClient();
+            var client = GetTestMongoClient();
             var store = new MongoExtractJobStore(client, ExtractionDatabaseName, _dateTimeProvider);
 
             Guid jobId = Guid.NewGuid();
@@ -846,7 +847,7 @@ namespace SmiServices.UnitTests.Microservices.CohortPackager.Execution.ExtractJo
         {
             // Arrange
 
-            var client = getTestMongoClient();
+            var client = GetTestMongoClient();
             var store = new MongoExtractJobStore(client, ExtractionDatabaseName, _dateTimeProvider);
 
             // Act

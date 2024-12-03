@@ -20,8 +20,6 @@ namespace SmiServices.IntegrationTests.Microservices.MongoDBPopulator.Processing
         [OneTimeSetUp]
         public void OneTimeSetUp()
         {
-            TestLogger.Setup();
-
             _helper = new MongoDbPopulatorTestHelper();
             _helper.SetupSuite();
         }

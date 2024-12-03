@@ -5,7 +5,7 @@ import argparse
 
 def add_args(
     parser: argparse.ArgumentParser,
-    configuration: str = "debug"
+    configuration: str = "debug",
 ) -> None:
     parser.add_argument(
         "-c",

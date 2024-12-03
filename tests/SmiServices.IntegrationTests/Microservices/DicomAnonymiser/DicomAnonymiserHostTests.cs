@@ -34,7 +34,6 @@ namespace SmiServices.IntegrationTests.Microservices.DicomAnonymiser
         [OneTimeSetUp]
         public void OneTimeSetUp()
         {
-            TestLogger.Setup();
         }
 
         [OneTimeTearDown]

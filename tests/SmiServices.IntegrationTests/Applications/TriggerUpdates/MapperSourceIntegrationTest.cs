@@ -83,6 +83,7 @@ namespace SmiServices.IntegrationTests.Applications.TriggerUpdates
                 Assert.That(guidTable?.GetRowCount(), Is.EqualTo(0), "No temporary guids should exist yet");
                 Assert.That(map.GetRowCount(), Is.EqualTo(1), "We should have a mapping table with 1 entry");
             });
+            if (guidTable is null) return; // We've actually failed and aborted already at this point, but the compiler doesn't know that
 
             guidTable.Insert(new Dictionary<string, object>
             {
@@ -125,7 +126,7 @@ namespace SmiServices.IntegrationTests.Applications.TriggerUpdates
             };
 
             globals.UseTestValues(
-                RequiresRabbit.GetConnectionFactory(),
+                RequiresRabbit.Connection.Value,
                 RequiresMongoDb.GetMongoClientSettings(),
                 RequiresRelationalDb.GetRelationalDatabaseConnectionStrings(),
                 ((TableRepository)RepositoryLocator.CatalogueRepository).ConnectionStringBuilder,

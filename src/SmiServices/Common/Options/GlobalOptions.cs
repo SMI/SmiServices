@@ -13,8 +13,9 @@ using SmiServices.Microservices.CohortExtractor.RequestFulfillers.Dynamic;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Reflection;
 using System.Text;
+using RabbitMQ.Client;
+using YamlDotNet.Serialization;
 using DatabaseType = FAnsi.DatabaseType;
 
 namespace SmiServices.Common.Options
@@ -78,10 +79,10 @@ namespace SmiServices.Common.Options
         {
             var sb = new StringBuilder();
 
-            foreach (PropertyInfo prop in o.GetType().GetProperties())
+            foreach (var prop in o.GetType().GetProperties().Where(static prop =>
+                         !prop.Name.Contains("password", StringComparison.OrdinalIgnoreCase)))
             {
-                if (!prop.Name.Contains("password", StringComparison.CurrentCultureIgnoreCase))
-                    sb.Append(string.Format("{0}: {1}, ", prop.Name, prop.GetValue(o)));
+                sb.Append($"{prop.Name}: {prop.GetValue(o)}, ");
             }
 
             return sb.ToString();
@@ -186,6 +187,14 @@ namespace SmiServices.Common.Options
             idx = MappingTableName.IndexOf('.');
             if (idx == -1)
                 throw new ArgumentException($"MappingTableName did not contain the database/user section:'{MappingTableName}'");
+
+            // TODO This can definitely be simplified if we refactor code that calls this
+            if (server.DatabaseType == DatabaseType.PostgreSql)
+            {
+                var db = server.GetCurrentDatabase() ?? throw new ArgumentException("Database must be set in cnonection string");
+                var split = MappingTableName.Split('.');
+                return db.ExpectTable(split[1], schema: split[0]);
+            }
 
             var databaseName = server.GetQuerySyntaxHelper().GetRuntimeName(MappingTableName[..idx]);
             if (string.IsNullOrWhiteSpace(databaseName))
@@ -612,6 +621,25 @@ namespace SmiServices.Common.Options
     /// </summary>
     public class RabbitOptions : IOptions
     {
+        private IConnection CreateConnection() =>
+            new ConnectionFactory
+            {
+                HostName = RabbitMqHostName,
+                Port = RabbitMqHostPort,
+                VirtualHost = RabbitMqVirtualHost,
+                UserName = RabbitMqUserName,
+                Password = RabbitMqPassword
+            }.CreateConnection();
+
+        private readonly Lazy<IConnection> _connectionCache;
+
+        public RabbitOptions()
+        {
+            _connectionCache = new Lazy<IConnection>(CreateConnection);
+        }
+
+        [YamlIgnore]
+        public IConnection Connection => _connectionCache.Value;
         public string RabbitMqHostName { get; set; } = "localhost";
         public int RabbitMqHostPort { get; set; } = 5672;
         public string? RabbitMqVirtualHost { get; set; } = "/";

@@ -14,7 +14,6 @@ public class DynamicRejectorTests
     [OneTimeSetUp]
     public void OneTimeSetUp()
     {
-        TestLogger.Setup();
     }
 
     [OneTimeTearDown]
@@ -52,7 +51,7 @@ public class DynamicRejectorTests
         DynamicRejector.DefaultDynamicRulesPath = "someFile.txt";
 
         var exc = Assert.Throws<FileNotFoundException>(() => new DynamicRejector());
-        Assert.That(exc.Message, Is.EqualTo("Could not find rules file 'someFile.txt'"));
+        Assert.That(exc?.Message, Is.EqualTo("Could not find rules file 'someFile.txt'"));
     }
 
     #endregion

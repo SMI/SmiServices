@@ -150,7 +150,7 @@ namespace SmiServices.IntegrationTests.Microservices.UpdateValues
 
             TestContext.Out.WriteLine(ex?.Message);
 
-            Assert.That(ex.Message, Is.EqualTo("Could not find any tables to update that matched the field set UpdateValuesMessage: WhereFields=Blarg WriteIntoFields=PatientID"));
+            Assert.That(ex?.Message, Is.EqualTo("Could not find any tables to update that matched the field set UpdateValuesMessage: WhereFields=Blarg WriteIntoFields=PatientID"));
         }
 
         [Test]
@@ -171,7 +171,7 @@ namespace SmiServices.IntegrationTests.Microservices.UpdateValues
 
             TestContext.Out.WriteLine(ex?.Message);
 
-            Assert.That(ex.Message, Is.EqualTo("Could not find any tables to update that matched the field set UpdateValuesMessage: WhereFields=PatientID WriteIntoFields=Blarg"));
+            Assert.That(ex?.Message, Is.EqualTo("Could not find any tables to update that matched the field set UpdateValuesMessage: WhereFields=PatientID WriteIntoFields=Blarg"));
         }
 
 

@@ -90,9 +90,9 @@ namespace SmiServices.IntegrationTests.Microservices.IdentifierMapper
             {
                 Assert.That(swapper.GetSubstitutionFor("0202020202", out reason), Is.EqualTo(answer2));
 
-                Assert.That(guidTable.GetRowCount(), Is.EqualTo(1));
-                Assert.That(guidTable.GetDataTable().Rows[0]["CHI"], Is.EqualTo("0202020202"));
-                Assert.That(guidTable.GetDataTable().Rows[0]["guid"], Is.EqualTo(answer2));
+                Assert.That(guidTable?.GetRowCount(), Is.EqualTo(1));
+                Assert.That(guidTable?.GetDataTable().Rows[0]["CHI"], Is.EqualTo("0202020202"));
+                Assert.That(guidTable?.GetDataTable().Rows[0]["guid"], Is.EqualTo(answer2));
             });
 
 

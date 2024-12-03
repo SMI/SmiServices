@@ -1,22 +1,17 @@
 """Common build variables and functions"""
 
 import argparse
-import hashlib
 import functools
+import hashlib
 import os
 import subprocess
-from pathlib import Path
-from typing import Dict
-from typing import Optional
-from typing import Sequence
-from typing import Union
+from collections.abc import Sequence
 
-PROJ_ROOT = (Path(__file__).parent / "..").resolve()
-DIST_DIR = PROJ_ROOT / "dist"
-STR_LIKE = Union[str, Path]
+PROJ_ROOT = os.path.realpath(os.path.join(os.path.dirname(__file__), ".."))
+DIST_DIR = f"{PROJ_ROOT}/dist"
 
 
-def add_clean_arg(parser: argparse.ArgumentParser) -> None:    
+def add_clean_arg(parser: argparse.ArgumentParser) -> None:
     parser.add_argument(
         "--clean",
         action="store_true",
@@ -24,7 +19,7 @@ def add_clean_arg(parser: argparse.ArgumentParser) -> None:
     )
 
 
-def add_tag_arg(parser: argparse.ArgumentParser) -> None:    
+def add_tag_arg(parser: argparse.ArgumentParser) -> None:
     parser.add_argument(
         "tag",
         help="The git tag for the release",
@@ -32,13 +27,12 @@ def add_tag_arg(parser: argparse.ArgumentParser) -> None:
 
 
 def run(
-    cmd: Sequence[STR_LIKE],
+    cmd: Sequence[str],
     *,
-    cwd: Optional[str] = None,
-    env: Dict[str, str] = None,
+    cwd: str | None = None,
+    env: dict[str, str] | None = None,
 ) -> None:
 
-    cmd = [str(x) for x in cmd]
     cwd = cwd or PROJ_ROOT
     if env is None:
         env = {}
@@ -47,22 +41,26 @@ def run(
     subprocess.check_call(cmd, cwd=cwd, env={**os.environ, **env})
 
 
-def create_checksums(dist_tag_dir: Path, product: str) -> None:
-    file_checksums = {x.name: _md5sum(x) for x in dist_tag_dir.iterdir()}
+def create_checksums(dist_tag_dir: str, product: str) -> None:
+    file_checksums = {
+        x: _md5sum(f"{dist_tag_dir}/{x}") for x in os.listdir(dist_tag_dir)
+    }
     print("\n=== Checksums ===")
-    with open(dist_tag_dir / f"MD5SUM-{product}.txt", "w") as md5_file:
+    with open(f"{dist_tag_dir}/MD5SUM-{product}.txt", "w") as md5_file:
         for file_name, md5sum in file_checksums.items():
             line = f"{md5sum} {file_name}\n"
             print(line, end="")
             md5_file.write(line)
 
 
-def verify_md5(file_path: Path, expected_md5: str):
+def verify_md5(file_path: str, expected_md5: str) -> None:
     actual_md5 = _md5sum(file_path)
-    assert expected_md5 == actual_md5
+    assert (
+        expected_md5 == actual_md5
+    ), f"Checksum mismatch: expected={expected_md5}, actual={actual_md5}"
 
 
-def _md5sum(file_path: Path) -> str:
+def _md5sum(file_path: str) -> str:
     with open(file_path, mode="rb") as f:
         d = hashlib.md5()
         for buf in iter(functools.partial(f.read, 128), b""):
@@ -81,28 +79,31 @@ def get_docker_parser() -> argparse.ArgumentParser:
 
 
 def start_containers(
-    compose_file: Path,
+    compose_file: str,
     *,
-    env: Dict[str, str] = None,
+    env: dict[str, str] | None = None,
     docker: str,
-    checks: Sequence[str]
+    checks: Sequence[str],
 ) -> None:
 
     user = ("--user", f"{os.geteuid()}:{os.getegid()}") if docker == "docker" else ()
-    volume = f"-v{compose_file.parent}:/run"
+    volume = f"-v{os.path.dirname(compose_file)}:/run"
     if docker == "podman":
         volume += ":z"
 
     cmd = (
-        docker, "run",
+        docker,
+        "run",
         "--rm",
         volume,
         *user,
         "safewaters/docker-lock",
         *(
-            "lock", "rewrite",
-            "--lockfile-name", f"{compose_file.name}.lock"
-        )
+            "lock",
+            "rewrite",
+            "--lockfile-name",
+            f"{os.path.basename(compose_file)}.lock",
+        ),
     )
     run(cmd)
 
@@ -112,7 +113,8 @@ def start_containers(
     cmd = (
         f"{docker}",
         "compose",
-        "-f", compose_file,
+        "-f",
+        compose_file,
         "up",
         "--quiet-pull",
         "--detach",
@@ -126,7 +128,8 @@ def start_containers(
     for c in checks:
         cmd = (
             "./bin/wait-for.bash",
-            "--timeout", "60s",
+            "--timeout",
+            "60s",
             f"{docker} exec {c}",
         )
         try:
@@ -136,11 +139,13 @@ def start_containers(
             cmd = (
                 f"{docker}",
                 "compose",
-                "-f", compose_file,
-                "logs"
+                "-f",
+                compose_file,
+                "logs",
             )
             run(cmd)
             raise
+
 
 def is_ci() -> bool:
     ci = os.environ.get("CI", None)
