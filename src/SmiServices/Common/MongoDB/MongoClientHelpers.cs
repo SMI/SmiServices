@@ -33,10 +33,7 @@ namespace SmiServices.Common.MongoDB
             {
                 ApplicationName = applicationName,
                 Server = new MongoServerAddress(options.HostName, options.Port),
-                WriteConcern = new WriteConcern(journal: !skipJournal),
-                SrvMaxHosts = 0,
-                DirectConnection = true,
-                IPv6 = false
+                WriteConcern = new WriteConcern(journal: !skipJournal)
             };
 
             if (skipAuthentication || options.UserName == string.Empty)
