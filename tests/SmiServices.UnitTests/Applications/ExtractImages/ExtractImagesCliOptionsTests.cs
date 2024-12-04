@@ -15,7 +15,6 @@ namespace SmiServices.UnitTests.Applications.ExtractImages
         [OneTimeSetUp]
         public void OneTimeSetUp()
         {
-            TestLogger.Setup();
         }
 
         [OneTimeTearDown]

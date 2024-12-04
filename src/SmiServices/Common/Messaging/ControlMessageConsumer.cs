@@ -28,6 +28,7 @@ namespace SmiServices.Common.Messaging
 
         private readonly string _processName;
         private readonly string _processId;
+        private readonly IConnection _connection;
 
         private readonly IChannel _channel;
 

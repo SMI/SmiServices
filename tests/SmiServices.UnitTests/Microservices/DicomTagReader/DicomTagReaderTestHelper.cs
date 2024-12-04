@@ -57,14 +57,7 @@ namespace SmiServices.UnitTests.Microservices.DicomTagReader
             tester.CreateExchange(Options.RabbitOptions!.FatalLoggingExchange!, null);
             tester.Shutdown();
 
-            _testConnection = new ConnectionFactory
-            {
-                HostName = Options.RabbitOptions.RabbitMqHostName,
-                Port = Options.RabbitOptions.RabbitMqHostPort,
-                VirtualHost = Options.RabbitOptions.RabbitMqVirtualHost,
-                UserName = Options.RabbitOptions.RabbitMqUserName,
-                Password = Options.RabbitOptions.RabbitMqPassword
-            }.CreateConnection("TestConnection");
+            _testConnection = Options.RabbitOptions.Connection;
 
             _testModel = _testConnection.CreateModel();
 

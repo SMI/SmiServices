@@ -31,7 +31,6 @@ namespace SmiServices.IntegrationTests.Microservices.CohortPackager
         [OneTimeSetUp]
         public void OneTimeSetUp()
         {
-            TestLogger.Setup();
         }
 
         [OneTimeTearDown]

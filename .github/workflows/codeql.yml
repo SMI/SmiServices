@@ -10,6 +10,9 @@ on:
   schedule:
     - cron: "0 5 * * *"
 
+env:
+  python-version: "3.10"
+
 jobs:
   analyze:
     name: Analyze
@@ -23,6 +26,9 @@ jobs:
       matrix:
         language: ["csharp", "java", "python"]
     steps:
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ env.python-version }}
       - name: Checkout repository
         uses: actions/checkout@v4
       - name: Initialize CodeQL
@@ -32,13 +38,17 @@ jobs:
       - name: Build Python
         if: ${{ matrix.language == 'python' }}
         uses: github/codeql-action/autobuild@v3
+      - name: setup .NET
+        if: ${{ matrix.language == 'csharp' }}
+        # NOTE(rkm 2022-02-20) Uses global.json
+        uses: actions/setup-dotnet@v4.1.0
       - name: Build .Net
         if: ${{ matrix.language == 'csharp' }}
-        run: ./bin/smi/build.py -c Release
+        run: ./bin/smi/smi_build.py -c Release
       - name: Build java
         if: ${{ matrix.language == 'java' }}
         # NOTE(rkm 2023-03-21) Ensure test code is detected but don't actually run anything
-        run: ./bin/ctp/test.py --install-libs -DskipTests
+        run: ./bin/ctp/ctp_test.py --install-libs -DskipTests
       - name: SecurityCodescan
         if: ${{ matrix.language == 'csharp' }}
         run: |

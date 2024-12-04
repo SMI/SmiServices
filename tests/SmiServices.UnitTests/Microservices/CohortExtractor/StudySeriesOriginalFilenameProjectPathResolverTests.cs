@@ -19,7 +19,6 @@ namespace SmiServices.UnitTests.Microservices.CohortExtractor
         [OneTimeSetUp]
         public void OneTimeSetUp()
         {
-            TestLogger.Setup();
         }
 
         [OneTimeTearDown]

@@ -15,7 +15,6 @@ namespace SmiServices.UnitTests.Microservices.CohortExtractor
         [SetUp]
         public void SetUp()
         {
-            TestLogger.Setup();
             _fileSystem = new MockFileSystem();
         }
 

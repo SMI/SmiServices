@@ -15,7 +15,6 @@ internal class ProducerModelTests
     [OneTimeSetUp]
     public void OneTimeSetUp()
     {
-        TestLogger.Setup();
     }
 
     [Test]

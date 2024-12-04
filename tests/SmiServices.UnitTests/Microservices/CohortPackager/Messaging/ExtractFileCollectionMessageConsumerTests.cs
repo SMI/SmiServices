@@ -17,7 +17,6 @@ internal class ExtractFileCollectionMessageConsumerTests
     [OneTimeSetUp]
     public void OneTimeSetUp()
     {
-        TestLogger.Setup();
     }
 
     [OneTimeTearDown]

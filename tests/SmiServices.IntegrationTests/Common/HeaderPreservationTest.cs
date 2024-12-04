@@ -15,7 +15,6 @@ namespace SmiServices.IntegrationTests.Common
         [OneTimeSetUp]
         public void OneTimeSetUp()
         {
-            TestLogger.Setup();
         }
 
         [Test]

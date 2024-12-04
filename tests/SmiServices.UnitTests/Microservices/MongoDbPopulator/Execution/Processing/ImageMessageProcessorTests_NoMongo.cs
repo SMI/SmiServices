@@ -25,7 +25,6 @@ namespace SmiServices.UnitTests.Microservices.MongoDbPopulator.Execution.Process
         [OneTimeSetUp]
         public void OneTimeSetUp()
         {
-            TestLogger.Setup();
         }
 
         [SetUp]

@@ -25,7 +25,6 @@ internal class AnonVerificationMessageConsumerTests
     [OneTimeSetUp]
     public void OneTimeSetUp()
     {
-        TestLogger.Setup();
     }
 
     [OneTimeTearDown]

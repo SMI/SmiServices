@@ -253,7 +253,7 @@ A raw git diff can be seen [here][unreleased].
 - [#1450](https://github.com/SMI/SmiServices/pull/1450) by darshad-github. Update contributing.md with feature branch workflow guidelines
 - [#1451](https://github.com/SMI/SmiServices/pull/1451) by rkm. adopt dotnet central package management (CPM)
 - [#1468](https://github.com/SMI/SmiServices/pull/1468) by rkm. switch rabbitmq docker-compose images to include management plugin
-- [#1494](https://github.com/SMI/SmiServices/pull/1494) by rkm. \[actions\] replace deprecated set-output with GITHUB_OUTPUT
+- [#1494](https://github.com/SMI/SmiServices/pull/1494) by rkm. [actions] replace deprecated set-output with GITHUB_OUTPUT
 - [#1496](https://github.com/SMI/SmiServices/pull/1496) by rkm. add CodeQL scan
 
 ## [5.3.0] 2022-11-08
@@ -353,7 +353,7 @@ A raw git diff can be seen [here][unreleased].
 
 ### Bugfix
 
-- [#1087](https://github.com/SMI/SmiServices/pull/1087) by rkm. \[CI\] Misc. CI
+- [#1087](https://github.com/SMI/SmiServices/pull/1087) by rkm. [CI] Misc. CI
   fixes
   - Fixes the build scripts to respect any intermediate non-zero return
     codes
@@ -927,7 +927,7 @@ A raw git diff can be seen [here][unreleased].
 
 ### Added
 
-- \[breaking\] Add identifiable extraction support
+- [breaking] Add identifiable extraction support
   - New service "FileCopier" which sits in place of CTP for identifiable
     extractions and copies source files to their output dirs
   - Changes to MongoDB extraction schema, but backwards compatibility has
@@ -948,7 +948,7 @@ A raw git diff can be seen [here][unreleased].
 
 ### Changed
 
-- \[breaking\] Environment variables are no longer required. Previous settings
+- [breaking] Environment variables are no longer required. Previous settings
   now appear in configuration file
   - Environment variable `SMI_LOGS_ROOT` is now `GlobalOptions.LogsRoot`
   - Environment variable `MONGO_SERVICE_PASSWORD` is now
@@ -1050,7 +1050,7 @@ A raw git diff can be seen [here][unreleased].
   - Records in the referenced table will blacklist where any UID is found
     (StudyInstanceUID, SeriesInstanceUID or SOPInstanceUID). This allows
     blacklisting an entire study or only specific images.
-  - \[breaking\] Config on live system may need updated
+  - [breaking] Config on live system may need updated
 - Change the extraction directory generation to be
   `<projname>/image-requests/<extractname>`. Fixes
   [MVP Service #159](https://dev.azure.com/smiops/MVP%20Service/_workitems/edit/159/)
@@ -1103,8 +1103,8 @@ A raw git diff can be seen [here][unreleased].
 
 ### Changed
 
-- \[Breaking\] Promote the PT modality to its own collection in MongoDB
-- \[Breaking\] Renamed `RedisHost` to `RedisConnectionString` in the config
+- [Breaking] Promote the PT modality to its own collection in MongoDB
+- [Breaking] Renamed `RedisHost` to `RedisConnectionString` in the config
   options for clarity
 - Update to .Net Core 3.1 (supported until Dec 2022) since 2.2 support ended
   last year
@@ -1190,12 +1190,12 @@ A raw git diff can be seen [here][unreleased].
 
 ## [1.5.0] - 2020-03-05
 
-- \[Breaking\] Updated RabbitMQ extraction config to match extraction plan v2
+- [Breaking] Updated RabbitMQ extraction config to match extraction plan v2
 - Refactor Java exception handling and use of threads
-- `TessDirectory` option in \[IsIdentifiable\] now expects tesseract models file
+- `TessDirectory` option in [IsIdentifiable] now expects tesseract models file
   to exist (no longer downloads it on demand)
 - Added support for outsourcing classification (e.g. NLP) to other processes
-  via TCP (entered in \[SocketRules\] in `Rules.yaml`)
+  via TCP (entered in [SocketRules] in `Rules.yaml`)
 - IsIdentifiable NLP text classification now outsourced via TCP to any
   services configured in
   - StanfordNER implementation written in Java

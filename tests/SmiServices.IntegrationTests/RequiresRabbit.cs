@@ -11,7 +11,7 @@ namespace SmiServices.IntegrationTests
 {
     [AttributeUsage(AttributeTargets.Method | AttributeTargets.Class | AttributeTargets.Interface |
                     AttributeTargets.Assembly, AllowMultiple = true)]
-    public class RequiresRabbit : RequiresExternalService
+    public sealed class RequiresRabbit : RequiresExternalService
     {
         protected override string? ApplyToContextImpl()
         {
@@ -43,13 +43,25 @@ namespace SmiServices.IntegrationTests
             }
         }
 
-        public static ConnectionFactory GetConnectionFactory()
+        private static IConnection GetConnectionFactory()
         {
             var deserializer = new DeserializerBuilder()
                 .IgnoreUnmatchedProperties()
                 .Build();
+            var factory = deserializer.Deserialize<ConnectionFactory>(
+                new StreamReader(Path.Combine(TestContext.CurrentContext.TestDirectory, "Rabbit.yaml")));
+            factory.ContinuationTimeout = TimeSpan.FromSeconds(5);
+            factory.HandshakeContinuationTimeout = TimeSpan.FromSeconds(5);
+            factory.RequestedConnectionTimeout = TimeSpan.FromSeconds(5);
+            factory.SocketReadTimeout = TimeSpan.FromSeconds(5);
+            factory.SocketWriteTimeout = TimeSpan.FromSeconds(5);
+            return factory.CreateConnection();
+        }
 
-            return deserializer.Deserialize<ConnectionFactory>(new StreamReader(Path.Combine(TestContext.CurrentContext.TestDirectory, "Rabbit.yaml")));
+        public void CheckExchange()
+        {
+            using var model = Connection.Value.CreateModel();
+            model.ExchangeDeclare("TEST.ControlExchange", ExchangeType.Topic, durable: true);
         }
     }
 }

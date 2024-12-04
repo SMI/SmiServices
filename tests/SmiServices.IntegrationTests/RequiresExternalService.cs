@@ -37,7 +37,12 @@ namespace SmiServices.IntegrationTests
                 _cache = ApplyToContextImpl();
             }
 
-            if (_cache is null) return;
+            if (_cache is null)
+            {
+                if (this is RequiresRabbit r)
+                    r.CheckExchange();
+                return;
+            }
 
             if (_failIfUnavailable)
                 Assert.Fail(_cache);

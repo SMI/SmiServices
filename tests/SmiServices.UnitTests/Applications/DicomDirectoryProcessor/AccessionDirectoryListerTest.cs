@@ -21,7 +21,6 @@ namespace SmiServices.UnitTests.Applications.DicomDirectoryProcessor
         [OneTimeSetUp]
         public void OneTimeSetUp()
         {
-            TestLogger.Setup();
         }
 
         private static string GetListContent()

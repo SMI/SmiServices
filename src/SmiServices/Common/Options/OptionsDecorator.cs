@@ -1,5 +1,6 @@
 using System;
 using System.Reflection;
+using YamlDotNet.Serialization;
 
 namespace SmiServices.Common.Options
 {
@@ -7,11 +8,13 @@ namespace SmiServices.Common.Options
     {
         public abstract GlobalOptions Decorate(GlobalOptions options);
 
-        protected void ForAll<T>(IOptions globals, Func<T, T> setter) where T : IOptions
+        protected static void ForAll<T>(IOptions globals, Func<T, T> setter) where T : IOptions
         {
             //for each property on branch
-            foreach (PropertyInfo p in globals.GetType().GetProperties())
+            foreach (var p in globals.GetType().GetProperties())
             {
+                if (p.GetCustomAttribute(typeof(YamlIgnoreAttribute)) is not null) continue;
+
                 var currentValue = p.GetValue(globals)!;
 
                 //if it's a T then call the action (note that we check the property Type because we are interested in the property even if it is null
@@ -24,7 +27,7 @@ namespace SmiServices.Common.Options
                     p.SetValue(globals, result);
                 }
 
-                //process it's children
+                //process its children
                 if (currentValue is IOptions subOptions)
                 {
                     ForAll(subOptions, setter);

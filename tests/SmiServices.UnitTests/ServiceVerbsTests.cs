@@ -22,7 +22,6 @@ namespace SmiServices.UnitTests
         [OneTimeSetUp]
         public void OneTimeSetUp()
         {
-            TestLogger.Setup();
         }
 
         [OneTimeTearDown]

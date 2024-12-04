@@ -14,7 +14,6 @@ public class DynamicRejectorTests
     [OneTimeSetUp]
     public void OneTimeSetUp()
     {
-        TestLogger.Setup();
     }
 
     [OneTimeTearDown]

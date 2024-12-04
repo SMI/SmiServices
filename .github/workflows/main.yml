@@ -22,15 +22,18 @@ env:
   java-version: 11
   java-distribution: temurin
   # python
-  python-version: 3.6
+  python-version: "3.10"
 
 jobs:
   init:
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-24.04
     outputs:
       matrix: ${{ steps.matrix.outputs.matrix }}
       build_ref: ${{ steps.build_ref.outputs.build_ref }}
     steps:
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ env.python-version }}
       - name: checkout
         uses: actions/checkout@v4
       - name: set matrix
@@ -59,16 +62,19 @@ jobs:
       - name: "[linux] enable disk caching"
         if: ${{ matrix.os == 'linux' }}
         run: sudo apt-get install -y libeatmydata1
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ env.python-version }}
       - name: checkout
         uses: actions/checkout@v4
       - name: setup .NET
         # NOTE(rkm 2022-02-20) Uses global.json
         uses: actions/setup-dotnet@v4.1.0
       - name: download tessdata
-        run: ./bin/smi/downloadTessdata.py
+        run: ./bin/smi/download_tessdata.py
       - name: "[linux] start services"
         if: ${{ matrix.os == 'linux' }}
-        run: ./bin/smi/startDockerLinux.py ${{ env.db-password }}
+        run: ./bin/smi/smi_start_docker_linux.py ${{ env.db-password }}
       - name: "[linux] re-write database strings"
         if: ${{ matrix.os == 'linux' }}
         run: |
@@ -96,12 +102,12 @@ jobs:
           set -euxo pipefail
           cov=""
           [ "${{ matrix.os }}" == "windows" ] && cov="--no-coverage"
-          ./bin/smi/buildTestPackage.py \
+          ./bin/smi/smi_build_test_package.py \
               ${{ needs.init.outputs.build_ref }} \
               "$cov"
       - name: upload coverage to codecov
         if: ${{ matrix.os == 'linux' }}
-        uses: codecov/codecov-action@v5.0.4
+        uses: codecov/codecov-action@v5.0.7
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
           directory: coverage/
@@ -126,6 +132,9 @@ jobs:
       matrix: ${{ fromJson(needs.init.outputs.matrix) }}
     runs-on: ${{ matrix.image }}
     steps:
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ env.python-version }}
       - name: "[linux] enable disk caching"
         if: ${{ matrix.os == 'linux' }}
         run: sudo apt-get install -y libeatmydata1
@@ -139,12 +148,12 @@ jobs:
           cache: maven
       - name: "[linux] start services"
         if: ${{ matrix.os == 'linux' }}
-        run: ./bin/ctp/startDockerLinux.py
+        run: ./bin/ctp/ctp_start_docker_linux.py
       - name: "[windows] skip integration tests"
         if: ${{ matrix.os == 'windows' }}
         run: echo "JAVA_TESTS=--skip-integration-tests" >> $GITHUB_ENV
       - name: build, test, and package ctp
-        run: ./bin/ctp/buildTestPackage.py --install-libs ${{ needs.init.outputs.build_ref }} ${{ env.JAVA_TESTS }}
+        run: ./bin/ctp/ctp_build_test_package.py --install-libs ${{ needs.init.outputs.build_ref }} ${{ env.JAVA_TESTS }}
       - name: "[linux] upload packages"
         if: ${{ matrix.os == 'linux' }}
         uses: actions/upload-artifact@v4
@@ -155,7 +164,7 @@ jobs:
   upload-to-release:
     if: contains(github.ref, 'refs/tags/v')
     needs: [init, smi, ctp]
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-24.04
     steps:
       - name: "[linux] enable disk caching"
         run: sudo apt-get install -y libeatmydata1

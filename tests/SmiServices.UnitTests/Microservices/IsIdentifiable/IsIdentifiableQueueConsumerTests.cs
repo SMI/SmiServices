@@ -36,7 +36,6 @@ namespace SmiServices.UnitTests.Microservices.IsIdentifiable
         [OneTimeSetUp]
         public void OneTimeSetUp()
         {
-            TestLogger.Setup();
         }
 
         [OneTimeTearDown]

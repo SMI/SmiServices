@@ -9,7 +9,6 @@ internal class ExponentialBackoffProviderTests
     [OneTimeSetUp]
     public void OneTimeSetUp()
     {
-        TestLogger.Setup();
     }
 
     [Test]
