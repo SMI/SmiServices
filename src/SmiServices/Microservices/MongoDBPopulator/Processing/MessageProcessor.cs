@@ -38,7 +38,7 @@ namespace SmiServices.Microservices.MongoDBPopulator.Processing
         /// <summary>
         /// Model to use when sending ACK for messages
         /// </summary>
-        public IModel? Model { get; set; }
+        public IChannel? Model { get; set; }
 
         /// <inheritdoc />
         /// <summary>

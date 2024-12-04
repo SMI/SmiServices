@@ -16,7 +16,7 @@ namespace SmiServices.UnitTests.Microservices.FileCopier
         #region Fixture Methods 
 
         private ExtractFileMessage _message = null!;
-        private Mock<IModel> _mockModel = null!;
+        private Mock<IChannel> _mockModel = null!;
         private Mock<IFileCopier> _mockFileCopier = null!;
 
         [OneTimeSetUp]
@@ -45,7 +45,7 @@ namespace SmiServices.UnitTests.Microservices.FileCopier
                 IsIdentifiableExtraction = true,
                 OutputPath = "bar",
             };
-            _mockModel = new Mock<IModel>(MockBehavior.Strict);
+            _mockModel = new Mock<IChannel>(MockBehavior.Strict);
             _mockModel.Setup(x => x.IsClosed).Returns(false);
             _mockModel.Setup(x => x.BasicAck(It.IsAny<ulong>(), It.IsAny<bool>()));
             _mockModel.Setup(x => x.BasicNack(It.IsAny<ulong>(), It.IsAny<bool>(), It.IsAny<bool>()));

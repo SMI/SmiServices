@@ -9,6 +9,7 @@ using System;
 using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace SmiServices.Common.Messaging
@@ -28,7 +29,7 @@ namespace SmiServices.Common.Messaging
         private readonly string _processName;
         private readonly string _processId;
 
-        private readonly IConnectionFactory _factory;
+        private readonly IChannel _channel;
 
         private const string ControlQueueBindingKey = "smi.control.all.*";
 
@@ -41,24 +42,28 @@ namespace SmiServices.Common.Messaging
             Action<string> stopEvent)
         {
             ArgumentNullException.ThrowIfNull(processName);
+            ArgumentNullException.ThrowIfNull(controlExchangeName);
+            ArgumentNullException.ThrowIfNull(stopEvent);
+
+            if (rabbitOptions.RabbitMqVirtualHost is null || rabbitOptions.RabbitMqUserName is null || rabbitOptions.RabbitMqPassword is null)
+                throw new InvalidOperationException("RabbitOptions must have all fields set");
+
             _processName = processName.ToLower();
             _processId = processId.ToString();
 
             ControlConsumerOptions.QueueName = $"Control.{_processName}{_processId}";
 
-            _factory = new ConnectionFactory()
+            _channel = new ConnectionFactory
             {
                 HostName = rabbitOptions.RabbitMqHostName,
                 VirtualHost = rabbitOptions.RabbitMqVirtualHost,
                 Port = rabbitOptions.RabbitMqHostPort,
                 UserName = rabbitOptions.RabbitMqUserName,
                 Password = rabbitOptions.RabbitMqPassword
-            };
+            }.CreateConnectionAsync(CancellationToken.None).Result.CreateChannelAsync(null, CancellationToken.None).Result;
 
-            ArgumentNullException.ThrowIfNull(controlExchangeName);
-            SetupControlQueueForHost(controlExchangeName);
+            SetupControlQueueForHost(controlExchangeName).Wait();
 
-            ArgumentNullException.ThrowIfNull(stopEvent);
             StopHost += () => stopEvent("Control message stop");
         }
 
@@ -90,7 +95,7 @@ namespace SmiServices.Common.Messaging
                 string action = split[^1];
 
                 // If action contains a numeric and it's not our PID, then ignore
-                if (action.Any(char.IsDigit) && !action.EndsWith(_processId))
+                if (action.Any(char.IsDigit) && !action.EndsWith(_processId, StringComparison.Ordinal))
                     return;
 
                 // Ignore any messages not meant for us
@@ -102,22 +107,15 @@ namespace SmiServices.Common.Messaging
 
                 // Handle any general actions - just stop and ping for now
 
-                if (action.StartsWith("stop"))
+                if (action.StartsWith("stop", StringComparison.Ordinal))
                 {
-                    if (StopHost == null)
-                    {
-                        // This should never really happen
-                        Logger.Info("Received stop command but no stop event registered");
-                        return;
-                    }
-
                     Logger.Info("Stop request received, raising StopHost event");
                     Task.Run(() => StopHost.Invoke());
 
                     return;
                 }
 
-                if (action.StartsWith("ping"))
+                if (action.StartsWith("ping", StringComparison.Ordinal))
                 {
                     Logger.Info("Pong!");
                     return;
@@ -150,10 +148,9 @@ namespace SmiServices.Common.Messaging
         /// </summary>
         public override void Shutdown()
         {
-            using IConnection connection = _factory.CreateConnection(_processName + _processId + "-ControlQueueShutdown");
-            using IModel model = connection.CreateModel();
             Logger.Debug($"Deleting control queue: {ControlConsumerOptions.QueueName}");
-            model.QueueDelete(ControlConsumerOptions.QueueName);
+            if (ControlConsumerOptions.QueueName != null)
+                _channel.QueueDeleteAsync(ControlConsumerOptions.QueueName).Wait();
         }
 
         // NOTE(rkm 2020-05-12) Not used in this implementation
@@ -167,13 +164,11 @@ namespace SmiServices.Common.Messaging
         /// The connection is disposed and StartConsumer(...) can then be called on the parent MessageBroker with ControlConsumerOptions
         /// </summary>
         /// <param name="controlExchangeName"></param>
-        private void SetupControlQueueForHost(string controlExchangeName)
+        private async Task SetupControlQueueForHost(string controlExchangeName)
         {
-            using IConnection connection = _factory.CreateConnection($"{_processName}{_processId}-ControlQueueSetup");
-            using IModel model = connection.CreateModel();
             try
             {
-                model.ExchangeDeclarePassive(controlExchangeName);
+                await _channel.ExchangeDeclarePassiveAsync(controlExchangeName, CancellationToken.None);
             }
             catch (OperationInterruptedException e)
             {
@@ -186,17 +181,20 @@ namespace SmiServices.Common.Messaging
             // durable = false (queue will not persist over restarts of the RabbitMq server)
             // exclusive = false (queue won't be deleted when THIS connection closes)
             // autoDelete = true (queue will be deleted after a consumer connects and then disconnects)
-            model.QueueDeclare(ControlConsumerOptions.QueueName, durable: false, exclusive: false, autoDelete: true);
+            await _channel.QueueDeclareAsync(
+                ControlConsumerOptions.QueueName ??
+                throw new InvalidOperationException(nameof(ControlConsumerOptions.QueueName)), durable: false,
+                exclusive: false, autoDelete: true, cancellationToken: CancellationToken.None);
 
             // Binding for any control requests, i.e. "stop"
             Logger.Debug($"Creating binding {controlExchangeName}->{ControlConsumerOptions.QueueName} with key {ControlQueueBindingKey}");
-            model.QueueBind(ControlConsumerOptions.QueueName, controlExchangeName, ControlQueueBindingKey);
+            await _channel.QueueBindAsync(ControlConsumerOptions.QueueName, controlExchangeName, ControlQueueBindingKey);
 
             // Specific microservice binding key, ignoring the id at the end of the process name
-            string bindingKey = $"smi.control.{_processName}.*";
+            var bindingKey = $"smi.control.{_processName}.*";
 
             Logger.Debug($"Creating binding {controlExchangeName}->{ControlConsumerOptions.QueueName} with key {bindingKey}");
-            model.QueueBind(ControlConsumerOptions.QueueName, controlExchangeName, bindingKey);
+            await _channel.QueueBindAsync(ControlConsumerOptions.QueueName, controlExchangeName, bindingKey);
         }
 
         private static string? GetBodyFromArgs(BasicDeliverEventArgs e)

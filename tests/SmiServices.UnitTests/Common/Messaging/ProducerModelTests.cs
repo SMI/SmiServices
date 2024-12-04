@@ -23,7 +23,7 @@ internal class ProducerModelTests
     {
         // Arrange
         bool timedOut = false;
-        var mockModel = new Mock<IModel>(MockBehavior.Strict);
+        var mockModel = new Mock<IChannel>(MockBehavior.Strict);
         mockModel.Setup(x => x.BasicPublish("Exchange", "", true, It.IsAny<IBasicProperties>(), It.IsAny<ReadOnlyMemory<byte>>()));
         mockModel.Setup(x => x.WaitForConfirms(It.IsAny<TimeSpan>(), out timedOut)).Returns(true);
 
@@ -49,7 +49,7 @@ internal class ProducerModelTests
     {
         // Arrange
         bool timedOut = true;
-        var mockModel = new Mock<IModel>(MockBehavior.Strict);
+        var mockModel = new Mock<IChannel>(MockBehavior.Strict);
         mockModel.Setup(x => x.BasicPublish("Exchange", "", true, It.IsAny<IBasicProperties>(), It.IsAny<ReadOnlyMemory<byte>>()));
         mockModel.Setup(x => x.WaitForConfirms(It.IsAny<TimeSpan>(), out timedOut)).Returns(false);
 
@@ -74,7 +74,7 @@ internal class ProducerModelTests
     {
         // Arrange
         bool timedOut = false;
-        var mockModel = new Mock<IModel>(MockBehavior.Strict);
+        var mockModel = new Mock<IChannel>(MockBehavior.Strict);
         mockModel.Setup(x => x.BasicPublish("Exchange", "", true, It.IsAny<IBasicProperties>(), It.IsAny<ReadOnlyMemory<byte>>()));
         mockModel.Setup(x => x.WaitForConfirms(It.IsAny<TimeSpan>(), out timedOut)).Returns(true);
         mockModel.Setup(x => x.MessageCount("ProbeQueue")).Returns(0);
@@ -101,7 +101,7 @@ internal class ProducerModelTests
     {
         // Arrange
         bool timedOut = false;
-        var mockModel = new Mock<IModel>(MockBehavior.Strict);
+        var mockModel = new Mock<IChannel>(MockBehavior.Strict);
         mockModel.Setup(x => x.BasicPublish("Exchange", "", true, It.IsAny<IBasicProperties>(), It.IsAny<ReadOnlyMemory<byte>>()));
         mockModel.Setup(x => x.WaitForConfirms(It.IsAny<TimeSpan>(), out timedOut)).Returns(true);
         mockModel.SetupSequence(x => x.MessageCount("ProbeQueue"))

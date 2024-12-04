@@ -118,7 +118,7 @@ namespace SmiServices.UnitTests.Microservices.CohortExtractor.Messaging
                 fatalErrorEventArgs = args;
             };
 
-            var mockModel = new Mock<IModel>(MockBehavior.Strict);
+            var mockModel = new Mock<IChannel>(MockBehavior.Strict);
             mockModel.Setup(x => x.IsClosed).Returns(false);
             mockModel.Setup(x => x.BasicAck(It.IsAny<ulong>(), It.IsAny<bool>())).Verifiable();
 

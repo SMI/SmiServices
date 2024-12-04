@@ -1,6 +1,7 @@
 using RabbitMQ.Client;
 using SmiServices.Common.Messages;
 using System;
+using System.Threading.Tasks;
 
 namespace SmiServices.Common.Messaging
 {
@@ -13,7 +14,7 @@ namespace SmiServices.Common.Messaging
     {
         public BatchProducerModel(
             string exchangeName,
-            IModel model,
+            IChannel model,
             IBasicProperties properties,
             int maxPublishAttempts = 1,
             IBackoffProvider? backoffProvider = null,
@@ -26,14 +27,15 @@ namespace SmiServices.Common.Messaging
 
 
         /// <summary>
-        /// Sends a message but does not wait for the server to confirm the publish. Manually call ProducerModel.WaitForConfirms()
+        /// Sends a message but does not wait for the server to confirm the publish. Manually await the Task
         /// to check all previously unacknowledged messages have been sent.
         /// </summary>
         /// <param name="message"></param>
         /// <param name="inResponseTo"></param>
         /// <param name="routingKey"></param>
         /// <returns></returns>
-        public override IMessageHeader SendMessage(IMessage message, IMessageHeader? inResponseTo = null, string? routingKey = null)
+        public override Task<IMessageHeader> SendMessage(IMessage message, IMessageHeader? inResponseTo = null,
+            string? routingKey = null)
         {
             return SendMessageImpl(message, inResponseTo, routingKey);
         }

@@ -19,7 +19,7 @@ namespace SmiServices.Common.Messages
         /// </summary>
         Guid[] Parents { get; }
 
-        void Populate(IDictionary<string, object> props);
+        void Populate(IDictionary<string, object?> props);
         void Log(ILogger logger, LogLevel level, string message, Exception? ex = null);
 
         bool IsDescendantOf(IMessageHeader other);

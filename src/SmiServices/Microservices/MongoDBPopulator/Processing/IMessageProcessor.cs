@@ -28,7 +28,7 @@ namespace SmiServices.Microservices.MongoDBPopulator.Processing
         /// <summary>
         /// Model to acknowledge messages on
         /// </summary>
-        IModel? Model { get; set; }
+        IChannel? Model { get; set; }
 
         /// <summary>
         /// Count of the total number of acknowledged messages during this processors lifetime

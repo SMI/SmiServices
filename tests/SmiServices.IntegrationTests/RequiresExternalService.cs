@@ -6,32 +6,45 @@ using System.Runtime.InteropServices;
 
 namespace SmiServices.IntegrationTests
 {
-    public class RequiresExternalService : CategoryAttribute, IApplyToContext
+    public abstract class RequiresExternalService : CategoryAttribute, IApplyToContext
     {
-        protected readonly bool FailIfUnavailable;
-        private readonly bool IgnoreIfWinCiSkip;
+        private static readonly bool _failIfUnavailable;
+        private static readonly bool _ignoreIfWinCiSkip;
+        private static bool _cached = false;
+        private static string? _cache = null;
 
-        public RequiresExternalService()
+        static RequiresExternalService()
         {
-            string? ci = Environment.GetEnvironmentVariable("CI");
-            if (!string.IsNullOrWhiteSpace(ci) && (ci == "1" || ci.Equals("TRUE", StringComparison.CurrentCultureIgnoreCase)))
-                FailIfUnavailable = true;
+            var ci = Environment.GetEnvironmentVariable("CI");
+            if (!string.IsNullOrWhiteSpace(ci) && (ci == "1" || ci.Equals("TRUE", StringComparison.OrdinalIgnoreCase)))
+                _failIfUnavailable = true;
 
             if (
                 Environment.GetEnvironmentVariable("CI_SKIP_WIN_SERVICES") == "1"
                 && RuntimeInformation.IsOSPlatform(System.Runtime.InteropServices.OSPlatform.Windows)
             )
-                IgnoreIfWinCiSkip = true;
+                _ignoreIfWinCiSkip = true;
         }
 
         public void ApplyToContext(TestExecutionContext context)
         {
-            if (IgnoreIfWinCiSkip)
+            if (_ignoreIfWinCiSkip)
                 Assert.Ignore("CI_SKIP_WIN_SERVICES");
 
-            ApplyToContextImpl(context);
+            if (!_cached)
+            {
+                _cached = true;
+                _cache = ApplyToContextImpl();
+            }
+
+            if (_cache is null) return;
+
+            if (_failIfUnavailable)
+                Assert.Fail(_cache);
+            else
+                Assert.Ignore(_cache);
         }
 
-        protected virtual void ApplyToContextImpl(TestExecutionContext context) { }
+        protected abstract string? ApplyToContextImpl();
     }
 }

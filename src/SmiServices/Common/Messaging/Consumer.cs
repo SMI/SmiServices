@@ -45,7 +45,7 @@ namespace SmiServices.Common.Messaging
         private readonly object _oConsumeLock = new();
         private bool _exiting;
 
-        protected IModel? Model;
+        protected IChannel? Model;
 
         public virtual void Shutdown()
         {
@@ -72,7 +72,7 @@ namespace SmiServices.Common.Messaging
         }
 
 
-        public void SetModel(IModel model)
+        public void SetModel(IChannel model)
         {
             if (model.IsClosed)
                 throw new ArgumentException("Model is closed");

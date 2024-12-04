@@ -1,7 +1,6 @@
 using FAnsi;
 using FAnsi.Discovery;
 using NUnit.Framework;
-using NUnit.Framework.Internal;
 using SmiServices.Common;
 using System;
 using System.IO;
@@ -21,21 +20,16 @@ namespace SmiServices.IntegrationTests
             _type = type;
         }
 
-        protected override void ApplyToContextImpl(TestExecutionContext context)
+        protected override string? ApplyToContextImpl()
         {
             FansiImplementations.Load();
 
             var connectionStrings = GetRelationalDatabaseConnectionStrings();
             var server = connectionStrings.GetServer(_type);
 
-            if (server.Exists())
-                return;
-
-            string msg = $"Could not connect to {_type} at '{server.Name}' with the provided connection options";
-            if (FailIfUnavailable)
-                Assert.Fail(msg);
-            else
-                Assert.Ignore(msg);
+            return server.Exists()
+                ? null
+                : $"Could not connect to {_type} at '{server.Name}' with the provided connection options";
         }
 
         public static ConStrs GetRelationalDatabaseConnectionStrings()

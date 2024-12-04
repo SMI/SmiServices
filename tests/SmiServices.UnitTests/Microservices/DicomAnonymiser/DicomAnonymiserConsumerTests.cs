@@ -30,7 +30,7 @@ namespace SmiServices.UnitTests.Microservices.DicomAnonymiser
         private string _sourceDcmPathAbs = null!;
         private ExtractFileMessage _extractFileMessage = null!;
         private DicomAnonymiserOptions _options = null!;
-        private Mock<IModel> _mockModel = null!;
+        private Mock<IChannel> _mockModel = null!;
 
         [OneTimeSetUp]
         public void OneTimeSetUp()
@@ -96,7 +96,7 @@ namespace SmiServices.UnitTests.Microservices.DicomAnonymiser
                 RoutingKeyFailure = "nay"
             };
 
-            _mockModel = new Mock<IModel>(MockBehavior.Strict);
+            _mockModel = new Mock<IChannel>(MockBehavior.Strict);
             _mockModel.Setup(x => x.IsClosed).Returns(false);
             _mockModel.Setup(x => x.BasicAck(It.IsAny<ulong>(), It.IsAny<bool>()));
             _mockModel.Setup(x => x.BasicNack(It.IsAny<ulong>(), It.IsAny<bool>(), It.IsAny<bool>()));

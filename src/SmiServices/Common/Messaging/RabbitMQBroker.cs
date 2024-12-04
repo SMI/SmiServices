@@ -273,14 +273,14 @@ namespace SmiServices.Common.Messaging
         /// </summary>
         /// <param name="connectionName"></param>
         /// <returns></returns>
-        public IModel GetModel(string connectionName)
+        public IChannel GetModel(string connectionName)
         {
             //TODO This method has no callback available for fatal errors
 
             if (ShutdownCalled)
                 throw new ApplicationException("Adapter has been shut down");
 
-            var model = _connection.CreateModel();
+            var model = _connection.CreateChannelAsync().Result;
 
             lock (_oResourceLock)
             {
@@ -344,13 +344,13 @@ namespace SmiServices.Common.Messaging
 
         private class RabbitResources : IDisposable
         {
-            public IModel Model { get; }
+            public IChannel Model { get; }
 
             protected readonly object OResourceLock = new();
 
             protected readonly ILogger Logger;
 
-            public RabbitResources(IModel model)
+            public RabbitResources(IChannel model)
             {
                 Logger = LogManager.GetLogger(GetType().Name);
                 Model = model;
@@ -367,7 +367,7 @@ namespace SmiServices.Common.Messaging
         {
             public IProducerModel? ProducerModel { get; set; }
 
-            public ProducerResources(IModel model, IProducerModel ipm) : base(model)
+            public ProducerResources(IChannel model, IProducerModel ipm) : base(model)
             {
                 ProducerModel = ipm;
             }
@@ -390,7 +390,7 @@ namespace SmiServices.Common.Messaging
                 Model.Dispose();
             }
 
-            internal ConsumerResources(EventingBasicConsumer ebc, string q, IModel model) : base(model)
+            internal ConsumerResources(EventingBasicConsumer ebc, string q, IChannel model) : base(model)
             {
                 this.ebc = ebc;
                 this.QueueName = q;

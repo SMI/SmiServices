@@ -46,7 +46,7 @@ internal class ExtractionRequestInfoMessageConsumerTests
         jobStoreMock.Setup(x => x.PersistMessageToStore(It.IsAny<ExtractionRequestInfoMessage>(), It.IsAny<IMessageHeader>()));
 
         var consumer = new ExtractionRequestInfoMessageConsumer(jobStoreMock.Object);
-        consumer.SetModel(new Mock<IModel>(MockBehavior.Loose).Object);
+        consumer.SetModel(new Mock<IChannel>(MockBehavior.Loose).Object);
 
         var message = new ExtractionRequestInfoMessage();
 
@@ -74,7 +74,7 @@ internal class ExtractionRequestInfoMessageConsumerTests
             .Throws(new ApplicationException("Some error..."));
 
         var consumer = new ExtractionRequestInfoMessageConsumer(jobStoreMock.Object);
-        consumer.SetModel(new Mock<IModel>(MockBehavior.Loose).Object);
+        consumer.SetModel(new Mock<IChannel>(MockBehavior.Loose).Object);
 
         var message = new ExtractionRequestInfoMessage();
 
