@@ -24,7 +24,7 @@ namespace SmiServices.UnitTests.Microservices.DicomTagReader
         public AccessionDirectoryMessage TestAccessionDirectoryMessage = null!;
 
         private IConnection _testConnection = null!;
-        private IModel _testModel = null!;
+        private IChannel _testModel = null!;
 
         public Mock<IProducerModel> TestSeriesModel = null!;
         public Mock<IProducerModel> TestImageModel = null!;

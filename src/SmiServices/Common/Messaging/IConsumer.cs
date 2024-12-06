@@ -11,10 +11,10 @@ namespace SmiServices.Common.Messaging
     public interface IConsumer
     {
         /// <summary>
-        /// Set the <see cref="IModel"/> which messages will be processed with
+        /// Set the <see cref="IChannel"/> which messages will be processed with
         /// </summary>
-        /// <param name="model"></param> 
-        void SetModel(IModel model);
+        /// <param name="model"></param>
+        void SetModel(IChannel model);
 
         /// <summary>
         /// Process a message received by the adapter.
@@ -38,7 +38,7 @@ namespace SmiServices.Common.Messaging
         bool HoldUnprocessableMessages { get; set; }
 
         /// <summary>
-        /// The BasicQos value configured on the <see cref="IModel"/>
+        /// The BasicQos value configured on the <see cref="IChannel"/>
         /// </summary>
         int QoSPrefetchCount { get; set; }
     }

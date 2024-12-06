@@ -1,4 +1,3 @@
-using Newtonsoft.Json;
 using NLog;
 using RabbitMQ.Client;
 using RabbitMQ.Client.Events;
@@ -6,8 +5,8 @@ using SmiServices.Common.Events;
 using SmiServices.Common.Messages;
 using System;
 using System.Collections.Generic;
-using System.Text;
 using System.Threading;
+using System.Threading.Tasks;
 
 namespace SmiServices.Common.Messaging
 {
@@ -20,8 +19,8 @@ namespace SmiServices.Common.Messaging
 
         private readonly ILogger _logger;
 
-        private readonly IModel _model;
-        private readonly IBasicProperties _messageBasicProperties;
+        private readonly IChannel _model;
+        private readonly BasicProperties _messageBasicProperties;
 
         private readonly string _exchangeName;
 
@@ -55,8 +54,8 @@ namespace SmiServices.Common.Messaging
         /// <param name="probeQueueLimit"></param>
         /// <param name="probeTimeout"></param>
         public ProducerModel(
-            string exchangeName, IModel model,
-            IBasicProperties properties,
+            string exchangeName, IChannel model,
+            BasicProperties properties,
             int maxRetryAttempts = 1,
             IBackoffProvider? backoffProvider = null,
             string? probeQueueName = null,
@@ -82,11 +81,19 @@ namespace SmiServices.Common.Messaging
             //TODO Understand this a bit better and investigate whether this also happens on consumer processes
 
             // Handle messages 'returned' by RabbitMQ - occurs when a messages published as persistent can't be routed to a queue
-            _model.BasicReturn += (s, a) => _logger.Warn("BasicReturn for Exchange '{0}' Routing Key '{1}' ReplyCode '{2}' ({3})", a.Exchange, a.RoutingKey, a.ReplyCode, a.ReplyText);
-            _model.BasicReturn += (s, a) => Fatal(a);
+            _model.BasicReturnAsync += (s, a) =>
+            {
+                _logger.Warn("BasicReturn for Exchange '{0}' Routing Key '{1}' ReplyCode '{2}' ({3})",
+                    a.Exchange, a.RoutingKey, a.ReplyCode, a.ReplyText);
+                Fatal(a);
+                return Task.CompletedTask;
+            };
 
             // Handle RabbitMQ putting the queue into flow control mode
-            _model.FlowControl += (s, a) => _logger.Warn("FlowControl for " + exchangeName);
+            _model.FlowControlAsync += (s, a) =>
+            {
+                _logger.Warn($"FlowControl for {exchangeName}");
+            };
 
             _backoffProvider = backoffProvider;
 
@@ -97,7 +104,7 @@ namespace SmiServices.Common.Messaging
 
             if (_probeQueueName != null)
             {
-                var messageCount = model.MessageCount(_probeQueueName);
+                var messageCount = model.MessageCountAsync(_probeQueueName).Result;
                 _logger.Debug($"Probe queue has {messageCount} message(s)");
             }
         }
@@ -110,49 +117,18 @@ namespace SmiServices.Common.Messaging
         /// <param name="inResponseTo"></param>
         /// <param name="routingKey"></param>
         /// <returns></returns>
-        public virtual IMessageHeader SendMessage(IMessage message, IMessageHeader? inResponseTo = null, string? routingKey = null)
+        public virtual async Task<IMessageHeader> SendMessage(IMessage message, IMessageHeader? inResponseTo = null,
+            string? routingKey = null)
         {
-            IMessageHeader header = SendMessageImpl(message, inResponseTo, routingKey);
-            WaitForConfirms();
-            header.Log(_logger, LogLevel.Trace, "Sent " + header.MessageGuid + " to " + _exchangeName);
-
+            var header = await SendMessageImpl(message, inResponseTo, routingKey);
+            header.Log(_logger, LogLevel.Trace, $"Sent {header.MessageGuid} to {_exchangeName}");
             return header;
         }
 
+        [Obsolete("RabbitMQ handles waiting and retry now", true)]
         public void WaitForConfirms()
         {
             // Attempt to get a publish confirmation from RabbitMQ, with some retry/timeout
-
-            var keepTrying = true;
-            var numAttempts = 0;
-
-            while (keepTrying)
-            {
-                if (_model.WaitForConfirms(TimeSpan.FromMilliseconds(ConfirmTimeoutMs), out var timedOut))
-                {
-                    _backoffProvider?.Reset();
-                    return;
-                }
-
-                if (timedOut)
-                {
-                    keepTrying = (++numAttempts < _maxRetryAttempts);
-                    _logger.Warn($"RabbitMQ WaitForConfirms timed out. numAttempts: {numAttempts}");
-
-                    TimeSpan? backoff = _backoffProvider?.GetNextBackoff();
-                    if (backoff.HasValue)
-                    {
-                        _logger.Warn($"Backing off for {backoff}");
-                        Thread.Sleep(backoff.Value);
-                    }
-
-                    continue;
-                }
-
-                throw new ApplicationException("RabbitMQ got a Nack");
-            }
-
-            throw new ApplicationException("Could not confirm message published after timeout");
         }
 
         /// <summary>
@@ -162,33 +138,34 @@ namespace SmiServices.Common.Messaging
         /// <param name="inResponseTo"></param>
         /// <param name="routingKey"></param>
         /// <returns></returns>
-        protected IMessageHeader SendMessageImpl(IMessage message, IMessageHeader? inResponseTo = null, string? routingKey = null)
+        protected async Task<IMessageHeader> SendMessageImpl(IMessage message, IMessageHeader? inResponseTo = null, string? routingKey = null)
         {
             lock (_oSendLock)
             {
-                byte[] body = Encoding.UTF8.GetBytes(JsonConvert.SerializeObject(message));
+                var body = System.Text.Json.JsonSerializer.SerializeToUtf8Bytes(message);
 
                 _messageBasicProperties.Timestamp = new AmqpTimestamp(MessageHeader.UnixTimeNow());
-                _messageBasicProperties.Headers = new Dictionary<string, object>();
+                _messageBasicProperties.Headers = new Dictionary<string, object?>();
 
                 IMessageHeader header = inResponseTo != null ? new MessageHeader(inResponseTo) : new MessageHeader();
                 header.Populate(_messageBasicProperties.Headers);
 
                 if (_probeQueueName != null && _probeMessageCounter >= _probeCounterLimit)
                 {
-                    while (_model.MessageCount(_probeQueueName) >= _probeQueueLimit)
+                    while (_model.MessageCountAsync(_probeQueueName).Result >= _probeQueueLimit)
                     {
                         _logger.Warn($"Probe queue ({_probeQueueName}) over message limit ({_probeCounterLimit}). Sleeping for {_probeTimeout}");
                         Thread.Sleep(_probeTimeout);
                     }
+
                     _probeMessageCounter = 0;
                 }
-
-                _model.BasicPublish(_exchangeName, routingKey ?? "", true, _messageBasicProperties, body);
-                ++_probeMessageCounter;
-
-                return header;
             }
+
+            await _model.BasicPublishAsync(_exchangeName, routingKey ?? "", true, _messageBasicProperties, body);
+            ++_probeMessageCounter;
+
+            return header;
         }
 
         private void Fatal(BasicReturnEventArgs a)

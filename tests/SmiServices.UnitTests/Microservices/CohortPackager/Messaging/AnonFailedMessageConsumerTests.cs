@@ -45,7 +45,7 @@ internal class AnonFailedMessageConsumerTests
         jobStoreMock.Setup(x => x.PersistMessageToStore(It.IsAny<ExtractedFileStatusMessage>(), It.IsAny<IMessageHeader>()));
 
         var consumer = new AnonFailedMessageConsumer(jobStoreMock.Object);
-        consumer.SetModel(new Mock<IModel>(MockBehavior.Loose).Object);
+        consumer.SetModel(new Mock<IChannel>(MockBehavior.Loose).Object);
 
         var message = new ExtractedFileStatusMessage
         {
@@ -79,7 +79,7 @@ internal class AnonFailedMessageConsumerTests
             .Throws(new ApplicationException("Some error..."));
 
         var consumer = new AnonFailedMessageConsumer(jobStoreMock.Object);
-        consumer.SetModel(new Mock<IModel>(MockBehavior.Loose).Object);
+        consumer.SetModel(new Mock<IChannel>(MockBehavior.Loose).Object);
 
         var message = new ExtractedFileStatusMessage
         {

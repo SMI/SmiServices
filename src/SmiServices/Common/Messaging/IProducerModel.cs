@@ -1,3 +1,4 @@
+using System.Threading.Tasks;
 using SmiServices.Common.Events;
 using SmiServices.Common.Messages;
 
@@ -15,7 +16,7 @@ namespace SmiServices.Common.Messaging
         /// <param name="message">Message object to serialise and send.</param>
         /// <param name="isInResponseTo">If you are responding to a message, pass that messages header in here (otherwise pass null)</param>
         /// <param name="routingKey">Routing key for the exchange to direct the message.</param>
-        IMessageHeader SendMessage(IMessage message, IMessageHeader? isInResponseTo, string? routingKey);
+        Task<IMessageHeader> SendMessage(IMessage message, IMessageHeader? isInResponseTo, string? routingKey);
 
         /// <summary>
         /// Waits until all sent messages are confirmed by RabbitMQ

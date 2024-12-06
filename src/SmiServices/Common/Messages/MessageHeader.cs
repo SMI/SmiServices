@@ -88,7 +88,7 @@ namespace SmiServices.Common.Messages
         /// Populates RabbitMQ header properties with the current MessageHeader
         /// </summary>
         /// <param name="headers"></param>
-        public void Populate(IDictionary<string, object> headers)
+        public void Populate(IDictionary<string, object?> headers)
         {
             headers.Add("MessageGuid", MessageGuid.ToString());
             headers.Add("ProducerProcessID", ProducerProcessID);

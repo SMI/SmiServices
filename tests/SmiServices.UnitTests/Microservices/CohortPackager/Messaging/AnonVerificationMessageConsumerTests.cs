@@ -64,7 +64,7 @@ internal class AnonVerificationMessageConsumerTests
     private AnonVerificationMessageConsumer NewConsumer(bool processBatches, int maxUnacknowledgedMessages, TimeSpan verificationMessageQueueFlushTime)
     {
         var consumer = new AnonVerificationMessageConsumer(_mockJobStore.Object, processBatches, maxUnacknowledgedMessages, verificationMessageQueueFlushTime);
-        consumer.SetModel(new Mock<IModel>(MockBehavior.Loose).Object);
+        consumer.SetModel(new Mock<IChannel>(MockBehavior.Loose).Object);
         return consumer;
     }
 

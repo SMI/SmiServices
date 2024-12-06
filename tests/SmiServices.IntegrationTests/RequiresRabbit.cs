@@ -13,18 +13,33 @@ namespace SmiServices.IntegrationTests
                     AttributeTargets.Assembly, AllowMultiple = true)]
     public sealed class RequiresRabbit : RequiresExternalService
     {
-        public static readonly Lazy<IConnection> Connection = new(GetConnectionFactory);
-
         protected override string? ApplyToContextImpl()
         {
+            var factory = GetConnectionFactory();
+            factory.ContinuationTimeout = TimeSpan.FromSeconds(5);
+            factory.HandshakeContinuationTimeout = TimeSpan.FromSeconds(5);
+            factory.RequestedConnectionTimeout = TimeSpan.FromSeconds(5);
+            factory.SocketReadTimeout = TimeSpan.FromSeconds(5);
+            factory.SocketWriteTimeout = TimeSpan.FromSeconds(5);
+
             try
             {
-                CheckExchange();
+                using var conn = factory.CreateConnectionAsync().Result;
+                using var model = conn.CreateChannelAsync().Result;
+                model.ExchangeDeclareAsync("TEST.ControlExchange", ExchangeType.Topic, durable: true).Wait();
                 return null;
             }
             catch (BrokerUnreachableException e)
             {
-                return $"Could not connect to RabbitMQ{Environment.NewLine}{e.Message}";
+                StringBuilder sb = new();
+
+                sb.AppendLine($"Uri:         {factory.Uri}");
+                sb.AppendLine($"Host:        {factory.HostName}");
+                sb.AppendLine($"VirtualHost: {factory.VirtualHost}");
+                sb.AppendLine($"UserName:    {factory.UserName}");
+                sb.AppendLine($"Port:        {factory.Port}");
+
+                return $"Could not connect to RabbitMQ {Environment.NewLine}{sb}{Environment.NewLine}{e.Message}";
             }
         }
 

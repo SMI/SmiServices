@@ -45,7 +45,7 @@ internal class ExtractFileCollectionMessageConsumerTests
         jobStoreMock.Setup(x => x.PersistMessageToStore(It.IsAny<ExtractFileCollectionInfoMessage>(), It.IsAny<IMessageHeader>()));
 
         var consumer = new ExtractFileCollectionMessageConsumer(jobStoreMock.Object);
-        consumer.SetModel(new Mock<IModel>(MockBehavior.Loose).Object);
+        consumer.SetModel(new Mock<IChannel>(MockBehavior.Loose).Object);
 
         var message = new ExtractFileCollectionInfoMessage();
 
@@ -73,7 +73,7 @@ internal class ExtractFileCollectionMessageConsumerTests
             .Throws(new ApplicationException("Some error..."));
 
         var consumer = new ExtractFileCollectionMessageConsumer(jobStoreMock.Object);
-        consumer.SetModel(new Mock<IModel>(MockBehavior.Loose).Object);
+        consumer.SetModel(new Mock<IChannel>(MockBehavior.Loose).Object);
 
         var message = new ExtractFileCollectionInfoMessage();
 
