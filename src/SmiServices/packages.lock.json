@@ -150,6 +150,12 @@
           "Microsoft.Extensions.Primitives": "9.0.0"
         }
       },
+      "MongoDB.Analyzer": {
+        "type": "Direct",
+        "requested": "[1.5.0, )",
+        "resolved": "1.5.0",
+        "contentHash": "ujrUe6NeLGW9q8ABseYY/NFx7pc1G/LshtVfLMONV02+fEy0jUDsXLHU7YvuARjJhJI7Mgz88tfvCncccUmerw=="
+      },
       "MongoDB.Bson": {
         "type": "Direct",
         "requested": "[3.0.0, )",

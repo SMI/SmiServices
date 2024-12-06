@@ -19,6 +19,7 @@
     <PackageVersion Include="LineReader" Version="0.1.0" />
     <PackageVersion Include="Microsoft.CodeAnalysis.CSharp.Scripting" Version="4.11.0" />
     <PackageVersion Include="Microsoft.Extensions.Caching.Memory" Version="9.0.0" />
+    <PackageVersion Include="MongoDB.Analyzer" Version="1.5.0" />
     <PackageVersion Include="MongoDB.Bson" Version="3.0.0" />
     <PackageVersion Include="MongoDB.Driver" Version="3.0.0" />
     <PackageVersion Include="Newtonsoft.Json" Version="13.0.3" />
@@ -32,7 +33,7 @@
     <PackageVersion Include="Terminal.Gui" Version="1.17.1" />
     <PackageVersion Include="YamlDotNet" Version="16.2.1" />
     <!-- Test Packages -->
-    <PackageVersion Include="HIC.BadMedicine.Dicom" Version="0.1.1" />
+    <PackageVersion Include="HIC.BadMedicine.Dicom" Version="0.1.2" />
     <PackageVersion Include="HIC.RDMP.Plugin.Test" Version="8.3.1" />
     <PackageVersion Include="Microsoft.CodeCoverage" Version="17.12.0" />
     <PackageVersion Include="Microsoft.NET.Test.Sdk" Version="17.12.0" />
