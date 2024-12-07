@@ -17,7 +17,7 @@
     <PackageVersion Include="IsIdentifiable" Version="0.4.0" />
     <PackageVersion Include="LibArchive.Net" Version="0.1.5" />
     <PackageVersion Include="LineReader" Version="0.1.0" />
-    <PackageVersion Include="Microsoft.CodeAnalysis.CSharp.Scripting" Version="4.11.0" />
+    <PackageVersion Include="Microsoft.CodeAnalysis.CSharp.Scripting" Version="4.12.0" />
     <PackageVersion Include="Microsoft.Extensions.Caching.Memory" Version="9.0.0" />
     <PackageVersion Include="MongoDB.Analyzer" Version="1.5.0" />
     <PackageVersion Include="MongoDB.Bson" Version="3.1.0" />
