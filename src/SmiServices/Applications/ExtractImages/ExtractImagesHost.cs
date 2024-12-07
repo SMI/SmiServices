@@ -8,6 +8,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.IO.Abstractions;
+using System.Linq;
 
 
 namespace SmiServices.Applications.ExtractImages
@@ -22,6 +23,7 @@ namespace SmiServices.Applications.ExtractImages
 
         private readonly string _absoluteExtractionDir;
 
+        private readonly ExtractionKey[]? _allowedKeys;
 
         public ExtractImagesHost(
             GlobalOptions globals,
@@ -38,6 +40,8 @@ namespace SmiServices.Applications.ExtractImages
         )
         {
             ExtractImagesOptions? options = Globals.ExtractImagesOptions ?? throw new ArgumentException(nameof(Globals.ExtractImagesOptions));
+            _allowedKeys = options.AllowedExtractionKeys;
+
             _fileSystem = fileSystem ?? new FileSystem();
 
             string extractRoot = Globals.FileSystemOptions?.ExtractRoot ?? throw new ArgumentException("Some part of Globals.FileSystemOptions.ExtractRoot was null");
@@ -87,6 +91,9 @@ namespace SmiServices.Applications.ExtractImages
         {
             var parser = new CohortCsvParser(_fileSystem);
             (ExtractionKey extractionKey, List<string> idList) = parser.Parse(_csvFilePath);
+
+            if (_allowedKeys?.Contains(extractionKey) == false)
+                throw new InvalidOperationException($"'{extractionKey}' from CSV not in list of supported extraction keys ({string.Join(',', _allowedKeys)})");
 
             _extractionMessageSender.SendMessages(extractionKey, idList);
 

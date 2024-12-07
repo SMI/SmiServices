@@ -226,6 +226,39 @@ namespace SmiServices.IntegrationTests.Applications.ExtractImages
             Assert.That(exc?.Message.StartsWith("Extraction directory already exists"), Is.True);
         }
 
+        [Test]
+        public void Start_DisallowedExtractionKey_ThrowsException()
+        {
+            // Arrange
+
+            GlobalOptions globals = new GlobalOptionsFactory().Load(nameof(Start_DisallowedExtractionKey_ThrowsException));
+            globals.ExtractImagesOptions!.AllowedExtractionKeys = [ExtractionKey.SeriesInstanceUID, ExtractionKey.SOPInstanceUID];
+
+            var cliOptions = new ExtractImagesCliOptions { CohortCsvFile = "foo.csv", ProjectId = "1234-5678", NonInteractive = true };
+
+            var fs = new MockFileSystem(
+                new Dictionary<string, MockFileData>
+                {
+                    {"foo.csv", "StudyInstanceUID\n1.2.3.4"},
+                }
+            );
+            var extractRoot = fs.Path.Join(fs.Path.GetTempPath(), "extract-root");
+            fs.Directory.CreateDirectory(extractRoot);
+            globals.FileSystemOptions!.ExtractRoot = extractRoot;
+
+            var mockExtractionMessageSender = new Mock<IExtractionMessageSender>(MockBehavior.Strict);
+            var host = new ExtractImagesHost(globals, cliOptions, mockExtractionMessageSender.Object, fileSystem: fs);
+
+            // Act
+
+            void act() => host.Start();
+
+            // Assert
+
+            var exc = Assert.Throws<InvalidOperationException>(act);
+            Assert.That(exc?.Message, Is.EqualTo("'StudyInstanceUID' from CSV not in list of supported extraction keys (SeriesInstanceUID,SOPInstanceUID)"));
+        }
+
         #endregion
     }
 }
