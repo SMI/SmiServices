@@ -491,6 +491,11 @@ namespace SmiServices.Common.Options
         /// </summary>
         public ProducerOptions? ExtractionRequestInfoProducerOptions { get; set; }
 
+        /// <summary>
+        /// The list of possible <see cref="ExtractionKey"/>s that are allowed for use
+        /// </summary>
+        public ExtractionKey[]? AllowedExtractionKeys { get; set; }
+
         public override string ToString() => GlobalOptions.GenerateToString(this);
     }
 
