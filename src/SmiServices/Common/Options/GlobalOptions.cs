@@ -79,8 +79,12 @@ namespace SmiServices.Common.Options
         {
             var sb = new StringBuilder();
 
-            foreach (var prop in o.GetType().GetProperties().Where(static prop =>
-                         !prop.Name.Contains("password", StringComparison.OrdinalIgnoreCase)))
+            foreach (var prop in o.GetType().GetProperties().Where(
+                static prop =>
+                         !prop.Name.Contains("password", StringComparison.OrdinalIgnoreCase) &&
+                         !Attribute.IsDefined(prop, typeof(YamlIgnoreAttribute))
+                )
+            )
             {
                 sb.Append($"{prop.Name}: {prop.GetValue(o)}, ");
             }
