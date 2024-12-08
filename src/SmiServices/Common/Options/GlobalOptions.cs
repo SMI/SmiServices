@@ -3,6 +3,7 @@ using FAnsi.Discovery;
 using FellowOakDicom;
 using IsIdentifiable.Options;
 using Microsoft.Data.SqlClient;
+using RabbitMQ.Client;
 using Rdmp.Core.DataLoad.Engine.Checks.Checkers;
 using Rdmp.Core.Repositories;
 using Rdmp.Core.Startup;
@@ -14,7 +15,6 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using RabbitMQ.Client;
 using YamlDotNet.Serialization;
 using DatabaseType = FAnsi.DatabaseType;
 
@@ -602,6 +602,7 @@ namespace SmiServices.Common.Options
 
         private string? _fileSystemRoot;
         private string? _extractRoot;
+        private string? _extractionPoolRoot;
 
         public string? FileSystemRoot
         {
@@ -613,6 +614,12 @@ namespace SmiServices.Common.Options
         {
             get => _extractRoot;
             set => _extractRoot = value?.Length > 1 ? value.TrimEnd('/', '\\') : value;
+        }
+
+        public string? ExtractionPoolRoot
+        {
+            get => _extractionPoolRoot;
+            set => _extractionPoolRoot = value?.Length > 1 ? value.TrimEnd('/', '\\') : value;
         }
 
         public override string ToString()

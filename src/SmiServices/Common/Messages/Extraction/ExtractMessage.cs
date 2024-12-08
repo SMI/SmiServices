@@ -27,6 +27,10 @@ namespace SmiServices.Common.Messages.Extraction
         [JsonProperty(Required = Required.Always)]
         public bool IsNoFilterExtraction { get; set; }
 
+        [JsonProperty(Required = Required.Always)]
+        public bool IsPooledExtraction { get; set; }
+
+
         [JsonConstructor]
         protected ExtractMessage() { }
 
@@ -37,7 +41,9 @@ namespace SmiServices.Common.Messages.Extraction
             string extractionDirectory,
             DateTime jobSubmittedAt,
             bool isIdentifiableExtraction,
-            bool isNoFilterExtraction)
+            bool isNoFilterExtraction,
+            bool isPooledExtraction
+        )
             : this()
         {
             ExtractionJobIdentifier = extractionJobIdentifier;
@@ -46,6 +52,7 @@ namespace SmiServices.Common.Messages.Extraction
             JobSubmittedAt = jobSubmittedAt;
             IsIdentifiableExtraction = isIdentifiableExtraction;
             IsNoFilterExtraction = isNoFilterExtraction;
+            IsPooledExtraction = isPooledExtraction;
         }
 
         protected ExtractMessage(IExtractMessage request)
@@ -55,7 +62,9 @@ namespace SmiServices.Common.Messages.Extraction
                 request.ExtractionDirectory,
                 request.JobSubmittedAt,
                 request.IsIdentifiableExtraction,
-                request.IsNoFilterExtraction)
+                request.IsNoFilterExtraction,
+                request.IsPooledExtraction
+        )
         { }
 
         public override string ToString() =>
@@ -65,6 +74,7 @@ namespace SmiServices.Common.Messages.Extraction
             $"JobSubmittedAt={JobSubmittedAt:s}, " +
             $"IsIdentifiableExtraction={IsIdentifiableExtraction}, " +
             $"IsNoFilterExtraction={IsNoFilterExtraction}, " +
+            $"IsPooledExtraction={IsPooledExtraction}, " +
             "";
     }
 }

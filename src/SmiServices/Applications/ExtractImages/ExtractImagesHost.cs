@@ -48,9 +48,21 @@ namespace SmiServices.Applications.ExtractImages
             if (!_fileSystem.Directory.Exists(extractRoot))
                 throw new DirectoryNotFoundException($"Could not find the extraction root '{extractRoot}'");
 
+            if (cliOptions.IsPooledExtraction)
+            {
+                if (!_fileSystem.Directory.Exists(Globals.FileSystemOptions.ExtractionPoolRoot))
+                    throw new InvalidOperationException($"{nameof(cliOptions.IsPooledExtraction)} can only be passed if {nameof(Globals.FileSystemOptions.ExtractionPoolRoot)} is a directory");
+
+                if (cliOptions.IsIdentifiableExtraction)
+                    throw new InvalidOperationException($"{nameof(cliOptions.IsPooledExtraction)} is incompatible with {nameof(cliOptions.IsIdentifiableExtraction)}");
+
+                if (cliOptions.IsNoFiltersExtraction)
+                    throw new InvalidOperationException($"{nameof(cliOptions.IsPooledExtraction)} is incompatible with {nameof(cliOptions.IsNoFiltersExtraction)}");
+            }
+
             _csvFilePath = cliOptions.CohortCsvFile;
             if (string.IsNullOrWhiteSpace(_csvFilePath))
-                throw new ArgumentNullException(nameof(cliOptions));
+                throw new ArgumentNullException(nameof(cliOptions.CohortCsvFile));
             if (!_fileSystem.File.Exists(_csvFilePath))
                 throw new FileNotFoundException($"Could not find the cohort CSV file '{_csvFilePath}'");
 
