@@ -61,8 +61,8 @@ namespace SmiServices.Applications.ExtractImages
 
             if (extractionMessageSender == null)
             {
-                IProducerModel extractionRequestProducer = MessageBroker.SetupProducer(options.ExtractionRequestProducerOptions!, isBatch: false);
-                IProducerModel extractionRequestInfoProducer = MessageBroker.SetupProducer(options.ExtractionRequestInfoProducerOptions!, isBatch: false);
+                var extractionRequestProducer = MessageBroker.SetupProducer<ExtractionRequestMessage>(options.ExtractionRequestProducerOptions!, isBatch: false);
+                var extractionRequestInfoProducer = MessageBroker.SetupProducer<ExtractionRequestInfoMessage>(options.ExtractionRequestInfoProducerOptions!, isBatch: false);
 
                 _extractionMessageSender = new ExtractionMessageSender(
                     options,

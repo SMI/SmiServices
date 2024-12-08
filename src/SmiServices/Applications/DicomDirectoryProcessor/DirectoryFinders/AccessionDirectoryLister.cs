@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.IO.Abstractions;
 using System.Linq;
 using System.Text.RegularExpressions;
+using SmiServices.Common.Messages;
 
 namespace SmiServices.Applications.DicomDirectoryProcessor.DirectoryFinders
 {
@@ -12,10 +13,10 @@ namespace SmiServices.Applications.DicomDirectoryProcessor.DirectoryFinders
         // Regex that matches when we are at the yyyy\mm\dd\xxxxx directory level
         private static readonly Regex _accDirectoryRegex = new(@"(20\d{2}[\\\/]\d{2}[\\\/]\d{2}[\\\/][a-zA-Z0-9._-]+[\\\/]$)");
 
-        public AccessionDirectoryLister(string fileSystemRoot, IFileSystem fileSystem, string dicomSearchPattern, IProducerModel directoriesProducerModel)
-        : base(fileSystemRoot, fileSystem, dicomSearchPattern, directoriesProducerModel) { }
+        public AccessionDirectoryLister(string fileSystemRoot, IFileSystem fileSystem, string dicomSearchPattern, IProducerModel<AccessionDirectoryMessage> directoriesProducerModel)
+            : base(fileSystemRoot, fileSystem, dicomSearchPattern, directoriesProducerModel) { }
 
-        public AccessionDirectoryLister(string fileSystemRoot, string dicomSearchPattern, IProducerModel directoriesProducerModel)
+        public AccessionDirectoryLister(string fileSystemRoot, string dicomSearchPattern, IProducerModel<AccessionDirectoryMessage> directoriesProducerModel)
             : this(fileSystemRoot, new FileSystem(), dicomSearchPattern, directoriesProducerModel) { }
 
 

@@ -7,6 +7,7 @@ using SmiServices.Common.Options;
 using SmiServices.Microservices.IdentifierMapper.Swappers;
 using StackExchange.Redis;
 using System;
+using SmiServices.Common.Messages;
 
 
 namespace SmiServices.Microservices.IdentifierMapper
@@ -18,7 +19,7 @@ namespace SmiServices.Microservices.IdentifierMapper
         private Guid _consumerId;
         private readonly IdentifierMapperOptions _consumerOptions;
 
-        private readonly IProducerModel _producerModel;
+        private readonly IProducerModel<DicomFileMessage> _producerModel;
 
         private readonly ISwapIdentifiers _swapper;
 
@@ -60,7 +61,7 @@ namespace SmiServices.Microservices.IdentifierMapper
             Logger.Info($"Swapper of type {_swapper.GetType()} created");
 
             // Batching now handled implicitly as backlog demands
-            _producerModel = MessageBroker.SetupProducer(options.IdentifierMapperOptions.AnonImagesProducerOptions!, isBatch: true);
+            _producerModel = MessageBroker.SetupProducer<DicomFileMessage>(options.IdentifierMapperOptions.AnonImagesProducerOptions!, isBatch: true);
 
             Consumer = new IdentifierMapperQueueConsumer(_producerModel, _swapper)
             {

@@ -6,6 +6,7 @@ using SmiServices.Microservices.DicomTagReader.Messaging;
 using System;
 using System.IO;
 using System.IO.Abstractions;
+using SmiServices.Common.Messages;
 
 namespace SmiServices.Microservices.DicomTagReader.Execution
 {
@@ -25,18 +26,18 @@ namespace SmiServices.Microservices.DicomTagReader.Execution
             Logger.Debug($"Creating DicomTagReaderHost with FileSystemRoot: {options.FileSystemOptions.FileSystemRoot}");
             Logger.Debug($"NackIfAnyFileErrors option set to {options.DicomTagReaderOptions!.NackIfAnyFileErrors}");
 
-            IProducerModel seriesProducerModel;
-            IProducerModel imageProducerModel;
+            IProducerModel<SeriesMessage> seriesProducerModel;
+            IProducerModel<DicomFileMessage> imageProducerModel;
 
             try
             {
                 Logger.Debug(
                     $"Creating seriesProducerModel with ExchangeName: {options.DicomTagReaderOptions.SeriesProducerOptions!.ExchangeName}");
-                seriesProducerModel = MessageBroker.SetupProducer(options.DicomTagReaderOptions.SeriesProducerOptions, true);
+                seriesProducerModel = MessageBroker.SetupProducer<SeriesMessage>(options.DicomTagReaderOptions.SeriesProducerOptions, true);
 
                 Logger.Debug(
                     $"Creating imageProducerModel with ExchangeName: {options.DicomTagReaderOptions.ImageProducerOptions!.ExchangeName}");
-                imageProducerModel = MessageBroker.SetupProducer(options.DicomTagReaderOptions.ImageProducerOptions, true);
+                imageProducerModel = MessageBroker.SetupProducer<DicomFileMessage>(options.DicomTagReaderOptions.ImageProducerOptions, true);
             }
             catch (Exception e)
             {

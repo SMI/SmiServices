@@ -1,8 +1,7 @@
-using MongoDB.Bson;
-using NLog;
-using SmiServices.Common.Messaging;
-using SmiServices.Common.Options;
 using System;
+using MongoDB.Bson;
+using SmiServices.Common.Messages;
+using SmiServices.Common.Messaging;
 
 namespace SmiServices.Microservices.DicomReprocessor
 {
@@ -14,9 +13,9 @@ namespace SmiServices.Microservices.DicomReprocessor
         public long TotalProcessed { get; private set; }
         public long TotalFailed { get; private set; }
 
-        public TagPromotionProcessor(IProducerModel producerModel)
+        public TagPromotionProcessor(IProducerModel<TagPromotionMessage> producerModel)
         {
-            if (producerModel is not BatchProducerModel)
+            if (producerModel is not BatchProducerModel<TagPromotionMessage>)
                 throw new ArgumentException("producerModel must be a batch producer");
         }
 

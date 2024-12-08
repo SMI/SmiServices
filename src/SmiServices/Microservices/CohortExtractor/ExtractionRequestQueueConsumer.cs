@@ -16,16 +16,16 @@ namespace SmiServices.Microservices.CohortExtractor
 
         private readonly IExtractionRequestFulfiller _fulfiller;
         private readonly IAuditExtractions _auditor;
-        private readonly IProducerModel _fileMessageProducer;
-        private readonly IProducerModel _fileMessageInfoProducer;
+        private readonly IProducerModel<ExtractFileMessage> _fileMessageProducer;
+        private readonly IProducerModel<ExtractFileCollectionInfoMessage> _fileMessageInfoProducer;
 
         private readonly IProjectPathResolver _resolver;
 
         public ExtractionRequestQueueConsumer(
             CohortExtractorOptions options,
             IExtractionRequestFulfiller fulfiller, IAuditExtractions auditor,
-            IProjectPathResolver pathResolver, IProducerModel fileMessageProducer,
-            IProducerModel fileMessageInfoProducer)
+            IProjectPathResolver pathResolver, IProducerModel<ExtractFileMessage> fileMessageProducer,
+            IProducerModel<ExtractFileCollectionInfoMessage> fileMessageInfoProducer)
         {
             _options = options;
             _fulfiller = fulfiller;
@@ -96,7 +96,7 @@ namespace SmiServices.Microservices.CohortExtractor
                 infoMessage.KeyValue = matchedFiles.KeyValue;
                 _fileMessageInfoProducer.SendMessage(infoMessage, header, routingKey: null);
 
-                if (_fileMessageInfoProducer.GetType() == typeof(BatchProducerModel))
+                if (_fileMessageInfoProducer.GetType() == typeof(BatchProducerModel<ExtractFileCollectionInfoMessage>))
                     _fileMessageInfoProducer.WaitForConfirms();
 
                 Logger.Info($"All ExtractFileCollectionInfoMessage(s) sent for {matchedFiles.KeyValue}");

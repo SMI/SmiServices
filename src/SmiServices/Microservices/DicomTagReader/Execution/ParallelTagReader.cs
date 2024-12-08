@@ -17,7 +17,7 @@ namespace SmiServices.Microservices.DicomTagReader.Execution
         private readonly ParallelOptions _parallelOptions;
 
         public ParallelTagReader(DicomTagReaderOptions options, FileSystemOptions fileSystemOptions,
-            IProducerModel seriesMessageProducerModel, IProducerModel fileMessageProducerModel, IFileSystem fs)
+            IProducerModel<SeriesMessage> seriesMessageProducerModel, IProducerModel<DicomFileMessage> fileMessageProducerModel, IFileSystem fs)
             : base(options, fileSystemOptions, seriesMessageProducerModel, fileMessageProducerModel, fs)
         {
             _parallelOptions = new ParallelOptions

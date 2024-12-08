@@ -9,6 +9,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading;
+using SmiServices.Common.Messages;
 
 namespace SmiServices.Common.Messaging
 {
@@ -185,12 +186,12 @@ namespace SmiServices.Common.Messaging
         }
 
         /// <summary>
-        /// Setup a <see cref="IProducerModel"/> to send messages with.
+        /// Setup a <see cref="IProducerModel&lt;T&gt;"/> to send messages with.
         /// </summary>
         /// <param name="producerOptions">The producer options class to setup which must include the exchange name.</param>
         /// <param name="isBatch"></param>
         /// <returns>Object which can send messages to a RabbitMQ exchange.</returns>
-        public IProducerModel SetupProducer(ProducerOptions producerOptions, bool isBatch = false)
+        public IProducerModel<T> SetupProducer<T>(ProducerOptions producerOptions, bool isBatch = false) where T : IMessage
         {
             if (ShutdownCalled)
                 throw new ApplicationException("Adapter has been shut down");
@@ -232,12 +233,16 @@ namespace SmiServices.Common.Messaging
                 }
             }
 
-            IProducerModel producerModel;
+            IProducerModel<T> producerModel;
             try
             {
-                producerModel = isBatch ?
-                    new BatchProducerModel(producerOptions.ExchangeName!, model, props, producerOptions.MaxConfirmAttempts, backoffProvider, producerOptions.ProbeQueueName, producerOptions.ProbeQueueLimit, producerOptions.ProbeTimeout) :
-                    new ProducerModel(producerOptions.ExchangeName!, model, props, producerOptions.MaxConfirmAttempts, backoffProvider, producerOptions.ProbeQueueName, producerOptions.ProbeQueueLimit, producerOptions.ProbeTimeout);
+                producerModel = isBatch
+                    ? new BatchProducerModel<T>(producerOptions.ExchangeName!, model, props,
+                        producerOptions.MaxConfirmAttempts, backoffProvider, producerOptions.ProbeQueueName,
+                        producerOptions.ProbeQueueLimit, producerOptions.ProbeTimeout)
+                    : new ProducerModel<T>(producerOptions.ExchangeName!, model, props,
+                        producerOptions.MaxConfirmAttempts, backoffProvider, producerOptions.ProbeQueueName,
+                        producerOptions.ProbeQueueLimit, producerOptions.ProbeTimeout);
             }
             catch (Exception)
             {
@@ -245,7 +250,7 @@ namespace SmiServices.Common.Messaging
                 throw;
             }
 
-            var resources = new ProducerResources(model, producerModel);
+            var resources = new ProducerResources<T>(model, producerModel);
             lock (_oResourceLock)
             {
                 _rabbitResources.Add(Guid.NewGuid(), resources);
@@ -355,11 +360,11 @@ namespace SmiServices.Common.Messaging
             }
         }
 
-        private class ProducerResources : RabbitResources
+        private sealed class ProducerResources<T> : RabbitResources where T : IMessage
         {
-            public IProducerModel? ProducerModel { get; set; }
+            public readonly IProducerModel<T>? ProducerModel;
 
-            public ProducerResources(IModel model, IProducerModel ipm) : base(model)
+            public ProducerResources(IModel model, IProducerModel<T> ipm) : base(model)
             {
                 ProducerModel = ipm;
             }

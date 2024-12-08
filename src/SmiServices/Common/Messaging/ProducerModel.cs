@@ -14,7 +14,7 @@ namespace SmiServices.Common.Messaging
     /// <summary>
     /// Class to implement sending of messages to a RabbitMQ exchange.
     /// </summary>
-    public class ProducerModel : IProducerModel
+    public class ProducerModel<T> : IProducerModel<T> where T : IMessage
     {
         public event ProducerFatalHandler? OnFatal;
 
@@ -110,11 +110,11 @@ namespace SmiServices.Common.Messaging
         /// <param name="inResponseTo"></param>
         /// <param name="routingKey"></param>
         /// <returns></returns>
-        public virtual IMessageHeader SendMessage(IMessage message, IMessageHeader? inResponseTo = null, string? routingKey = null)
+        public virtual IMessageHeader SendMessage(T message, IMessageHeader? inResponseTo = null, string? routingKey = null)
         {
-            IMessageHeader header = SendMessageImpl(message, inResponseTo, routingKey);
+            var header = SendMessageImpl(message, inResponseTo, routingKey);
             WaitForConfirms();
-            header.Log(_logger, LogLevel.Trace, "Sent " + header.MessageGuid + " to " + _exchangeName);
+            header.Log(_logger, LogLevel.Trace, $"Sent {header.MessageGuid} to {_exchangeName}");
 
             return header;
         }

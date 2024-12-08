@@ -1,4 +1,5 @@
 using RabbitMQ.Client;
+using SmiServices.Common.Messages;
 using SmiServices.Common.Messaging;
 using SmiServices.Common.Options;
 using System;
@@ -13,7 +14,7 @@ namespace SmiServices.Common
 
         void StopConsumer(Guid taskId, TimeSpan timeout);
 
-        IProducerModel SetupProducer(ProducerOptions producerOptions, bool isBatch);
+        IProducerModel<T> SetupProducer<T>(ProducerOptions producerOptions, bool isBatch) where T : IMessage;
 
         IModel GetModel(string connectionName);
 

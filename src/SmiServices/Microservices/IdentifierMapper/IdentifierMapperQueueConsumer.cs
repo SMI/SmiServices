@@ -17,7 +17,7 @@ namespace SmiServices.Microservices.IdentifierMapper
     {
         public bool AllowRegexMatching { get; set; }
 
-        private readonly IProducerModel _producer;
+        private readonly IProducerModel<DicomFileMessage> _producer;
         private readonly ISwapIdentifiers _swapper;
 
         private readonly Regex _patientIdRegex = new("\"00100020\":{\"vr\":\"LO\",\"Value\":\\[\"(\\d*)\"]", RegexOptions.IgnoreCase);
@@ -25,7 +25,7 @@ namespace SmiServices.Microservices.IdentifierMapper
         private readonly BlockingCollection<Tuple<DicomFileMessage, IMessageHeader, ulong>> msgq = [];
         private readonly Thread acker;
 
-        public IdentifierMapperQueueConsumer(IProducerModel producer, ISwapIdentifiers swapper)
+        public IdentifierMapperQueueConsumer(IProducerModel<DicomFileMessage> producer, ISwapIdentifiers swapper)
         {
             _producer = producer;
             _swapper = swapper;

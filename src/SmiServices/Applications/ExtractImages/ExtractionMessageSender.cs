@@ -15,8 +15,8 @@ namespace SmiServices.Applications.ExtractImages
     {
         private readonly ILogger _logger = LogManager.GetCurrentClassLogger();
 
-        private readonly IProducerModel _extractionRequestProducer;
-        private readonly IProducerModel _extractionRequestInfoProducer;
+        private readonly IProducerModel<ExtractionRequestMessage> _extractionRequestProducer;
+        private readonly IProducerModel<ExtractionRequestInfoMessage> _extractionRequestInfoProducer;
         private readonly IFileSystem _fileSystem;
         private readonly string _extractionRoot;
         private readonly string _extractionDir;
@@ -36,8 +36,8 @@ namespace SmiServices.Applications.ExtractImages
         public ExtractionMessageSender(
             ExtractImagesOptions options,
             ExtractImagesCliOptions cliOptions,
-            IProducerModel extractionRequestProducer,
-            IProducerModel extractionRequestInfoProducer,
+            IProducerModel<ExtractionRequestMessage> extractionRequestProducer,
+            IProducerModel<ExtractionRequestInfoMessage> extractionRequestInfoProducer,
             IFileSystem fileSystem,
             string extractionRoot,
             string extractionDir,
@@ -71,11 +71,11 @@ namespace SmiServices.Applications.ExtractImages
                 throw new ArgumentException("ID list is empty");
 
             var jobId = Guid.NewGuid();
-            DateTime now = _dateTimeProvider.UtcNow();
+            var now = _dateTimeProvider.UtcNow();
 
             // TODO(rkm 2021-04-01) Change this to a string[] in both messages below
-            string? modalitiesString = _modalities == null ? null : string.Join(',', _modalities);
-            string userName = Environment.UserName;
+            var modalitiesString = _modalities == null ? null : string.Join(',', _modalities);
+            var userName = Environment.UserName;
 
             var erm = new ExtractionRequestMessage
             {
@@ -95,15 +95,15 @@ namespace SmiServices.Applications.ExtractImages
                 ExtractionIdentifiers = null!,
             };
 
-            List<ExtractionRequestMessage> ermList =
+            var ermList =
                 idList
-                .Chunk(_maxIdentifiersPerMessage)
-                .Select(x =>
-                    new ExtractionRequestMessage(erm)
-                    {
-                        ExtractionIdentifiers = [.. x]
-                    }
-            ).ToList();
+                    .Chunk(_maxIdentifiersPerMessage)
+                    .Select(x =>
+                        new ExtractionRequestMessage(erm)
+                        {
+                            ExtractionIdentifiers = [.. x]
+                        }
+                    ).ToList();
 
             var erim = new ExtractionRequestInfoMessage
             {

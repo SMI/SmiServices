@@ -13,13 +13,13 @@ namespace SmiServices.Microservices.IsIdentifiable
 {
     public class IsIdentifiableQueueConsumer : Consumer<ExtractedFileStatusMessage>, IDisposable
     {
-        private readonly IProducerModel _producer;
+        private readonly IProducerModel<ExtractedFileVerificationMessage> _producer;
         private readonly IFileSystem _fileSystem;
         private readonly string _extractionRoot;
         private readonly IClassifier _classifier;
 
         public IsIdentifiableQueueConsumer(
-            IProducerModel producer,
+            IProducerModel<ExtractedFileVerificationMessage> producer,
             string extractionRoot,
             IClassifier classifier,
             IFileSystem? fileSystem = null

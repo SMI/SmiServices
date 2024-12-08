@@ -24,7 +24,7 @@ namespace SmiServices.Applications.DicomDirectoryProcessor.DirectoryFinders
         protected readonly string FileSystemRoot;
         protected readonly IFileSystem FileSystem;
 
-        private readonly IProducerModel _directoriesProducerModel;
+        private readonly IProducerModel<AccessionDirectoryMessage> _directoriesProducerModel;
         protected int TotalSent;
 
         protected bool IsProcessing;
@@ -54,7 +54,7 @@ namespace SmiServices.Applications.DicomDirectoryProcessor.DirectoryFinders
             string fileSystemRoot,
             IFileSystem fileSystem,
             string dicomSearchPattern,
-            IProducerModel directoriesProducerModel
+            IProducerModel<AccessionDirectoryMessage> directoriesProducerModel
         )
         {
             FileSystemRoot = fileSystemRoot;
@@ -96,9 +96,9 @@ namespace SmiServices.Applications.DicomDirectoryProcessor.DirectoryFinders
         {
             Logger.Debug("DicomDirectoryFinder: Found " + dir);
 
-            string dirPath = Path.GetFullPath(dir).TrimEnd(Path.DirectorySeparatorChar);
+            var dirPath = Path.GetFullPath(dir).TrimEnd(Path.DirectorySeparatorChar);
 
-            if (dirPath.StartsWith(FileSystemRoot))
+            if (dirPath.StartsWith(FileSystemRoot, StringComparison.Ordinal))
                 dirPath = dirPath.Remove(0, FileSystemRoot.Length);
 
             dirPath = dirPath.TrimStart(Path.DirectorySeparatorChar);
@@ -108,29 +108,28 @@ namespace SmiServices.Applications.DicomDirectoryProcessor.DirectoryFinders
                 DirectoryPath = dirPath,
             };
 
-            _directoriesProducerModel.SendMessage(message, isInResponseTo: null, routingKey: null);
+            _directoriesProducerModel.SendMessage(message, null, null);
             ++TotalSent;
         }
 
         protected void LogTime(TimeLabel tl)
         {
-            long elapsed = Stopwatch.ElapsedMilliseconds;
-            StringBuilder!.Append(tl + "=" + elapsed + "ms ");
-            Times![(int)tl].Add(elapsed);
+            var elapsed = Stopwatch.ElapsedMilliseconds;
+            StringBuilder?.Append($"{tl}={elapsed}ms ");
+            Times?[(int)tl].Add(elapsed);
             Stopwatch.Restart();
         }
 
         protected string CalcAverages()
         {
-            var sb = new StringBuilder();
-            sb.AppendLine("Averages:");
+            var sb = new StringBuilder("Averages:");
 
-            foreach (TimeLabel label in (TimeLabel[])Enum.GetValues(typeof(TimeLabel)))
+            foreach (var label in Enum.GetValues<TimeLabel>())
             {
-                int count = Times![(int)label].Count;
-                long average = count == 0 ? 0 : Times[(int)label].Sum() / count;
+                var count = Times![(int)label].Count;
+                var average = count == 0 ? 0 : Times[(int)label].Sum() / count;
 
-                sb.AppendLine(label + ":\t" + average + "ms");
+                sb.AppendLine($"{label}:\t{average}ms");
             }
 
             return sb.ToString();

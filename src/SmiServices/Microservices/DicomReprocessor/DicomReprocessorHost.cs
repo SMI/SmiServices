@@ -4,6 +4,7 @@ using SmiServices.Common.Options;
 using System;
 using System.IO;
 using System.Threading.Tasks;
+using SmiServices.Common.Messages;
 
 namespace SmiServices.Microservices.DicomReprocessor
 {
@@ -18,7 +19,7 @@ namespace SmiServices.Microservices.DicomReprocessor
         public DicomReprocessorHost(GlobalOptions options, DicomReprocessorCliOptions cliOptions)
             : base(options)
         {
-            string? key = cliOptions.ReprocessingRoutingKey;
+            var key = cliOptions.ReprocessingRoutingKey;
 
             if (string.IsNullOrWhiteSpace(key))
                 throw new ArgumentException("ReprocessingRoutingKey");
@@ -26,21 +27,19 @@ namespace SmiServices.Microservices.DicomReprocessor
             // Set the initial sleep time
             Globals.DicomReprocessorOptions!.SleepTime = TimeSpan.FromMilliseconds(cliOptions.SleepTimeMs);
 
-            IProducerModel reprocessingProducerModel = MessageBroker.SetupProducer(options.DicomReprocessorOptions!.ReprocessingProducerOptions!, true);
-
-            Logger.Info("Documents will be reprocessed to " +
-                        options.DicomReprocessorOptions.ReprocessingProducerOptions!.ExchangeName + " on vhost " +
-                        options.RabbitOptions!.RabbitMqVirtualHost + " with routing key \"" + key + "\"");
+            Logger.Info(
+                $"Documents will be reprocessed to {options.DicomReprocessorOptions?.ReprocessingProducerOptions!.ExchangeName} on vhost {options.RabbitOptions!.RabbitMqVirtualHost} with routing key \"{key}\"");
 
             if (!string.IsNullOrWhiteSpace(cliOptions.QueryFile))
                 _queryString = File.ReadAllText(cliOptions.QueryFile);
 
             //TODO Make this into a CreateInstance<> call
-            _processor = options.DicomReprocessorOptions.ProcessingMode switch
+            _processor = options.DicomReprocessorOptions?.ProcessingMode switch
             {
-                ProcessingMode.TagPromotion => new TagPromotionProcessor(reprocessingProducerModel),
-                ProcessingMode.ImageReprocessing => new DicomFileProcessor(reprocessingProducerModel, key),
-                _ => throw new ArgumentException("ProcessingMode " + options.DicomReprocessorOptions.ProcessingMode + " not supported"),
+                ProcessingMode.TagPromotion => new TagPromotionProcessor(MessageBroker.SetupProducer<TagPromotionMessage>(options.DicomReprocessorOptions!.ReprocessingProducerOptions!, true)),
+                ProcessingMode.ImageReprocessing => new DicomFileProcessor(MessageBroker.SetupProducer<DicomFileMessage>(options.DicomReprocessorOptions!.ReprocessingProducerOptions!, true), key),
+                _ => throw new ArgumentException(
+                    $"ProcessingMode {options.DicomReprocessorOptions?.ProcessingMode} not supported"),
             };
             _mongoReader = new MongoDbReader(options.MongoDatabases!.DicomStoreOptions!, cliOptions, HostProcessName + "-" + HostProcessID);
 

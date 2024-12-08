@@ -41,7 +41,7 @@ namespace SmiServices.Microservices.CohortExtractor
         private IAuditExtractions? _auditor;
         private IExtractionRequestFulfiller? _fulfiller;
         private IProjectPathResolver? _pathResolver;
-        private IProducerModel? _fileMessageProducer;
+        private IProducerModel<ExtractFileMessage>? _fileMessageProducer;
 
         private readonly IFileSystem _fileSystem;
 
@@ -80,8 +80,8 @@ namespace SmiServices.Microservices.CohortExtractor
             foreach (var args in toMemory.Messages.Where(static m => m.Result == CheckResult.Fail))
                 Logger.Log(LogLevel.Warn, args.Ex, args.Message);
 
-            _fileMessageProducer = MessageBroker.SetupProducer(Globals.CohortExtractorOptions!.ExtractFilesProducerOptions!, isBatch: true);
-            var fileMessageInfoProducer = MessageBroker.SetupProducer(Globals.CohortExtractorOptions.ExtractFilesInfoProducerOptions!, isBatch: false);
+            _fileMessageProducer = MessageBroker.SetupProducer<ExtractFileMessage>(Globals.CohortExtractorOptions!.ExtractFilesProducerOptions!, isBatch: true);
+            var fileMessageInfoProducer = MessageBroker.SetupProducer<ExtractFileCollectionInfoMessage>(Globals.CohortExtractorOptions.ExtractFilesInfoProducerOptions!, isBatch: false);
 
             InitializeExtractionSources(repositoryLocator);
 

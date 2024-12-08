@@ -13,16 +13,16 @@ namespace SmiServices.Microservices.DicomTagReader.Execution
     public class SerialTagReader : TagReaderBase
     {
         public SerialTagReader(DicomTagReaderOptions options, FileSystemOptions fileSystemOptions,
-            IProducerModel seriesMessageProducerModel, IProducerModel fileMessageProducerModel, IFileSystem fs)
+            IProducerModel<SeriesMessage> seriesMessageProducerModel, IProducerModel<DicomFileMessage> fileMessageProducerModel, IFileSystem fs)
             : base(options, fileSystemOptions, seriesMessageProducerModel, fileMessageProducerModel, fs) { }
 
         protected override List<DicomFileMessage> ReadTagsImpl(IEnumerable<FileInfo> dicomFilePaths, AccessionDirectoryMessage accMessage)
         {
             var fileMessages = new List<DicomFileMessage>();
 
-            foreach (FileInfo dicomFilePath in dicomFilePaths)
+            foreach (var dicomFilePath in dicomFilePaths)
             {
-                Logger.Trace("TagReader: Processing " + dicomFilePath);
+                Logger.Trace($"TagReader: Processing {dicomFilePath}");
 
                 DicomFileMessage fileMessage;
 
@@ -34,12 +34,11 @@ namespace SmiServices.Microservices.DicomTagReader.Execution
                 {
                     if (NackIfAnyFileErrors)
                         throw new ApplicationException(
-                            "Exception processing file and NackIfAnyFileErrors option set. File was: " + dicomFilePath,
+                            $"Exception processing file and NackIfAnyFileErrors option set. File was: {dicomFilePath}",
                             e);
 
                     Logger.Error(e,
-                        "Error processing file " + dicomFilePath +
-                        ". Ignoring and moving on since NackIfAnyFileErrors is false");
+                        $"Error processing file {dicomFilePath}. Ignoring and moving on since NackIfAnyFileErrors is false");
 
                     continue;
                 }

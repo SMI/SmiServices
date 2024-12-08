@@ -37,14 +37,14 @@ namespace SmiServices.Microservices.DicomReprocessor
 
         private readonly ILogger _logger;
 
-        private readonly IProducerModel _producerModel;
+        private readonly IProducerModel<DicomFileMessage> _producerModel;
         private readonly string _reprocessingRoutingKey;
 
         private readonly List<Tuple<DicomFileMessage, IMessageHeader>> _messageBuffer = [];
         private readonly object _oBufferLock = new();
 
 
-        public DicomFileProcessor(IProducerModel producerModel, string reprocessingRoutingKey)
+        public DicomFileProcessor(IProducerModel<DicomFileMessage> producerModel, string reprocessingRoutingKey)
         {
             _logger = LogManager.GetLogger(GetType().Name);
 
@@ -107,7 +107,7 @@ namespace SmiServices.Microservices.DicomReprocessor
             lock (_oBufferLock)
             {
                 var newBatchHeaders = new List<IMessageHeader>();
-                foreach ((DicomFileMessage message, IMessageHeader header) in _messageBuffer)
+                foreach (var (message, header) in _messageBuffer)
                     newBatchHeaders.Add(_producerModel.SendMessage(message, header, _reprocessingRoutingKey));
 
                 // Confirm all messages in the batch
@@ -115,7 +115,7 @@ namespace SmiServices.Microservices.DicomReprocessor
 
                 TotalProcessed += _messageBuffer.Count;
 
-                foreach (IMessageHeader newHeader in newBatchHeaders)
+                foreach (var newHeader in newBatchHeaders)
                     newHeader.Log(_logger, LogLevel.Trace, "Sent");
 
                 _messageBuffer.Clear();

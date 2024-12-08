@@ -22,8 +22,8 @@ namespace SmiServices.Microservices.DicomTagReader.Execution
         private readonly string _filesystemRoot;
         private readonly IFileSystem _fs;
 
-        private readonly IProducerModel _seriesMessageProducerModel;
-        private readonly IProducerModel _fileMessageProducerModel;
+        private readonly IProducerModel<SeriesMessage> _seriesMessageProducerModel;
+        private readonly IProducerModel<DicomFileMessage> _fileMessageProducerModel;
         protected readonly ILogger Logger;
 
         protected readonly bool NackIfAnyFileErrors;
@@ -54,7 +54,7 @@ namespace SmiServices.Microservices.DicomTagReader.Execution
         /// <param name="seriesMessageProducerModel"></param>
         /// <param name="fileMessageProducerModel"></param>
         /// <param name="fs">File system to use</param>
-        public TagReaderBase(DicomTagReaderOptions options, FileSystemOptions fileSystemOptions, IProducerModel seriesMessageProducerModel, IProducerModel fileMessageProducerModel, IFileSystem fs)
+        public TagReaderBase(DicomTagReaderOptions options, FileSystemOptions fileSystemOptions, IProducerModel<SeriesMessage> seriesMessageProducerModel, IProducerModel<DicomFileMessage> fileMessageProducerModel, IFileSystem fs)
         {
             Logger = LogManager.GetLogger(GetType().Name);
 
@@ -154,10 +154,8 @@ namespace SmiServices.Microservices.DicomTagReader.Execution
 
             Logger.Info($"Sending {fileMessages.Count} DicomFileMessage(s)");
 
-            long beginSend = _stopwatch.ElapsedTicks;
-            var headers = new List<IMessageHeader>();
-            foreach (DicomFileMessage fileMessage in fileMessages)
-                headers.Add(_fileMessageProducerModel.SendMessage(fileMessage, header, routingKey: null));
+            var beginSend = _stopwatch.ElapsedTicks;
+            var headers = fileMessages.Select(fileMessage => _fileMessageProducerModel.SendMessage(fileMessage, header, routingKey: null)).ToList();
 
             _fileMessageProducerModel.WaitForConfirms();
 
@@ -166,8 +164,8 @@ namespace SmiServices.Microservices.DicomTagReader.Execution
             Logger.Info($"Sending {seriesMessages.Count} SeriesMessage(s)");
 
             headers.Clear();
-            foreach (KeyValuePair<string, SeriesMessage> kvp in seriesMessages)
-                headers.Add(_seriesMessageProducerModel.SendMessage(kvp.Value, header, routingKey: null));
+            foreach (var (_, value) in seriesMessages)
+                headers.Add(_seriesMessageProducerModel.SendMessage(value, header, routingKey: null));
 
             _seriesMessageProducerModel.WaitForConfirms();
             headers.ForEach(x => x.Log(Logger, LogLevel.Trace, $"Sent {x.MessageGuid}"));

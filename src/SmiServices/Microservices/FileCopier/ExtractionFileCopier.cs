@@ -13,7 +13,7 @@ namespace SmiServices.Microservices.FileCopier
     {
         private readonly FileCopierOptions _options;
 
-        private readonly IProducerModel _copyStatusProducerModel;
+        private readonly IProducerModel<ExtractedFileStatusMessage> _copyStatusProducerModel;
 
         private readonly string _fileSystemRoot;
         private readonly string _extractionRoot;
@@ -24,7 +24,7 @@ namespace SmiServices.Microservices.FileCopier
 
         public ExtractionFileCopier(
             FileCopierOptions options,
-            IProducerModel copyStatusCopyStatusProducerModel,
+            IProducerModel<ExtractedFileStatusMessage> copyStatusCopyStatusProducerModel,
             string fileSystemRoot,
             string extractionRoot,
             IFileSystem? fileSystem = null)

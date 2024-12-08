@@ -9,7 +9,7 @@ namespace SmiServices.Common.Messaging
     /// No logging of sent - handle yourself
     /// Make sure to WaitForConfirms during host shutdown
     /// </summary>
-    public class BatchProducerModel : ProducerModel
+    public class BatchProducerModel<T> : ProducerModel<T> where T : IMessage
     {
         public BatchProducerModel(
             string exchangeName,
@@ -33,7 +33,7 @@ namespace SmiServices.Common.Messaging
         /// <param name="inResponseTo"></param>
         /// <param name="routingKey"></param>
         /// <returns></returns>
-        public override IMessageHeader SendMessage(IMessage message, IMessageHeader? inResponseTo = null, string? routingKey = null)
+        public override IMessageHeader SendMessage(T message, IMessageHeader? inResponseTo = null, string? routingKey = null)
         {
             return SendMessageImpl(message, inResponseTo, routingKey);
         }

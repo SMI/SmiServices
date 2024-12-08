@@ -5,6 +5,7 @@ using System.IO;
 using System.IO.Abstractions;
 using System.Linq;
 using System.Text;
+using SmiServices.Common.Messages;
 
 namespace SmiServices.Applications.DicomDirectoryProcessor.DirectoryFinders
 {
@@ -16,10 +17,10 @@ namespace SmiServices.Applications.DicomDirectoryProcessor.DirectoryFinders
         /// </summary>
         public bool AlwaysSearchSubdirectories { get; set; }
 
-        public BasicDicomDirectoryFinder(string fileSystemRoot, IFileSystem fileSystem, string dicomSearchPattern, IProducerModel directoriesProducerModel)
+        public BasicDicomDirectoryFinder(string fileSystemRoot, IFileSystem fileSystem, string dicomSearchPattern, IProducerModel<AccessionDirectoryMessage> directoriesProducerModel)
         : base(fileSystemRoot, fileSystem, dicomSearchPattern, directoriesProducerModel) { }
 
-        public BasicDicomDirectoryFinder(string fileSystemRoot, string dicomSearchPattern, IProducerModel directoriesProducerModel)
+        public BasicDicomDirectoryFinder(string fileSystemRoot, string dicomSearchPattern, IProducerModel<AccessionDirectoryMessage> directoriesProducerModel)
             : this(fileSystemRoot, new FileSystem(), dicomSearchPattern, directoriesProducerModel) { }
 
 

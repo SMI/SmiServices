@@ -23,14 +23,14 @@ namespace SmiServices.Microservices.DicomAnonymiser
         private readonly string _fileSystemRoot;
         private readonly string _extractRoot;
         private readonly IDicomAnonymiser _anonymiser;
-        private readonly IProducerModel _statusMessageProducer;
+        private readonly IProducerModel<ExtractedFileStatusMessage> _statusMessageProducer;
 
         public DicomAnonymiserConsumer(
             DicomAnonymiserOptions options,
             string fileSystemRoot,
             string extractRoot,
             IDicomAnonymiser anonymiser,
-            IProducerModel statusMessageProducer,
+            IProducerModel<ExtractedFileStatusMessage> statusMessageProducer,
             IFileSystem? fileSystem = null
         )
         {

@@ -3,6 +3,7 @@ using SmiServices.Common.Options;
 using SmiServices.Microservices.DicomAnonymiser.Anonymisers;
 using System;
 using System.IO.Abstractions;
+using SmiServices.Common.Messages.Extraction;
 
 namespace SmiServices.Microservices.DicomAnonymiser
 {
@@ -20,7 +21,7 @@ namespace SmiServices.Microservices.DicomAnonymiser
         {
             _anonymiser = anonymiser ?? AnonymiserFactory.CreateAnonymiser(options!);
 
-            var producerModel = MessageBroker.SetupProducer(options.DicomAnonymiserOptions!.ExtractFileStatusProducerOptions!, isBatch: false);
+            var producerModel = MessageBroker.SetupProducer<ExtractedFileStatusMessage>(options.DicomAnonymiserOptions!.ExtractFileStatusProducerOptions!, isBatch: false);
 
             _consumer = new DicomAnonymiserConsumer(
                 Globals.DicomAnonymiserOptions!,

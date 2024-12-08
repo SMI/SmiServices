@@ -4,6 +4,7 @@ using SmiServices.Common.Options;
 using System;
 using System.Globalization;
 using System.IO;
+using SmiServices.Common.Messages;
 
 namespace SmiServices.Applications.DicomDirectoryProcessor
 {
@@ -53,25 +54,25 @@ namespace SmiServices.Applications.DicomDirectoryProcessor
                     Logger.Info("Creating PACS directory finder");
 
                     _ddf = new PacsDirectoryFinder(globals.FileSystemOptions!.FileSystemRoot!,
-                        globals.FileSystemOptions.DicomSearchPattern!, MessageBroker.SetupProducer(globals.ProcessDirectoryOptions!.AccessionDirectoryProducerOptions!, isBatch: false));
+                        globals.FileSystemOptions.DicomSearchPattern!, MessageBroker.SetupProducer<AccessionDirectoryMessage>(globals.ProcessDirectoryOptions!.AccessionDirectoryProducerOptions!, isBatch: false));
                     break;
                 case "list":
                     Logger.Info("Creating accession directory lister");
 
                     _ddf = new AccessionDirectoryLister(globals.FileSystemOptions!.FileSystemRoot!,
-                        globals.FileSystemOptions.DicomSearchPattern!, MessageBroker.SetupProducer(globals.ProcessDirectoryOptions!.AccessionDirectoryProducerOptions!, isBatch: false));
+                        globals.FileSystemOptions.DicomSearchPattern!, MessageBroker.SetupProducer<AccessionDirectoryMessage>(globals.ProcessDirectoryOptions!.AccessionDirectoryProducerOptions!, isBatch: false));
                     break;
                 case "default":
                     Logger.Info("Creating basic directory finder");
 
                     _ddf = new BasicDicomDirectoryFinder(globals.FileSystemOptions!.FileSystemRoot!,
-                        globals.FileSystemOptions.DicomSearchPattern!, MessageBroker.SetupProducer(globals.ProcessDirectoryOptions!.AccessionDirectoryProducerOptions!, isBatch: false));
+                        globals.FileSystemOptions.DicomSearchPattern!, MessageBroker.SetupProducer<AccessionDirectoryMessage>(globals.ProcessDirectoryOptions!.AccessionDirectoryProducerOptions!, isBatch: false));
                     break;
                 case "zips":
                     Logger.Info("Creating zip directory finder");
 
                     _ddf = new ZipDicomDirectoryFinder(globals.FileSystemOptions!.FileSystemRoot!,
-                        globals.FileSystemOptions.DicomSearchPattern!, MessageBroker.SetupProducer(globals.ProcessDirectoryOptions!.AccessionDirectoryProducerOptions!, isBatch: false));
+                        globals.FileSystemOptions.DicomSearchPattern!, MessageBroker.SetupProducer<AccessionDirectoryMessage>(globals.ProcessDirectoryOptions!.AccessionDirectoryProducerOptions!, isBatch: false));
                     break;
                 default:
                     throw new ArgumentException(

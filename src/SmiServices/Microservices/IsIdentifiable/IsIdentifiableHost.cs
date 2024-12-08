@@ -4,6 +4,8 @@ using SmiServices.Common.Messaging;
 using SmiServices.Common.Options;
 using System;
 using System.IO;
+using SmiServices.Common.Messages.Extraction;
+using SmiServices.Common.Messages.Updating;
 
 namespace SmiServices.Microservices.IsIdentifiable
 {
@@ -12,7 +14,7 @@ namespace SmiServices.Microservices.IsIdentifiable
         private readonly ConsumerOptions _consumerOptions;
         public IsIdentifiableQueueConsumer Consumer { get; }
 
-        private readonly IProducerModel _producerModel;
+        private readonly IProducerModel<ExtractedFileVerificationMessage> _producerModel;
 
         public IsIdentifiableHost(
             GlobalOptions globals
@@ -31,8 +33,8 @@ namespace SmiServices.Microservices.IsIdentifiable
 
             var objectFactory = new MicroserviceObjectFactory();
             var classifier = objectFactory.CreateInstance<IClassifier>(classifierTypename, typeof(IClassifier).Assembly, new DirectoryInfo(dataDirectory), globals.IsIdentifiableOptions!)
-                ?? throw new TypeLoadException($"Could not find IClassifier Type {classifierTypename}");
-            _producerModel = MessageBroker.SetupProducer(globals.IsIdentifiableServiceOptions.IsIdentifiableProducerOptions!, isBatch: false);
+                             ?? throw new TypeLoadException($"Could not find IClassifier Type {classifierTypename}");
+            _producerModel = MessageBroker.SetupProducer<ExtractedFileVerificationMessage>(globals.IsIdentifiableServiceOptions.IsIdentifiableProducerOptions!, isBatch: false);
 
             Consumer = new IsIdentifiableQueueConsumer(_producerModel, globals.FileSystemOptions!.ExtractRoot!, classifier);
         }

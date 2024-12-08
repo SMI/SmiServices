@@ -4,6 +4,7 @@ using System.IO;
 using System.IO.Abstractions;
 using System.Linq;
 using System.Text.RegularExpressions;
+using SmiServices.Common.Messages;
 
 namespace SmiServices.Applications.DicomDirectoryProcessor.DirectoryFinders
 {
@@ -15,10 +16,10 @@ namespace SmiServices.Applications.DicomDirectoryProcessor.DirectoryFinders
         private readonly Regex _accDirectoryRegex = new(@"(20\d{2}[\\\/]\d{2}[\\\/]\d{2}[\\\/][a-zA-Z0-9._-]+[\\\/]$)");
 
 
-        public PacsDirectoryFinder(string fileSystemRoot, IFileSystem fileSystem, string dicomSearchPattern, IProducerModel directoriesProducerModel)
+        public PacsDirectoryFinder(string fileSystemRoot, IFileSystem fileSystem, string dicomSearchPattern, IProducerModel<AccessionDirectoryMessage> directoriesProducerModel)
             : base(fileSystemRoot, fileSystem, dicomSearchPattern, directoriesProducerModel) { }
 
-        public PacsDirectoryFinder(string fileSystemRoot, string dicomSearchPattern, IProducerModel directoriesProducerModel)
+        public PacsDirectoryFinder(string fileSystemRoot, string dicomSearchPattern, IProducerModel<AccessionDirectoryMessage> directoriesProducerModel)
             : base(fileSystemRoot, new FileSystem(), dicomSearchPattern, directoriesProducerModel) { }
 
 

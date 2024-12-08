@@ -3,6 +3,7 @@ using SmiServices.Common.Messaging;
 using System.Collections.Generic;
 using System.IO.Abstractions;
 using System.Linq;
+using SmiServices.Common.Messages;
 
 namespace SmiServices.Applications.DicomDirectoryProcessor.DirectoryFinders
 {
@@ -12,13 +13,13 @@ namespace SmiServices.Applications.DicomDirectoryProcessor.DirectoryFinders
     /// </summary>
     public class ZipDicomDirectoryFinder : BasicDicomDirectoryFinder
     {
-        public ZipDicomDirectoryFinder(string fileSystemRoot, IFileSystem fileSystem, string dicomSearchPattern, IProducerModel directoriesProducerModel)
+        public ZipDicomDirectoryFinder(string fileSystemRoot, IFileSystem fileSystem, string dicomSearchPattern, IProducerModel<AccessionDirectoryMessage> directoriesProducerModel)
         : base(fileSystemRoot, fileSystem, dicomSearchPattern, directoriesProducerModel)
         {
             AlwaysSearchSubdirectories = true;
         }
 
-        public ZipDicomDirectoryFinder(string fileSystemRoot, string dicomSearchPattern, IProducerModel directoriesProducerModel)
+        public ZipDicomDirectoryFinder(string fileSystemRoot, string dicomSearchPattern, IProducerModel<AccessionDirectoryMessage> directoriesProducerModel)
             : this(fileSystemRoot, new FileSystem(), dicomSearchPattern, directoriesProducerModel) { }
 
 

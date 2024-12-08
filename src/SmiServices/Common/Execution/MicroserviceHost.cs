@@ -27,7 +27,7 @@ namespace SmiServices.Common.Execution
         private bool _auxConnectionsCreated;
 
         private readonly ProducerOptions _fatalLoggingProducerOptions;
-        private IProducerModel? _fatalLoggingProducer;
+        private IProducerModel<FatalErrorMessage>? _fatalLoggingProducer;
 
         private readonly ControlMessageConsumer _controlMessageConsumer = null!;
 
@@ -119,7 +119,7 @@ namespace SmiServices.Common.Execution
                 if (MessageBroker.HasConsumers)
                     throw new ApplicationException("Rabbit adapter has consumers before aux. connections created");
 
-                _fatalLoggingProducer = MessageBroker.SetupProducer(_fatalLoggingProducerOptions, isBatch: false);
+                _fatalLoggingProducer = MessageBroker.SetupProducer<FatalErrorMessage>(_fatalLoggingProducerOptions, isBatch: false);
                 MessageBroker.StartConsumer(_controlMessageConsumer.ControlConsumerOptions, _controlMessageConsumer, isSolo: false);
             }
         }
