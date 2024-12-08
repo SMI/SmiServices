@@ -38,6 +38,10 @@ namespace SmiServices.Applications.ExtractImages
             HelpText = "Don't pause for manual confirmation before sending messages")]
         public bool NonInteractive { get; set; }
 
+        [Option(shortName: 'u', longName: "pooled-extraction", Required = false, Default = false,
+            HelpText = "True to use the global file pool for this extraction")]
+        public bool IsPooledExtraction { get; set; }
+
 
         [Usage]
         [ExcludeFromCodeCoverage]

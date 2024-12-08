@@ -30,6 +30,7 @@ namespace SmiServices.Applications.ExtractImages
         private readonly string[]? _modalities;
         private readonly bool _isIdentifiableExtraction;
         private readonly bool _isNoFiltersExtraction;
+        private readonly bool _isPooledExtraction;
         private readonly bool _nonInteractive;
 
 
@@ -62,6 +63,7 @@ namespace SmiServices.Applications.ExtractImages
             _modalities = cliOptions.Modalities?.ToUpper().Split(',', StringSplitOptions.RemoveEmptyEntries);
             _isIdentifiableExtraction = cliOptions.IsIdentifiableExtraction;
             _isNoFiltersExtraction = cliOptions.IsNoFiltersExtraction;
+            _isPooledExtraction = cliOptions.IsPooledExtraction;
             _nonInteractive = cliOptions.NonInteractive;
         }
 
@@ -85,6 +87,7 @@ namespace SmiServices.Applications.ExtractImages
                 JobSubmittedAt = now,
                 IsIdentifiableExtraction = _isIdentifiableExtraction,
                 IsNoFilterExtraction = _isNoFiltersExtraction,
+                IsPooledExtraction = _isPooledExtraction,
 
                 // TODO(rkm 2021-04-01) Change this to an ExtractionKey type
                 KeyTag = extractionKey.ToString(),
@@ -113,6 +116,7 @@ namespace SmiServices.Applications.ExtractImages
                 JobSubmittedAt = now,
                 IsIdentifiableExtraction = _isIdentifiableExtraction,
                 IsNoFilterExtraction = _isNoFiltersExtraction,
+                IsPooledExtraction = _isPooledExtraction,
 
                 KeyTag = extractionKey.ToString(),
                 KeyValueCount = idList.Count,
@@ -135,6 +139,7 @@ namespace SmiServices.Applications.ExtractImages
                 sb.AppendLine($"ExtractionKey:                  {extractionKey}");
                 sb.AppendLine($"IsIdentifiableExtraction:       {_isIdentifiableExtraction}");
                 sb.AppendLine($"IsNoFilterExtraction:           {_isNoFiltersExtraction}");
+                sb.AppendLine($"IsPooledExtraction:             {_isPooledExtraction}");
                 sb.AppendLine($"ExtractionModality:             {modalitiesString ?? "<unspecified>"}");
                 sb.AppendLine($"UserName:                       {userName}");
                 sb.AppendLine($"KeyValueCount:                  {idList.Count}");

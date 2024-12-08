@@ -36,5 +36,10 @@ namespace SmiServices.Common.Messages.Extraction
         /// True if this is a "no filters" (i.e. no file rejection filters should be applied)
         /// </summary>
         bool IsNoFilterExtraction { get; }
+
+        /// <summary>
+        /// True if this extraction uses the global pool of DICOM files
+        /// </summary>
+        bool IsPooledExtraction { get; }
     }
 }
