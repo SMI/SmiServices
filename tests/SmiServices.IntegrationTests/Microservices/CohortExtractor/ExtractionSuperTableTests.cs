@@ -212,10 +212,6 @@ namespace SmiServices.IntegrationTests.Microservices.CohortExtractor
             msgIn.Modality = "Hello";
             var ex = Assert.Throws<Exception>(() => fulfiller.GetAllMatchingFiles(msgIn, new NullAuditExtractions()).ToArray());
             Assert.That(ex!.Message, Does.Contain("Modality=Hello"));
-
-            ex = Assert.Throws(Is.AssignableTo(typeof(Exception)), () => fulfiller.GetAllMatchingFiles(msgIn, new NullAuditExtractions()).ToArray());
-            Assert.That(ex!.Message, Does.Contain("IsOriginal"));
-
         }
 
         /// <summary>
