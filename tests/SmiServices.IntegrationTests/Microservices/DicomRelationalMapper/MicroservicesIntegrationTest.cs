@@ -568,6 +568,7 @@ namespace SmiServices.IntegrationTests.Microservices.DicomRelationalMapper
                 ExtractionJobIdentifier = Guid.NewGuid(),
                 ProjectNumber = "1234-5678",
                 ExtractionDirectory = "1234-5678_P1",
+                Modality = "MR",
                 KeyTag = "SeriesInstanceUID",
             };
 
