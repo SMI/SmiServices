@@ -285,7 +285,7 @@ namespace SmiServices.IntegrationTests.Microservices.CohortPackager
             var jobId = Guid.NewGuid();
             var testExtractionRequestInfoMessage = new ExtractionRequestInfoMessage
             {
-                ExtractionModality = "MR",
+                Modality = "MR",
                 JobSubmittedAt = _dateTimeProvider.UtcNow(),
                 ProjectNumber = "testProj1",
                 ExtractionJobIdentifier = jobId,

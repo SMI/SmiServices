@@ -99,7 +99,7 @@ namespace SmiServices.UnitTests.Microservices.CohortExtractor.Messaging
                 IsIdentifiableExtraction = isIdentifiableExtraction,
                 KeyTag = "foo",
                 ExtractionIdentifiers = ["foo"],
-                Modalities = null,
+                Modality = "CT",
             };
 
             var consumer = new ExtractionRequestQueueConsumer(

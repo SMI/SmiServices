@@ -27,12 +27,5 @@ namespace SmiServices.Microservices.CohortExtractor.RequestFulfillers
         /// in addition to the basic <see cref="Rejectors"/>
         /// </summary>
         Dictionary<ModalitySpecificRejectorOptions, IRejector> ModalitySpecificRejectors { get; set; }
-
-        /// <summary>
-        /// Controls how modalities are matched to Catalogues.  Must contain a single capture group which
-        /// returns a modality code (e.g. CT) when applies to a Catalogue name.  E.g. ^([A-Z]+)_.*$ would result
-        /// in Modalities being routed based on the start of the table name e.g. CT => CT_MyTable and MR=> MR_MyTable
-        /// </summary>
-        Regex? ModalityRoutingRegex { get; set; }
     }
 }

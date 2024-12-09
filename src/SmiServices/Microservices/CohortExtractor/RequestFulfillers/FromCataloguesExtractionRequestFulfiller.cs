@@ -12,54 +12,66 @@ namespace SmiServices.Microservices.CohortExtractor.RequestFulfillers
 {
     public class FromCataloguesExtractionRequestFulfiller : IExtractionRequestFulfiller
     {
-        protected readonly QueryToExecuteColumnSet[] Catalogues;
-        protected readonly Logger Logger;
+        private readonly QueryToExecuteColumnSet[] _catalogues;
+        private readonly ILogger _logger;
 
         public List<IRejector> Rejectors { get; set; } = [];
-        public Dictionary<ModalitySpecificRejectorOptions, IRejector> ModalitySpecificRejectors { get; set; }
-            = [];
-        public Regex? ModalityRoutingRegex { get; set; }
+        public Dictionary<ModalitySpecificRejectorOptions, IRejector> ModalitySpecificRejectors { get; set; } = [];
 
-        public FromCataloguesExtractionRequestFulfiller(ICatalogue[] cataloguesToUseForImageLookup)
+        private readonly Regex _defaultModalityRoutingRegex = new("^([A-Z]+)_.*$", RegexOptions.Compiled);
+        private readonly Regex _modalityRoutingRegex;
+
+        /// <summary>
+        /// </summary>
+        /// <param name="cataloguesToUseForImageLookup"></param>
+        /// <param name="modalityRoutingRegex">
+        /// Controls how modalities are matched to Catalogues. Must contain a single capture group which
+        /// returns a modality code (e.g. CT) when applies to a Catalogue name.  E.g. ^([A-Z]+)_.*$ would result
+        /// in Modalities being routed based on the start of the table name e.g. CT => CT_MyTable and MR=> MR_MyTable
+        /// </param>
+        /// <exception cref="Exception"></exception>
+        public FromCataloguesExtractionRequestFulfiller(ICatalogue[] cataloguesToUseForImageLookup, Regex? modalityRoutingRegex = null)
         {
-            Logger = LogManager.GetCurrentClassLogger();
+            _logger = LogManager.GetCurrentClassLogger();
 
-            Logger.Debug("Preparing to filter " + cataloguesToUseForImageLookup.Length + " Catalogues to look for compatible ones");
+            _logger.Debug("Preparing to filter " + cataloguesToUseForImageLookup.Length + " Catalogues to look for compatible ones");
 
-            Catalogues = FilterCatalogues(cataloguesToUseForImageLookup);
+            _catalogues = cataloguesToUseForImageLookup.OrderBy(c => c.ID).Select(QueryToExecuteColumnSet.Create).Where(s => s != null).ToArray()!;
 
-            Logger.Debug("Found " + Catalogues.Length + " Catalogues matching filter criteria");
+            _logger.Debug("Found " + _catalogues.Length + " Catalogues matching filter criteria");
 
-            if (Catalogues.Length == 0)
+            if (_catalogues.Length == 0)
                 throw new Exception("There are no compatible Catalogues in the repository (See QueryToExecuteColumnSet for required columns)");
-        }
 
-
-        protected static QueryToExecuteColumnSet[] FilterCatalogues(ICatalogue[] cataloguesToUseForImageLookup)
-        {
-            return cataloguesToUseForImageLookup.OrderBy(c => c.ID).Select(QueryToExecuteColumnSet.Create).Where(s => s != null).ToArray()!;
+            _modalityRoutingRegex = modalityRoutingRegex ?? _defaultModalityRoutingRegex;
+            if (_modalityRoutingRegex.GetGroupNumbers().Length != 2)
+                throw new ArgumentOutOfRangeException(nameof(modalityRoutingRegex), $"Must have exactly one non-default capture group");
         }
 
         public IEnumerable<ExtractImageCollection> GetAllMatchingFiles(ExtractionRequestMessage message, IAuditExtractions auditor)
         {
             var queries = new List<QueryToExecute>();
+            var rejectors = GetRejectorsFor(message);
 
-            foreach (var c in GetCataloguesFor(message))
+            foreach (var c in _catalogues.Where(x => x.Contains(message.KeyTag)))
             {
-                var query = GetQueryToExecute(c, message);
+                var match = _modalityRoutingRegex.Match(c.Catalogue.Name);
+                if (!match.Success)
+                    continue;
 
-                if (query != null)
-                {
-                    queries.Add(query);
-                    auditor.AuditCatalogueUse(message, c.Catalogue);
-                }
+                var catalogueModality = match.Groups[1].Value ?? throw new Exception("Modality should never be null here");
+                if (catalogueModality != message.Modality)
+                    continue;
+
+                var query = new QueryToExecute(c, message.KeyTag, rejectors);
+                queries.Add(query);
+                auditor.AuditCatalogueUse(message, c.Catalogue);
             }
 
-            Logger.Debug($"Found {queries.Count} Catalogues which support extracting based on '{message.KeyTag}'");
+            _logger.Debug($"Found {queries.Count} Catalogues which support extracting based on '{message.KeyTag}'");
 
             if (queries.Count == 0)
                 throw new Exception($"Couldn't find any compatible Catalogues to run extraction queries against for query {message}");
-
 
             foreach (string valueToLookup in message.ExtractionIdentifiers)
             {
@@ -67,7 +79,7 @@ namespace SmiServices.Microservices.CohortExtractor.RequestFulfillers
 
                 foreach (QueryToExecute query in queries)
                 {
-                    foreach (QueryToExecuteResult result in query.Execute(valueToLookup, GetRejectorsFor(message, query).ToList()))
+                    foreach (QueryToExecuteResult result in query.Execute(valueToLookup))
                     {
                         var seriesTagValue = result.SeriesTagValue
                             ?? throw new Exception(nameof(result.SeriesTagValue));
@@ -83,21 +95,21 @@ namespace SmiServices.Microservices.CohortExtractor.RequestFulfillers
             }
         }
 
-        public IEnumerable<IRejector> GetRejectorsFor(ExtractionRequestMessage message, QueryToExecute query)
+        private IEnumerable<IRejector> GetRejectorsFor(ExtractionRequestMessage message)
         {
             if (message.IsNoFilterExtraction)
             {
                 return [];
             }
 
-            if (ModalitySpecificRejectors.Count != 0 && string.IsNullOrWhiteSpace(query.Modality))
+            if (ModalitySpecificRejectors.Count != 0 && string.IsNullOrWhiteSpace(message.Modality))
                 throw new Exception("Could not evaluate ModalitySpecificRejectors because query Modality was null");
 
             var applicableRejectors =
                 ModalitySpecificRejectors
                 .Where(
                     // Do the modalities covered by this rejector apply to the images returned by the query
-                    k => k.Key.GetModalities().Any(m => string.Equals(m, query.Modality, StringComparison.CurrentCultureIgnoreCase))
+                    k => k.Key.GetModalities().Any(m => string.Equals(m, message.Modality, StringComparison.CurrentCultureIgnoreCase))
                     )
                 .ToArray();
 
@@ -107,7 +119,7 @@ namespace SmiServices.Microservices.CohortExtractor.RequestFulfillers
                 // they had better all override or none of them!
                 if (!applicableRejectors.All(r => r.Key.Overrides))
                 {
-                    throw new Exception($"You cannot mix Overriding and non Overriding ModalitySpecificRejectors.  Bad Modality was '{query.Modality}'");
+                    throw new Exception($"You cannot mix Overriding and non Overriding ModalitySpecificRejectors.  Bad Modality was '{message.Modality}'");
                 }
 
                 // yes we have custom rejection rules for this modality
@@ -117,76 +129,5 @@ namespace SmiServices.Microservices.CohortExtractor.RequestFulfillers
             // The modality specific rejectors run in addition to the basic Rejectors so serve both
             return applicableRejectors.Select(r => r.Value).Union(Rejectors);
         }
-
-        /// <summary>
-        /// Creates a <see cref="QueryToExecute"/> based on the current <paramref name="message"/> and a <paramref name="columnSet"/> to
-        /// fetch back / filter using.
-        /// </summary>
-        /// <param name="columnSet"></param>
-        /// <param name="message"></param>
-        /// <returns></returns>
-        protected virtual QueryToExecute? GetQueryToExecute(QueryToExecuteColumnSet columnSet, ExtractionRequestMessage message)
-        {
-            string? modality = GetModalityFor(columnSet.Catalogue);
-
-            // do they want only records from a specific modality
-            if (!string.IsNullOrWhiteSpace(message.Modalities))
-            {
-                if (ModalityRoutingRegex == null)
-                    throw new NotSupportedException("Filtering on Modality requires setting a ModalityRoutingRegex");
-
-                // Use Modality routing regex to identify which modality 
-                var anyModality = message.Modalities.Split(',', StringSplitOptions.RemoveEmptyEntries);
-
-                // if we know the modality
-                if (modality != null)
-                {
-                    //but it is not one we are extracting 
-                    if (!anyModality.Any(m => m.Equals(modality)))
-                        return null; // i.e. do not query
-                }
-                else
-                {
-                    Logger.Log(LogLevel.Warn, nameof(ModalityRoutingRegex) + " did not match Catalogue name " + columnSet.Catalogue.Name);
-                }
-
-            }
-
-
-            return new QueryToExecute(columnSet, message.KeyTag) { Modality = modality };
-        }
-
-        /// <summary>
-        /// Returns the Modality of images that should be returned by querying the given <paramref name="catalogue"/>.
-        /// Based on the <see cref="ModalityRoutingRegex"/> or null if unknown / mixed modalities 
-        /// </summary>
-        /// <param name="catalogue"></param>
-        /// <returns></returns>
-        private string? GetModalityFor(ICatalogue catalogue)
-        {
-            // We don't know how to 
-            if (ModalityRoutingRegex == null)
-                return null;
-
-            var match = ModalityRoutingRegex.Match(catalogue.Name);
-
-            return match.Success ? match.Groups[1].Value : null;
-
-        }
-
-        /// <summary>
-        /// Return all valid query targets for the given <paramref name="message"/>.  Use this to handle throwing out queries
-        /// because they go to the wrong table for the given <see cref="ExtractionRequestMessage.Modalities"/> etc.
-        ///
-        /// <para>Default implementation returns all <see cref="Catalogues"/> in which the <see cref="ExtractionRequestMessage.KeyTag"/>
-        /// appears</para>
-        /// </summary>
-        /// <param name="message"></param>
-        /// <returns></returns>
-        protected virtual IEnumerable<QueryToExecuteColumnSet> GetCataloguesFor(ExtractionRequestMessage message)
-        {
-            return Catalogues.Where(c => c.Contains(message.KeyTag));
-        }
-
     }
 }

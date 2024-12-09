@@ -4,7 +4,6 @@ using FellowOakDicom;
 using NUnit.Framework;
 using Rdmp.Core.DataLoad.Triggers;
 using SmiServices.Common.Messages.Extraction;
-using SmiServices.Common.Options;
 using SmiServices.Microservices.CohortExtractor;
 using SmiServices.Microservices.CohortExtractor.Audit;
 using SmiServices.Microservices.CohortExtractor.RequestFulfillers;
@@ -15,7 +14,6 @@ using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Linq;
-using System.Text.RegularExpressions;
 using Tests.Common;
 using TypeGuesser;
 using DatabaseType = FAnsi.DatabaseType;
@@ -190,7 +188,7 @@ namespace SmiServices.IntegrationTests.Microservices.CohortExtractor
                 KeyTag = DicomTag.StudyInstanceUID.DictionaryEntry.Keyword,
 
                 //extract only MR (this is what we are actually testing).
-                Modalities = "MR",
+                Modality = "MR",
                 ExtractionIdentifiers = studies
             };
 
@@ -199,10 +197,7 @@ namespace SmiServices.IntegrationTests.Microservices.CohortExtractor
             //The strategy pattern implementation that goes to the database but also considers reason
 
 
-            var fulfiller = new FromCataloguesExtractionRequestFulfiller([cataCT, cataMR])
-            {
-                ModalityRoutingRegex = new Regex(CohortExtractorOptions.DefaultModalityRoutingRegex)
-            };
+            var fulfiller = new FromCataloguesExtractionRequestFulfiller([cataCT, cataMR]);
 
             foreach (ExtractImageCollection msgOut in fulfiller.GetAllMatchingFiles(msgIn, new NullAuditExtractions()))
             {
@@ -213,27 +208,22 @@ namespace SmiServices.IntegrationTests.Microservices.CohortExtractor
             //expect only the MR images to be returned
             Assert.That(matches, Is.EqualTo(30));
 
-
             // Ask for something that doesn't exist
-            msgIn.Modalities = "Hello";
+            msgIn.Modality = "Hello";
             var ex = Assert.Throws<Exception>(() => fulfiller.GetAllMatchingFiles(msgIn, new NullAuditExtractions()).ToArray());
             Assert.That(ex!.Message, Does.Contain("Modality=Hello"));
 
-            // Ask for all modalities at once by not specifying any
-            msgIn.Modalities = null;
-            Assert.That(fulfiller.GetAllMatchingFiles(msgIn, new NullAuditExtractions()).Sum(r => r.Accepted.Count), Is.EqualTo(100));
-
             // Ask for both modalities specifically
-            msgIn.Modalities = "CT,Hello";
+            msgIn.Modality = "CT,Hello";
             Assert.That(fulfiller.GetAllMatchingFiles(msgIn, new NullAuditExtractions()).Sum(r => r.Accepted.Count), Is.EqualTo(70));
 
             // Ask for both modalities specifically
-            msgIn.Modalities = "CT,MR";
+            msgIn.Modality = "CT,MR";
             Assert.That(fulfiller.GetAllMatchingFiles(msgIn, new NullAuditExtractions()).Sum(r => r.Accepted.Count), Is.EqualTo(100));
 
             //when we don't have that flag anymore the error should tell us that
             tblCT.DropColumn(tblCT.DiscoverColumn("IsOriginal"));
-            msgIn.Modalities = "CT,MR";
+            msgIn.Modality = "CT,MR";
 
             ex = Assert.Throws(Is.AssignableTo(typeof(Exception)), () => fulfiller.GetAllMatchingFiles(msgIn, new NullAuditExtractions()).ToArray());
             Assert.That(ex!.Message, Does.Contain("IsOriginal"));

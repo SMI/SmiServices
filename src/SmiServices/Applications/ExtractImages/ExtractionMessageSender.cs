@@ -27,7 +27,7 @@ namespace SmiServices.Applications.ExtractImages
         private readonly int _maxIdentifiersPerMessage;
 
         private readonly string _projectId;
-        private readonly string[]? _modalities;
+        private readonly string _modality;
         private readonly bool _isIdentifiableExtraction;
         private readonly bool _isNoFiltersExtraction;
         private readonly bool _isPooledExtraction;
@@ -60,7 +60,7 @@ namespace SmiServices.Applications.ExtractImages
                 throw new ArgumentOutOfRangeException(nameof(options));
 
             _projectId = (!string.IsNullOrWhiteSpace(cliOptions.ProjectId)) ? cliOptions.ProjectId : throw new ArgumentOutOfRangeException(nameof(cliOptions));
-            _modalities = cliOptions.Modalities?.ToUpper().Split(',', StringSplitOptions.RemoveEmptyEntries);
+            _modality = (!string.IsNullOrWhiteSpace(cliOptions.Modality)) ? cliOptions.Modality : throw new ArgumentOutOfRangeException(nameof(cliOptions));
             _isIdentifiableExtraction = cliOptions.IsIdentifiableExtraction;
             _isNoFiltersExtraction = cliOptions.IsNoFiltersExtraction;
             _isPooledExtraction = cliOptions.IsPooledExtraction;
@@ -75,8 +75,6 @@ namespace SmiServices.Applications.ExtractImages
             var jobId = Guid.NewGuid();
             DateTime now = _dateTimeProvider.UtcNow();
 
-            // TODO(rkm 2021-04-01) Change this to a string[] in both messages below
-            string? modalitiesString = _modalities == null ? null : string.Join(',', _modalities);
             string userName = Environment.UserName;
 
             var erm = new ExtractionRequestMessage
@@ -92,7 +90,7 @@ namespace SmiServices.Applications.ExtractImages
                 // TODO(rkm 2021-04-01) Change this to an ExtractionKey type
                 KeyTag = extractionKey.ToString(),
 
-                Modalities = modalitiesString,
+                Modality = _modality,
 
                 // NOTE(rkm 2021-04-01) Set below
                 ExtractionIdentifiers = null!,
@@ -113,6 +111,7 @@ namespace SmiServices.Applications.ExtractImages
                 ExtractionJobIdentifier = jobId,
                 ProjectNumber = _projectId,
                 ExtractionDirectory = _extractionDir,
+                Modality = _modality,
                 JobSubmittedAt = now,
                 IsIdentifiableExtraction = _isIdentifiableExtraction,
                 IsNoFilterExtraction = _isNoFiltersExtraction,
@@ -121,7 +120,6 @@ namespace SmiServices.Applications.ExtractImages
                 KeyTag = extractionKey.ToString(),
                 KeyValueCount = idList.Count,
                 UserName = userName,
-                ExtractionModality = modalitiesString,
             };
 
             if (_nonInteractive)
@@ -136,11 +134,11 @@ namespace SmiServices.Applications.ExtractImages
                 sb.AppendLine($"Submitted:                      {now:u}");
                 sb.AppendLine($"ProjectNumber:                  {_projectId}");
                 sb.AppendLine($"ExtractionDirectory:            {_extractionDir}");
+                sb.AppendLine($"Modality:                       {_modality}");
                 sb.AppendLine($"ExtractionKey:                  {extractionKey}");
                 sb.AppendLine($"IsIdentifiableExtraction:       {_isIdentifiableExtraction}");
                 sb.AppendLine($"IsNoFilterExtraction:           {_isNoFiltersExtraction}");
                 sb.AppendLine($"IsPooledExtraction:             {_isPooledExtraction}");
-                sb.AppendLine($"ExtractionModality:             {modalitiesString ?? "<unspecified>"}");
                 sb.AppendLine($"UserName:                       {userName}");
                 sb.AppendLine($"KeyValueCount:                  {idList.Count}");
                 sb.AppendLine($"ExtractionRequestMessage count: {ermList.Count}");

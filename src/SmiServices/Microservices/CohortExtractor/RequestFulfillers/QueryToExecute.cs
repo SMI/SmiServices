@@ -15,32 +15,31 @@ namespace SmiServices.Microservices.CohortExtractor.RequestFulfillers
     {
         private readonly ILogger _logger = LogManager.GetCurrentClassLogger();
 
-        protected QueryToExecuteColumnSet Columns { get; }
+        private readonly QueryToExecuteColumnSet _columns;
 
         /// <summary>
         /// The column to search for in the WHERE logic
         /// </summary>
         private readonly string _keyTag;
 
-        public DiscoveredServer? Server { get; set; }
+        private readonly DiscoveredServer _server;
         private string? _sql;
 
         /// <summary>
         /// Lock to ensure we don't build multiple <see cref="GetQueryBuilder"/> at once if someone decides to multi
         /// thread the <see cref="Execute"/> method
         /// </summary>
-        readonly object _oLockExecute = new();
+        private readonly object _oLockExecute = new();
 
-        /// <summary>
-        /// Modality (if known) for records that the query should return
-        /// </summary>
-        public string? Modality { get; set; }
+        private readonly IEnumerable<IRejector> _rejectors;
 
-        public QueryToExecute(QueryToExecuteColumnSet columns, string keyTag)
+
+        public QueryToExecute(QueryToExecuteColumnSet columns, string keyTag, IEnumerable<IRejector> rejectors)
         {
-            Columns = columns;
-            Server = columns.Catalogue.GetDistinctLiveDatabaseServer(DataAccessContext.DataExport, setInitialDatabase: true);
-            _keyTag = Server.GetQuerySyntaxHelper().EnsureWrapped(keyTag);
+            _columns = columns;
+            _server = columns.Catalogue.GetDistinctLiveDatabaseServer(DataAccessContext.DataExport, setInitialDatabase: true);
+            _keyTag = _server.GetQuerySyntaxHelper().EnsureWrapped(keyTag);
+            _rejectors = rejectors;
         }
 
         /// <summary>
@@ -51,7 +50,7 @@ namespace SmiServices.Microservices.CohortExtractor.RequestFulfillers
         {
             var qb = new QueryBuilder("distinct", null);
 
-            foreach (var col in Columns.AllColumns)
+            foreach (var col in _columns.AllColumns)
                 qb.AddColumn(col);
 
             qb.RootFilterContainer = GetWhereLogic();
@@ -90,7 +89,7 @@ namespace SmiServices.Microservices.CohortExtractor.RequestFulfillers
             yield return new SpontaneouslyInventedFilter(memoryRepo, rootContainer, _keyTag + "= '{0}'",
                 "Filter Series", "Filters by series UID", null);
 
-            foreach (var filter in Columns.Catalogue.GetAllMandatoryFilters())
+            foreach (var filter in _columns.Catalogue.GetAllMandatoryFilters())
                 yield return filter;
         }
 
@@ -103,9 +102,8 @@ namespace SmiServices.Microservices.CohortExtractor.RequestFulfillers
         /// Returns the SeriesInstanceUID and a set of any file paths matching the query
         /// </summary>
         /// <param name="valueToLookup"></param>
-        /// <param name="rejectors">Required, determines whether records are returned as good or bad</param>
         /// <returns></returns>
-        public IEnumerable<QueryToExecuteResult> Execute(string valueToLookup, List<IRejector> rejectors)
+        public IEnumerable<QueryToExecuteResult> Execute(string valueToLookup)
         {
             if (_sql == null)
                 lock (_oLockExecute)
@@ -117,12 +115,12 @@ namespace SmiServices.Microservices.CohortExtractor.RequestFulfillers
                     }
                 }
 
-            string path = Columns.FilePathColumn?.GetRuntimeName() ?? throw new NullReferenceException("No FilePathColumn set");
-            string study = Columns.StudyTagColumn?.GetRuntimeName() ?? throw new NullReferenceException("No StudyTagColumn set");
-            string series = Columns.SeriesTagColumn?.GetRuntimeName() ?? throw new NullReferenceException("No SeriesTagColumn set");
-            string instance = Columns.InstanceTagColumn?.GetRuntimeName() ?? throw new NullReferenceException("No InstanceTagColumn set");
+            string path = _columns.FilePathColumn?.GetRuntimeName() ?? throw new NullReferenceException("No FilePathColumn set");
+            string study = _columns.StudyTagColumn?.GetRuntimeName() ?? throw new NullReferenceException("No StudyTagColumn set");
+            string series = _columns.SeriesTagColumn?.GetRuntimeName() ?? throw new NullReferenceException("No SeriesTagColumn set");
+            string instance = _columns.InstanceTagColumn?.GetRuntimeName() ?? throw new NullReferenceException("No InstanceTagColumn set");
 
-            using DbConnection con = Server!.GetConnection();
+            using DbConnection con = _server!.GetConnection();
             con.Open();
 
             string? sqlString = GetSqlForKeyValue(valueToLookup);
@@ -130,7 +128,7 @@ namespace SmiServices.Microservices.CohortExtractor.RequestFulfillers
             DbDataReader reader;
             try
             {
-                reader = Server.GetCommand(sqlString, con).ExecuteReader();
+                reader = _server.GetCommand(sqlString, con).ExecuteReader();
             }
             catch (DbException)
             {
@@ -149,7 +147,7 @@ namespace SmiServices.Microservices.CohortExtractor.RequestFulfillers
                 string? rejectReason = null;
 
                 //Ask the rejectors how good this record is
-                foreach (IRejector rejector in rejectors)
+                foreach (IRejector rejector in _rejectors)
                 {
                     if (rejector.Reject(reader, out rejectReason))
                     {

@@ -81,7 +81,7 @@ namespace SmiServices.UnitTests.Microservices.CohortPackager.Execution.ExtractJo
             Guid guid = Guid.NewGuid();
             var message = new ExtractionRequestInfoMessage
             {
-                ExtractionModality = "MR",
+                Modality = "MR",
                 JobSubmittedAt = _dateTimeProvider.UtcNow(),
                 ProjectNumber = "1234",
                 ExtractionJobIdentifier = guid,

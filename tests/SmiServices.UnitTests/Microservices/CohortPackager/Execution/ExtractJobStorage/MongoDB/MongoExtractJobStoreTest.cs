@@ -239,7 +239,7 @@ namespace SmiServices.UnitTests.Microservices.CohortPackager.Execution.ExtractJo
                 KeyTag = "StudyInstanceUID",
                 KeyValueCount = 1,
                 UserName = "testUser",
-                ExtractionModality = "CT",
+                Modality = "CT",
                 IsIdentifiableExtraction = true,
                 IsNoFilterExtraction = true,
             };
@@ -314,7 +314,7 @@ namespace SmiServices.UnitTests.Microservices.CohortPackager.Execution.ExtractJo
                 KeyTag = "StudyInstanceUID",
                 KeyValueCount = 1,
                 UserName = "testUser",
-                ExtractionModality = "CT",
+                Modality = "CT",
                 IsIdentifiableExtraction = true,
                 IsNoFilterExtraction = true,
             };
