@@ -111,6 +111,7 @@ namespace SmiServices.IntegrationTests.Microservices.CohortExtractor
             var msgIn = new ExtractionRequestMessage
             {
                 KeyTag = DicomTag.StudyInstanceUID.DictionaryEntry.Keyword,
+                Modality = "CT",
                 ExtractionIdentifiers = studies
             };
 
@@ -196,7 +197,6 @@ namespace SmiServices.IntegrationTests.Microservices.CohortExtractor
 
             //The strategy pattern implementation that goes to the database but also considers reason
 
-
             var fulfiller = new FromCataloguesExtractionRequestFulfiller([cataCT, cataMR]);
 
             foreach (ExtractImageCollection msgOut in fulfiller.GetAllMatchingFiles(msgIn, new NullAuditExtractions()))
@@ -212,18 +212,6 @@ namespace SmiServices.IntegrationTests.Microservices.CohortExtractor
             msgIn.Modality = "Hello";
             var ex = Assert.Throws<Exception>(() => fulfiller.GetAllMatchingFiles(msgIn, new NullAuditExtractions()).ToArray());
             Assert.That(ex!.Message, Does.Contain("Modality=Hello"));
-
-            // Ask for both modalities specifically
-            msgIn.Modality = "CT,Hello";
-            Assert.That(fulfiller.GetAllMatchingFiles(msgIn, new NullAuditExtractions()).Sum(r => r.Accepted.Count), Is.EqualTo(70));
-
-            // Ask for both modalities specifically
-            msgIn.Modality = "CT,MR";
-            Assert.That(fulfiller.GetAllMatchingFiles(msgIn, new NullAuditExtractions()).Sum(r => r.Accepted.Count), Is.EqualTo(100));
-
-            //when we don't have that flag anymore the error should tell us that
-            tblCT.DropColumn(tblCT.DiscoverColumn("IsOriginal"));
-            msgIn.Modality = "CT,MR";
 
             ex = Assert.Throws(Is.AssignableTo(typeof(Exception)), () => fulfiller.GetAllMatchingFiles(msgIn, new NullAuditExtractions()).ToArray());
             Assert.That(ex!.Message, Does.Contain("IsOriginal"));

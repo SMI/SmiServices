@@ -116,6 +116,7 @@ namespace SmiServices.IntegrationTests.Microservices.CohortPackager
                 ProjectNumber = "testProj1",
                 ExtractionJobIdentifier = jobId,
                 ExtractionDirectory = pf.ProjExtractDirRelative,
+                Modality = "CT",
                 KeyTag = "SeriesInstanceUID",
                 KeyValueCount = 1,
                 UserName = "testUser",
@@ -126,6 +127,7 @@ namespace SmiServices.IntegrationTests.Microservices.CohortPackager
                 ProjectNumber = "testProj1",
                 ExtractionJobIdentifier = jobId,
                 ExtractionDirectory = pf.ProjExtractDirRelative,
+                Modality = "CT",
                 ExtractFileMessagesDispatched = new JsonCompatibleDictionary<MessageHeader, string>
                 {
                     { new MessageHeader(), "series-1-anon-1.dcm" },
@@ -143,6 +145,7 @@ namespace SmiServices.IntegrationTests.Microservices.CohortPackager
                 ProjectNumber = "testProj1",
                 ExtractionJobIdentifier = jobId,
                 ExtractionDirectory = pf.ProjExtractDirRelative,
+                Modality = "CT",
                 Status = VerifiedFileStatus.NotIdentifiable,
                 Report = "[]",
                 DicomFilePath = "series-1-orig-1.dcm",
@@ -182,6 +185,7 @@ namespace SmiServices.IntegrationTests.Microservices.CohortPackager
                 ProjectNumber = "testProj1",
                 ExtractionJobIdentifier = jobId,
                 ExtractionDirectory = pf.ProjExtractDirRelative,
+                Modality = "CT",
                 KeyTag = "SeriesInstanceUID",
                 KeyValueCount = 2,
                 UserName = "testUser",
@@ -192,6 +196,7 @@ namespace SmiServices.IntegrationTests.Microservices.CohortPackager
                 ProjectNumber = "testProj1",
                 ExtractionJobIdentifier = jobId,
                 ExtractionDirectory = pf.ProjExtractDirRelative,
+                Modality = "CT",
                 ExtractFileMessagesDispatched = new JsonCompatibleDictionary<MessageHeader, string>
                 {
                     { new MessageHeader(), "series-1-anon-1.dcm" },
@@ -208,6 +213,7 @@ namespace SmiServices.IntegrationTests.Microservices.CohortPackager
                 ProjectNumber = "testProj1",
                 ExtractionJobIdentifier = jobId,
                 ExtractionDirectory = pf.ProjExtractDirRelative,
+                Modality = "CT",
                 ExtractFileMessagesDispatched = new JsonCompatibleDictionary<MessageHeader, string>
                 {
                     { new MessageHeader(), "series-2-anon-1.dcm" },
@@ -223,6 +229,7 @@ namespace SmiServices.IntegrationTests.Microservices.CohortPackager
                 ProjectNumber = "testProj1",
                 ExtractionJobIdentifier = jobId,
                 ExtractionDirectory = pf.ProjExtractDirRelative,
+                Modality = "CT",
                 Status = ExtractedFileStatus.ErrorWontRetry,
                 StatusMessage = "Couldn't anonymise",
                 DicomFilePath = "series-2-orig-1.dcm",
@@ -234,6 +241,7 @@ namespace SmiServices.IntegrationTests.Microservices.CohortPackager
                 ProjectNumber = "testProj1",
                 ExtractionJobIdentifier = jobId,
                 ExtractionDirectory = pf.ProjExtractDirRelative,
+                Modality = "CT",
                 Status = VerifiedFileStatus.NotIdentifiable,
                 Report = "[]",
                 DicomFilePath = "series-1-orig-1.dcm",
@@ -255,6 +263,7 @@ namespace SmiServices.IntegrationTests.Microservices.CohortPackager
                 ProjectNumber = "testProj1",
                 ExtractionJobIdentifier = jobId,
                 ExtractionDirectory = pf.ProjExtractDirRelative,
+                Modality = "CT",
                 Status = VerifiedFileStatus.IsIdentifiable,
                 Report = failureReport,
                 DicomFilePath = "series-2-orig-2.dcm",
@@ -301,6 +310,7 @@ namespace SmiServices.IntegrationTests.Microservices.CohortPackager
                 ProjectNumber = "testProj1",
                 ExtractionJobIdentifier = jobId,
                 ExtractionDirectory = pf.ProjExtractDirRelative,
+                Modality = "MR",
                 ExtractFileMessagesDispatched = new JsonCompatibleDictionary<MessageHeader, string>
                 {
                     { new MessageHeader(), "out1.dcm" },
@@ -320,6 +330,7 @@ namespace SmiServices.IntegrationTests.Microservices.CohortPackager
                 ProjectNumber = "testProj1",
                 ExtractionJobIdentifier = jobId,
                 ExtractionDirectory = pf.ProjExtractDirRelative,
+                Modality = "MR",
                 Status = ExtractedFileStatus.Copied,
                 StatusMessage = null,
                 DicomFilePath = "study-1-orig-1.dcm",
@@ -332,6 +343,7 @@ namespace SmiServices.IntegrationTests.Microservices.CohortPackager
                 ProjectNumber = "testProj1",
                 ExtractionJobIdentifier = jobId,
                 ExtractionDirectory = pf.ProjExtractDirRelative,
+                Modality = "MR",
                 Status = ExtractedFileStatus.FileMissing,
                 StatusMessage = "Couldn't find src_missing.dcm",
                 DicomFilePath = "src_missing.dcm",

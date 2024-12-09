@@ -53,7 +53,7 @@ namespace SmiServices.IntegrationTests.Microservices.CohortExtractor
 
             dt.SetDoNotReType(true);
 
-            var tbl = db.CreateTable("FromCataloguesExtractionRequestFulfillerTests", dt);
+            var tbl = db.CreateTable("CT_ImageTable", dt);
             var catalogue = Import(tbl);
 
             var fulfiller = new FromCataloguesExtractionRequestFulfiller([catalogue]);
@@ -61,6 +61,7 @@ namespace SmiServices.IntegrationTests.Microservices.CohortExtractor
             var matching = fulfiller.GetAllMatchingFiles(new ExtractionRequestMessage
             {
                 KeyTag = "SeriesInstanceUID",
+                Modality = "CT",
                 ExtractionIdentifiers = new List<string>(["123.1"]),
             }, new NullAuditExtractions()).ToArray();
 
@@ -93,7 +94,7 @@ namespace SmiServices.IntegrationTests.Microservices.CohortExtractor
 
             dt.SetDoNotReType(true);
 
-            var tbl = db.CreateTable("FromCataloguesExtractionRequestFulfillerTests", dt);
+            var tbl = db.CreateTable("CT_ImageTable", dt);
             var catalogue = Import(tbl);
 
             var ei = catalogue.GetAllExtractionInformation(ExtractionCategory.Any).First();
@@ -108,6 +109,7 @@ namespace SmiServices.IntegrationTests.Microservices.CohortExtractor
             var matching = fulfiller.GetAllMatchingFiles(new ExtractionRequestMessage
             {
                 KeyTag = "SeriesInstanceUID",
+                Modality = "CT",
                 ExtractionIdentifiers = new List<string>(["123.1"]),
             }, new NullAuditExtractions()).ToArray();
 
@@ -131,7 +133,7 @@ namespace SmiServices.IntegrationTests.Microservices.CohortExtractor
             dt.Rows.Add("1.1", "123.1", "1.1", true, "/images/1.dcm");
             dt.SetDoNotReType(true);
 
-            DiscoveredTable tbl = db.CreateTable("FromCataloguesExtractionRequestFulfillerTests", dt);
+            DiscoveredTable tbl = db.CreateTable("CT_ImageTable", dt);
             ICatalogue catalogue = Import(tbl);
 
             ExtractionInformation ei = catalogue.GetAllExtractionInformation(ExtractionCategory.Any).First();
@@ -147,6 +149,7 @@ namespace SmiServices.IntegrationTests.Microservices.CohortExtractor
             var message = new ExtractionRequestMessage
             {
                 KeyTag = "SeriesInstanceUID",
+                Modality = "CT",
                 ExtractionIdentifiers = new List<string>(["123.1"]),
                 IsNoFilterExtraction = isNoFiltersExtraction,
             };
