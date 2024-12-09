@@ -414,7 +414,7 @@ namespace SmiServices.IntegrationTests.Microservices.DicomRelationalMapper
             var r = new Random(500);
 
             //create a generator 
-            using var generator = new DicomDataGenerator(r, dir.FullName, "CT");
+            using var generator = new DicomDataGenerator(r, dir.FullName, "MR");
             generator.GenerateImageFiles(40, r);
             RunTest(dir, 40);
         }
