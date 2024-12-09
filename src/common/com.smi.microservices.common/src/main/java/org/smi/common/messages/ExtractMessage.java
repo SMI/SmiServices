@@ -27,6 +27,12 @@ public abstract class ExtractMessage implements IMessage {
 	public String ExtractionDirectory;
 
 	/**
+	 * The extraction modality
+	 */
+	@FieldRequired
+    public String Modality;
+
+	/**
 	 * DateTime at which the extraction request was submitted
 	 */
 	@FieldRequired

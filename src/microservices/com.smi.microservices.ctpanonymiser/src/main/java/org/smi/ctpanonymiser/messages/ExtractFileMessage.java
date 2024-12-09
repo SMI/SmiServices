@@ -28,8 +28,6 @@ public class ExtractFileMessage extends ExtractMessage implements IMessage {
 	@FieldRequired
 	public String DicomFilePath;
 
-    public String Modality;
-
 	/**
 	 * @param fileSystemRoot
 	 * @return The full path to the identifiable image being anonymised and
