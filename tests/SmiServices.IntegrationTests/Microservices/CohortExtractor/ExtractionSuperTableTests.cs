@@ -8,11 +8,11 @@ using SmiServices.Microservices.CohortExtractor;
 using SmiServices.Microservices.CohortExtractor.Audit;
 using SmiServices.Microservices.CohortExtractor.RequestFulfillers;
 using SmiServices.Microservices.CohortExtractor.RequestFulfillers.Dynamic;
-using SmiServices.UnitTests.Microservices.CohortExtractor;
 using SynthEHR;
 using System;
 using System.Collections.Generic;
 using System.Data;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using Tests.Common;
 using TypeGuesser;
@@ -245,6 +245,23 @@ namespace SmiServices.IntegrationTests.Microservices.CohortExtractor
                 DatabaseType.MySql => $"UPDATE {tbl.GetFullyQualifiedName()} {setSql} LIMIT {topXRows}",
                 _ => throw new ArgumentOutOfRangeException(nameof(tbl)),
             };
+        }
+
+        public class TestRejector : IRejector
+        {
+            public bool Reject(IDataRecord row, [NotNullWhen(true)] out string? reason)
+            {
+                //if the image is not extractable
+                if (!Convert.ToBoolean(row["IsExtractableToDisk"]))
+                {
+                    //tell them why and reject it
+                    reason = (row["IsExtractableToDisk_Reason"] as string)!;
+                    return true;
+                }
+
+                reason = null;
+                return false;
+            }
         }
     }
 }
