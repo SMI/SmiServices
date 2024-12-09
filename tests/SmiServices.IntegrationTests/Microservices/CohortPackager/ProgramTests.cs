@@ -68,6 +68,7 @@ internal class ProgramTests
             ProjectNumber = "testProj1",
             ExtractionJobIdentifier = jobId,
             ExtractionDirectory = pf.ProjExtractDirRelative,
+            Modality = "CT",
             KeyTag = "SeriesInstanceUID",
             KeyValueCount = 1,
             UserName = "testUser",
@@ -78,6 +79,7 @@ internal class ProgramTests
             ProjectNumber = "testProj1",
             ExtractionJobIdentifier = jobId,
             ExtractionDirectory = pf.ProjExtractDirRelative,
+            Modality = "CT",
             ExtractFileMessagesDispatched = new JsonCompatibleDictionary<MessageHeader, string>
                 {
                     { new MessageHeader(), "series-1-anon-1.dcm" },
@@ -95,6 +97,7 @@ internal class ProgramTests
             ProjectNumber = "testProj1",
             ExtractionJobIdentifier = jobId,
             ExtractionDirectory = pf.ProjExtractDirRelative,
+            Modality = "CT",
             Status = VerifiedFileStatus.NotIdentifiable,
             Report = "[]",
             DicomFilePath = "series-1-orig-1.dcm",
