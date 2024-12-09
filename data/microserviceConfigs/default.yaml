@@ -76,7 +76,7 @@ CohortExtractorOptions:
   #RejectColumnInfos: [105,110]
 
   AuditorType: "SmiServices.Microservices.CohortExtractor.Audit.NullAuditExtractions"
-  RequestFulfillerType: "SmiServices.Microservices.CohortExtractor.RequestFulfillers.FromCataloguesExtractionRequestFulfiller"
+  RequestFulfillerType: "FromCataloguesExtractionRequestFulfiller"
   ProjectPathResolverType: "StudySeriesSOPProjectPathResolver"
   ExtractAnonRoutingKey: anon
   ExtractIdentRoutingKey: ident
