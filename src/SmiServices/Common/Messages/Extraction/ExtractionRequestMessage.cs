@@ -15,13 +15,6 @@ namespace SmiServices.Common.Messages.Extraction
         public string KeyTag { get; set; } = null!;
 
         /// <summary>
-        /// Optional list of modalities to extract when <see cref="KeyTag"/> could include multiple modalities
-        /// (e.g. extracting based on patient or study (study can include e.g. CT + SR).
-        /// </summary>
-        [JsonProperty(Required = Required.AllowNull)]
-        public string? Modalities { get; set; }
-
-        /// <summary>
         /// The unique set of identifiers of Type <see cref="KeyTag"/> which should be extracted
         /// </summary>
         [JsonProperty(Required = Required.Always)]
@@ -41,14 +34,12 @@ namespace SmiServices.Common.Messages.Extraction
         : base(other)
         {
             KeyTag = other.KeyTag;
-            Modalities = other.Modalities;
             ExtractionIdentifiers = other.ExtractionIdentifiers;
         }
 
         public override string ToString()
             => base.ToString() + ", " +
                $"KeyTag={KeyTag}, " +
-               $"Modality={Modalities ?? "Unspecified"}, " +
                $"nIdentifiers={ExtractionIdentifiers.Count}";
     }
 }

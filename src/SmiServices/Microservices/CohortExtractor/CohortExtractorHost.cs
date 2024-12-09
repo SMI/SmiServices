@@ -110,10 +110,11 @@ namespace SmiServices.Microservices.CohortExtractor
         private void InitializeExtractionSources(IRDMPPlatformRepositoryServiceLocator repositoryLocator)
         {
             // Get all extractable catalogues
-            var catalogues = repositoryLocator
+            ICatalogue[] catalogues = repositoryLocator
                 .DataExportRepository
                 .GetAllObjects<ExtractableDataSet>()
                 .Select(eds => eds.Catalogue)
+                .Where(catalogue => catalogue != null)
                 .ToArray();
 
             _auditor ??= ObjectFactory.CreateInstance<IAuditExtractions>(_consumerOptions.AuditorType,
@@ -126,14 +127,18 @@ namespace SmiServices.Microservices.CohortExtractor
             if (!_consumerOptions.AllCatalogues)
                 catalogues = catalogues.Where(c => _consumerOptions.OnlyCatalogues.Contains(c.ID)).ToArray();
 
-            _fulfiller ??= ObjectFactory.CreateInstance<IExtractionRequestFulfiller>(_consumerOptions.RequestFulfillerType!,
-                typeof(IExtractionRequestFulfiller).Assembly, [catalogues]);
-
             if (_fulfiller == null)
-                throw new Exception("No IExtractionRequestFulfiller set");
+            {
+                var extractionRequestFulfillerTypeStr = _consumerOptions.RequestFulfillerType;
+                if (!Enum.TryParse(extractionRequestFulfillerTypeStr, out ExtractionRequestFulfillerType extractionRequestFulfillerType))
+                    throw new ArgumentException($"Could not parse '{extractionRequestFulfillerTypeStr}' to a valid {nameof(ExtractionRequestFulfillerType)}");
 
-            if (!string.IsNullOrWhiteSpace(_consumerOptions.ModalityRoutingRegex))
-                _fulfiller.ModalityRoutingRegex = new Regex(_consumerOptions.ModalityRoutingRegex);
+                Regex? modalityRoutingRegex = null;
+                if (!string.IsNullOrWhiteSpace(_consumerOptions.ModalityRoutingRegex))
+                    modalityRoutingRegex = new Regex(_consumerOptions.ModalityRoutingRegex, RegexOptions.Compiled);
+
+                _fulfiller = ExtractionRequestFulfillerFactory.Create(extractionRequestFulfillerType, catalogues, modalityRoutingRegex);
+            }
 
             // Bit of a hack until we remove the ObjectFactory calls
             if (!string.IsNullOrWhiteSpace(_consumerOptions.DynamicRulesPath))

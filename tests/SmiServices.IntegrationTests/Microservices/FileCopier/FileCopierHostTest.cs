@@ -71,6 +71,7 @@ namespace SmiServices.IntegrationTests.Microservices.FileCopier
                 JobSubmittedAt = DateTime.UtcNow,
                 ProjectNumber = "1234",
                 ExtractionDirectory = "1234/foo",
+                Modality = "CT",
                 DicomFilePath = "file.dcm",
                 IsIdentifiableExtraction = true,
                 OutputPath = "output.dcm",

@@ -37,6 +37,7 @@ public class ExtractFileMessageTest extends TestCase {
 		_exMessage.ExtractionJobIdentifier = UUID.randomUUID();
 		_exMessage.JobSubmittedAt = "";
 		_exMessage.ExtractionDirectory = "dummyProjectDir/dummyExtractionDir";
+		_exMessage.Modality = "CT";
 		_exMessage.DicomFilePath = "2018/01/01/ABCD/image-000001.dcm";
 		_exMessage.OutputPath = "dummySeries/image-000001-an.dcm";
 		_exMessage.ProjectNumber = "1234-5678";

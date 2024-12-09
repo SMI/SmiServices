@@ -21,12 +21,6 @@ namespace SmiServices.Common.Messages.Extraction
         [JsonProperty(Required = Required.Always)]
         public string OutputPath { get; set; } = null!;
 
-        /// <summary>
-        /// The modality of the specified file
-        /// </summary>
-        [JsonProperty(Required = Required.AllowNull)]
-        public string Modality { get; set; } = null!;
-
 
         [JsonConstructor]
         public ExtractFileMessage() { }

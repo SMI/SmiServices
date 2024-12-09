@@ -167,6 +167,7 @@ public class CTPAnonymiserHostTest extends TestCase {
         exMessage.ExtractionJobIdentifier = UUID.randomUUID();
         exMessage.JobSubmittedAt = "";
         exMessage.ExtractionDirectory = "";
+        exMessage.Modality = "CT";
         exMessage.DicomFilePath = _testFile;
         exMessage.OutputPath = "AnonymisedFiles/" + exMessage.DicomFilePath;
         exMessage.ProjectNumber = "123-456";
@@ -222,6 +223,7 @@ public class CTPAnonymiserHostTest extends TestCase {
         exMessage.ExtractionJobIdentifier = UUID.randomUUID();
         exMessage.JobSubmittedAt = "";
         exMessage.ExtractionDirectory = "";
+        exMessage.Modality = "CT";
         exMessage.DicomFilePath = "missing.dcm";
         exMessage.OutputPath = "AnonymisedFiles/" + exMessage.DicomFilePath;
         exMessage.ProjectNumber = "123-456";
@@ -279,6 +281,7 @@ public class CTPAnonymiserHostTest extends TestCase {
         exMessage.ExtractionJobIdentifier = UUID.randomUUID();
         exMessage.JobSubmittedAt = "";
         exMessage.ExtractionDirectory = "";
+        exMessage.Modality = "CT";
         exMessage.DicomFilePath = _testSRFile;
         exMessage.OutputPath = "AnonymisedFiles/" + exMessage.DicomFilePath;
         exMessage.ProjectNumber = "123-456";
@@ -336,6 +339,7 @@ public class CTPAnonymiserHostTest extends TestCase {
         exMessage.ExtractionJobIdentifier = UUID.randomUUID();
         exMessage.JobSubmittedAt = "";
         exMessage.ExtractionDirectory = "";
+        exMessage.Modality = "CT";
         exMessage.DicomFilePath = _testSRFile;
         exMessage.OutputPath = "AnonymisedFiles/" + exMessage.DicomFilePath;
         exMessage.ProjectNumber = "123-456";

@@ -119,7 +119,7 @@ namespace SmiServices.Microservices.CohortPackager.ExtractJobStorage.MongoDB.Obj
                 message.KeyTag,
                 (uint)message.KeyValueCount,
                 message.UserName,
-                message.ExtractionModality,
+                message.Modality,
                 message.IsIdentifiableExtraction,
                 message.IsNoFilterExtraction,
                 null

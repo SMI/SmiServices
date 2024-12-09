@@ -1,3 +1,4 @@
+using Newtonsoft.Json;
 using System;
 
 namespace SmiServices.Common.Messages.Extraction
@@ -21,6 +22,11 @@ namespace SmiServices.Common.Messages.Extraction
         /// Directory relative to the ExtractRoot to place anonymised files into
         /// </summary>
         string ExtractionDirectory { get; }
+
+        /// <summary>
+        /// The modality to extract
+        /// </summary>
+        public string Modality { get; }
 
         /// <summary>
         /// DateTime the job was submitted at

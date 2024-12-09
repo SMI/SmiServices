@@ -19,12 +19,11 @@ namespace SmiServices.Applications.ExtractImages
             HelpText = "The CSV file containing IDs of the cohort for extraction")]
         public string CohortCsvFile { get; set; } = null!;
 
-        // Optional
+        [Option(shortName: 'm', longName: "modality", Required = true,
+            HelpText = "The modality to extract. Any non-matching IDs from the input list are ignored")]
+        public string Modality { get; set; } = null!;
 
-        [Option(shortName: 'm', longName: "modalities", Required = false,
-            HelpText =
-                "[Optional] List of modalities to extract. Any non-matching IDs from the input list are ignored")]
-        public string? Modalities { get; set; }
+        // Optional
 
         [Option(shortName: 'i', longName: "identifiable-extraction", Required = false,
             HelpText = "Extract without performing anonymisation")]
@@ -56,7 +55,7 @@ namespace SmiServices.Applications.ExtractImages
                     {
                         CohortCsvFile = "my.csv",
                         ProjectId = "1234-5678",
-                        Modalities = "CT",
+                        Modality = "CT",
                         IsIdentifiableExtraction = true
                     });
                 yield return new Example(helpText: "Extract without applying any rejection filters",
@@ -72,7 +71,7 @@ namespace SmiServices.Applications.ExtractImages
             sb.Append(base.ToString());
             sb.Append($"ProjectId={ProjectId},");
             sb.Append($"CohortCsvFile={CohortCsvFile},");
-            sb.Append($"Modalities={Modalities},");
+            sb.Append($"Modality={Modality},");
             sb.Append($"IdentifiableExtraction={IsIdentifiableExtraction},");
             sb.Append($"NoFiltersExtraction={IsNoFiltersExtraction},");
             sb.Append($"NonInteractive={NonInteractive},");

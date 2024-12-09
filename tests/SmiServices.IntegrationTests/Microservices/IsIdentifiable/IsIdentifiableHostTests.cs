@@ -71,6 +71,7 @@ namespace SmiServices.IntegrationTests.Microservices.IsIdentifiable
                 OutputFilePath = testDcm.FullName,
                 ProjectNumber = "100",
                 ExtractionDirectory = "./fish",
+                Modality = "CT",
                 StatusMessage = "yay!",
                 Status = ExtractedFileStatus.Anonymised
             });
