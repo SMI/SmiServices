@@ -78,7 +78,7 @@ namespace SmiServices.UnitTests.Applications.ExtractImages
 
             var processor = new ExtractionMessageSender(
                 new ExtractImagesOptions(),
-                new ExtractImagesCliOptions { ProjectId = "1234-5678" },
+                new ExtractImagesCliOptions { ProjectId = "1234-5678", Modality = "CT" },
                 mockExtractionRequestProducer.Object,
                 mockExtractionRequestInfoProducer.Object,
                 fs,
@@ -124,7 +124,7 @@ namespace SmiServices.UnitTests.Applications.ExtractImages
 
             var processor = new ExtractionMessageSender(
                 new ExtractImagesOptions(),
-                new ExtractImagesCliOptions { ProjectId = "1234-5678", NonInteractive = true },
+                new ExtractImagesCliOptions { ProjectId = "1234-5678", NonInteractive = true, Modality = "CT" },
                 mockExtractionRequestProducer.Object,
                 mockExtractionRequestInfoProducer.Object,
                 fs,
@@ -151,7 +151,7 @@ namespace SmiServices.UnitTests.Applications.ExtractImages
             {
                 var _ = new ExtractionMessageSender(
                     new ExtractImagesOptions(),
-                    new ExtractImagesCliOptions(),
+                    new ExtractImagesCliOptions() { Modality = "CT" },
                     new Mock<IProducerModel>(MockBehavior.Loose).Object,
                     new Mock<IProducerModel>(MockBehavior.Loose).Object,
                     new FileSystem(),
@@ -166,7 +166,7 @@ namespace SmiServices.UnitTests.Applications.ExtractImages
             {
                 var _ = new ExtractionMessageSender(
                     new ExtractImagesOptions(),
-                    new ExtractImagesCliOptions(),
+                    new ExtractImagesCliOptions() { Modality = "CT" },
                     new Mock<IProducerModel>(MockBehavior.Loose).Object,
                     new Mock<IProducerModel>(MockBehavior.Loose).Object,
                     new FileSystem(),
@@ -186,7 +186,7 @@ namespace SmiServices.UnitTests.Applications.ExtractImages
             {
                 var _ = new ExtractionMessageSender(
                     new ExtractImagesOptions(),
-                    new ExtractImagesCliOptions { ProjectId = projectId },
+                    new ExtractImagesCliOptions { ProjectId = projectId, Modality = "CT" },
                     new Mock<IProducerModel>(MockBehavior.Loose).Object,
                     new Mock<IProducerModel>(MockBehavior.Loose).Object,
                     new FileSystem(),
@@ -205,7 +205,7 @@ namespace SmiServices.UnitTests.Applications.ExtractImages
             {
                 var _ = new ExtractionMessageSender(
                     new ExtractImagesOptions { MaxIdentifiersPerMessage = 0 },
-                    new ExtractImagesCliOptions(),
+                    new ExtractImagesCliOptions() { Modality = "CT" },
                     new Mock<IProducerModel>(MockBehavior.Loose).Object,
                     new Mock<IProducerModel>(MockBehavior.Loose).Object,
                     new FileSystem(),
@@ -223,7 +223,7 @@ namespace SmiServices.UnitTests.Applications.ExtractImages
         {
             var sender = new ExtractionMessageSender(
                 new ExtractImagesOptions(),
-                new ExtractImagesCliOptions { ProjectId = "1234-5678" },
+                new ExtractImagesCliOptions { ProjectId = "1234-5678", Modality = "CT" },
                 new Mock<IProducerModel>(MockBehavior.Loose).Object,
                 new Mock<IProducerModel>(MockBehavior.Loose).Object,
                 new FileSystem(),
@@ -261,7 +261,7 @@ namespace SmiServices.UnitTests.Applications.ExtractImages
 
             var processor = new ExtractionMessageSender(
                 new ExtractImagesOptions { MaxIdentifiersPerMessage = 1 },
-                new ExtractImagesCliOptions { ProjectId = "1234-5678", NonInteractive = true },
+                new ExtractImagesCliOptions { ProjectId = "1234-5678", NonInteractive = true, Modality = "CT" },
                 mockExtractionRequestProducer.Object,
                 mockExtractionRequestInfoProducer.Object,
                 new FileSystem(),
@@ -295,7 +295,7 @@ namespace SmiServices.UnitTests.Applications.ExtractImages
 
             var processor = new ExtractionMessageSender(
                 new ExtractImagesOptions { MaxIdentifiersPerMessage = maxPerMessage },
-                new ExtractImagesCliOptions { ProjectId = "1234-5678", NonInteractive = true },
+                new ExtractImagesCliOptions { ProjectId = "1234-5678", NonInteractive = true, Modality = "CT" },
                 mockExtractionRequestProducer.Object,
                 mockExtractionRequestInfoProducer.Object,
                 new FileSystem(),
