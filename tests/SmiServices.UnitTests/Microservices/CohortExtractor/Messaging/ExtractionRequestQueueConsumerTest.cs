@@ -1,4 +1,5 @@
 using Moq;
+using NLog;
 using NUnit.Framework;
 using RabbitMQ.Client;
 using SmiServices.Common.Events;
@@ -10,10 +11,11 @@ using SmiServices.Microservices.CohortExtractor;
 using SmiServices.Microservices.CohortExtractor.Audit;
 using SmiServices.Microservices.CohortExtractor.ProjectPathResolvers;
 using SmiServices.Microservices.CohortExtractor.RequestFulfillers;
-using SmiServices.UnitTests.Common;
 using System;
+using System.Collections.Generic;
 using System.IO.Abstractions;
 using System.IO.Abstractions.TestingHelpers;
+using System.Text.RegularExpressions;
 using System.Threading;
 
 namespace SmiServices.UnitTests.Microservices.CohortExtractor.Messaging
@@ -31,6 +33,43 @@ namespace SmiServices.UnitTests.Microservices.CohortExtractor.Messaging
 
         [OneTimeTearDown]
         public void OneTimeTearDown() { }
+
+        class FakeFulfiller : IExtractionRequestFulfiller
+        {
+            protected readonly Logger Logger;
+
+            public List<IRejector> Rejectors { get; set; } = [];
+
+            public Regex? ModalityRoutingRegex { get; set; }
+            public Dictionary<ModalitySpecificRejectorOptions, IRejector> ModalitySpecificRejectors { get; set; }
+                = [];
+
+            public FakeFulfiller()
+            {
+                Logger = LogManager.GetCurrentClassLogger();
+            }
+
+            public IEnumerable<ExtractImageCollection> GetAllMatchingFiles(ExtractionRequestMessage message, IAuditExtractions auditor)
+            {
+                Logger.Debug($"Found {message.KeyTag}");
+
+                foreach (var valueToLookup in message.ExtractionIdentifiers)
+                {
+                    var results = new ExtractImageCollection(valueToLookup);
+                    var studyTagValue = "2";
+                    var seriesTagValue = "3";
+                    var instanceTagValue = "4";
+                    var rejection = false;
+                    var rejectionReason = "";
+                    var result = new QueryToExecuteResult(valueToLookup, studyTagValue, seriesTagValue, instanceTagValue, rejection, rejectionReason);
+                    if (!results.ContainsKey(result.SeriesTagValue!))
+                        results.Add(result.SeriesTagValue!, []);
+                    results[result.SeriesTagValue!].Add(result);
+
+                    yield return results;
+                }
+            }
+        }
 
         #endregion
 
