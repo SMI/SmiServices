@@ -43,7 +43,13 @@ public abstract class ExtractMessage implements IMessage {
 	 */
 	@FieldRequired
     public boolean IsNoFilterExtraction;
-        
+
+    /**
+    * True if this extraction uses the global pool of DICOM files
+    */
+    @FieldRequired
+    public boolean IsPooledExtraction;
+
 	protected ExtractMessage() {
 	}
 }
