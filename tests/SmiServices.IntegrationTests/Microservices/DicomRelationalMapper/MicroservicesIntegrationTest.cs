@@ -414,7 +414,7 @@ namespace SmiServices.IntegrationTests.Microservices.DicomRelationalMapper
             var r = new Random(500);
 
             //create a generator 
-            using var generator = new DicomDataGenerator(r, dir.FullName, "MR");
+            using var generator = new DicomDataGenerator(r, dir.FullName, "CT");
             generator.GenerateImageFiles(40, r);
             RunTest(dir, 40);
         }
@@ -568,7 +568,7 @@ namespace SmiServices.IntegrationTests.Microservices.DicomRelationalMapper
                 ExtractionJobIdentifier = Guid.NewGuid(),
                 ProjectNumber = "1234-5678",
                 ExtractionDirectory = "1234-5678_P1",
-                Modality = "MR",
+                Modality = "CT",
                 KeyTag = "SeriesInstanceUID",
             };
 
