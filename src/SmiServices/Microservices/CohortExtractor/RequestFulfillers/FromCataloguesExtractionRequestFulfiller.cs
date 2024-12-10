@@ -41,7 +41,7 @@ namespace SmiServices.Microservices.CohortExtractor.RequestFulfillers
             _logger.Debug("Found " + _catalogues.Length + " Catalogues matching filter criteria");
 
             if (_catalogues.Length == 0)
-                throw new Exception("There are no compatible Catalogues in the repository (See QueryToExecuteColumnSet for required columns)");
+                throw new ArgumentOutOfRangeException(nameof(cataloguesToUseForImageLookup), "There are no compatible Catalogues in the repository (See QueryToExecuteColumnSet for required columns)");
 
             _modalityRoutingRegex = modalityRoutingRegex ?? _defaultModalityRoutingRegex;
             if (_modalityRoutingRegex.GetGroupNumbers().Length != 2)
@@ -59,8 +59,8 @@ namespace SmiServices.Microservices.CohortExtractor.RequestFulfillers
                 if (!match.Success)
                     continue;
 
-                var catalogueModality = match.Groups[1].Value ?? throw new Exception("Modality should never be null here");
-                if (catalogueModality != message.Modality)
+                // NOTE: Match will always have two gropus as we check the regex in the constructor
+                if (match.Groups[1].Value != message.Modality)
                     continue;
 
                 var query = new QueryToExecute(c, message.KeyTag, rejectors);
@@ -98,12 +98,7 @@ namespace SmiServices.Microservices.CohortExtractor.RequestFulfillers
         private IEnumerable<IRejector> GetRejectorsFor(ExtractionRequestMessage message)
         {
             if (message.IsNoFilterExtraction)
-            {
                 return [];
-            }
-
-            if (ModalitySpecificRejectors.Count != 0 && string.IsNullOrWhiteSpace(message.Modality))
-                throw new Exception("Could not evaluate ModalitySpecificRejectors because query Modality was null");
 
             var applicableRejectors =
                 ModalitySpecificRejectors
