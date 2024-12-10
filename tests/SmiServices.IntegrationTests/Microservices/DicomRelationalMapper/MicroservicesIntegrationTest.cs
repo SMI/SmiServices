@@ -53,7 +53,7 @@ namespace SmiServices.IntegrationTests.Microservices.DicomRelationalMapper
         private GlobalOptions _globals = null!;
         private const string MongoTestDbName = "nUnitTestDb";
 
-        private void SetupSuite(DiscoveredDatabase server, bool persistentRaw = false, string? modalityPrefix = null)
+        private void SetupSuite(DiscoveredDatabase server, bool persistentRaw, string? modalityPrefix)
         {
             _globals = new GlobalOptionsFactory().Load(nameof(MicroservicesIntegrationTest));
 
@@ -332,7 +332,7 @@ namespace SmiServices.IntegrationTests.Microservices.DicomRelationalMapper
         public void IntegrationTest_HappyPath_WithElevation(DatabaseType databaseType, bool persistentRaw)
         {
             var server = GetCleanedServer(databaseType, ScratchDatabaseName);
-            SetupSuite(server, persistentRaw: persistentRaw);
+            SetupSuite(server, persistentRaw: persistentRaw, "MR_");
 
             _globals.DicomRelationalMapperOptions!.Guid = new Guid("fc229fc3-f888-4515-86e8-e3d38b3d1823");
             _globals.DicomRelationalMapperOptions.QoSPrefetchCount = 5000;
@@ -399,7 +399,7 @@ namespace SmiServices.IntegrationTests.Microservices.DicomRelationalMapper
         public void IntegrationTest_BumpyRide(DatabaseType databaseType)
         {
             var server = GetCleanedServer(databaseType, ScratchDatabaseName);
-            SetupSuite(server);
+            SetupSuite(server, false, "MR_");
 
             _globals.DicomRelationalMapperOptions!.Guid = new Guid("6c7cfbce-1af6-4101-ade7-6537eea72e03");
             _globals.DicomRelationalMapperOptions.QoSPrefetchCount = 5000;
@@ -414,7 +414,7 @@ namespace SmiServices.IntegrationTests.Microservices.DicomRelationalMapper
             var r = new Random(500);
 
             //create a generator 
-            using var generator = new DicomDataGenerator(r, dir.FullName, "CT");
+            using var generator = new DicomDataGenerator(r, dir.FullName, "MR");
             generator.GenerateImageFiles(40, r);
             RunTest(dir, 40);
         }
@@ -568,7 +568,7 @@ namespace SmiServices.IntegrationTests.Microservices.DicomRelationalMapper
                 ExtractionJobIdentifier = Guid.NewGuid(),
                 ProjectNumber = "1234-5678",
                 ExtractionDirectory = "1234-5678_P1",
-                Modality = "CT",
+                Modality = "MR",
                 KeyTag = "SeriesInstanceUID",
             };
 
