@@ -33,11 +33,11 @@ namespace SmiServices.Microservices.CohortExtractor.RequestFulfillers
         {
             _logger = LogManager.GetCurrentClassLogger();
 
-            _logger.Debug("Preparing to filter " + cataloguesToUseForImageLookup.Length + " Catalogues to look for compatible ones");
+            _logger.Debug($"Preparing to filter {cataloguesToUseForImageLookup.Length} Catalogues to look for compatible ones");
 
             _catalogues = cataloguesToUseForImageLookup.OrderBy(c => c.ID).Select(QueryToExecuteColumnSet.Create).Where(s => s != null).ToArray()!;
 
-            _logger.Debug("Found " + _catalogues.Length + " Catalogues matching filter criteria");
+            _logger.Debug($"Found {_catalogues.Length} Catalogues matching filter criteria");
 
             if (_catalogues.Length == 0)
                 throw new ArgumentOutOfRangeException(nameof(cataloguesToUseForImageLookup), "There are no compatible Catalogues in the repository (See QueryToExecuteColumnSet for required columns)");
@@ -111,9 +111,7 @@ namespace SmiServices.Microservices.CohortExtractor.RequestFulfillers
             {
                 // they had better all override or none of them!
                 if (!applicableRejectors.All(r => r.Key.Overrides))
-                {
-                    throw new Exception($"You cannot mix Overriding and non Overriding ModalitySpecificRejectors.  Bad Modality was '{message.Modality}'");
-                }
+                    throw new Exception($"You cannot mix Overriding and non Overriding ModalitySpecificRejectors. Bad Modality was '{message.Modality}'");
 
                 // yes we have custom rejection rules for this modality
                 return applicableRejectors.Select(r => r.Value);

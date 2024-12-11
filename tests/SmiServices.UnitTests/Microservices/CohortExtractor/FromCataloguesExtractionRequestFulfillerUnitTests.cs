@@ -1,12 +1,16 @@
-using FAnsi;
 using Moq;
 using NUnit.Framework;
 using Rdmp.Core.Curation.Data;
 using Rdmp.Core.Repositories;
 using SmiServices.Common;
 using SmiServices.Common.Messages.Extraction;
+using SmiServices.Common.Options;
+using SmiServices.Microservices.CohortExtractor;
 using SmiServices.Microservices.CohortExtractor.RequestFulfillers;
 using System;
+using System.Collections.Generic;
+using System.Data;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Text.RegularExpressions;
 
@@ -114,12 +118,93 @@ namespace SmiServices.UnitTests.Microservices.CohortExtractor
 
             // Act
 
-            var call = () => fulfiller.GetAllMatchingFiles(message).ToList();
+            List<ExtractImageCollection> call() => fulfiller.GetAllMatchingFiles(message).ToList();
 
             // Assert
 
             var exc = Assert.Throws<Exception>(() => call().ToList());
-            Assert.That(exc!.Message.StartsWith("Couldn't find any compatible Catalogues to run extraction queries against for query"));
+            Assert.That(exc!.Message, Does.StartWith("Couldn't find any compatible Catalogues to run extraction queries against for query"));
+        }
+
+        [Test]
+        public void GetAllMatchingFiles_NonMixedOverridingRejectors_Passes()
+        {
+            // Arrange
+
+            var catalogue = CreateCatalogue("CT");
+
+            var message = new ExtractionRequestMessage
+            {
+                KeyTag = "SeriesInstanceUID",
+                Modality = "CT",
+            };
+
+            var fulfiller = new FromCataloguesExtractionRequestFulfiller([catalogue]);
+            fulfiller.ModalitySpecificRejectors.Add(
+                new ModalitySpecificRejectorOptions
+                {
+                    Overrides = true,
+                    Modalities = "CT",
+                },
+                new RejectNone()
+            );
+            fulfiller.ModalitySpecificRejectors.Add(
+                new ModalitySpecificRejectorOptions
+                {
+                    Overrides = true,
+                    Modalities = "CT",
+                },
+                new RejectNone()
+            );
+
+            // Act
+
+            List<ExtractImageCollection> call() => fulfiller.GetAllMatchingFiles(message).ToList();
+
+            // Assert
+
+            Assert.DoesNotThrow(() => call().ToList());
+        }
+
+        [Test]
+        public void GetAllMatchingFiles_MixedOverridingRejectors_Throws()
+        {
+            // Arrange
+
+            var catalogue = CreateCatalogue("CT");
+
+            var message = new ExtractionRequestMessage
+            {
+                KeyTag = "SeriesInstanceUID",
+                Modality = "CT",
+            };
+
+            var fulfiller = new FromCataloguesExtractionRequestFulfiller([catalogue]);
+            fulfiller.ModalitySpecificRejectors.Add(
+                new ModalitySpecificRejectorOptions
+                {
+                    Overrides = true,
+                    Modalities = "CT",
+                },
+                new RejectNone()
+            );
+            fulfiller.ModalitySpecificRejectors.Add(
+                new ModalitySpecificRejectorOptions
+                {
+                    Overrides = false,
+                    Modalities = "CT",
+                },
+                new RejectNone()
+            );
+
+            // Act
+
+            List<ExtractImageCollection> call() => fulfiller.GetAllMatchingFiles(message).ToList();
+
+            // Assert
+
+            var exc = Assert.Throws<Exception>(() => call().ToList());
+            Assert.That(exc!.Message, Is.EqualTo("You cannot mix Overriding and non Overriding ModalitySpecificRejectors. Bad Modality was 'CT'"));
         }
 
         private static ICatalogue CreateCatalogue(string modality)
@@ -143,6 +228,15 @@ namespace SmiServices.UnitTests.Microservices.CohortExtractor
                 Database = "db",
             };
             _ = new ExtractionInformation(repo, ci, new ColumnInfo(repo, col, "varchar(10)", ti), col);
+        }
+
+        private class RejectNone : IRejector
+        {
+            public bool Reject(IDataRecord row, [NotNullWhen(true)] out string? reason)
+            {
+                reason = null;
+                return false;
+            }
         }
     }
 }
