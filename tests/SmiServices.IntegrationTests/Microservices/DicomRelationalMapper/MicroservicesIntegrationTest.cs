@@ -190,7 +190,7 @@ namespace SmiServices.IntegrationTests.Microservices.DicomRelationalMapper
             _globals.DicomRelationalMapperOptions.QoSPrefetchCount = 5000;
             _globals.DicomRelationalMapperOptions.DatabaseNamerType = typeof(GuidDatabaseNamer).FullName;
 
-            _globals.CohortExtractorOptions!.RejectorType = rejector?.Name;
+            _globals.CohortExtractorOptions!.RejectorType = rejector?.FullName;
 
             _globals.FileSystemOptions!.DicomSearchPattern = "*";
 
@@ -625,15 +625,6 @@ namespace SmiServices.IntegrationTests.Microservices.DicomRelationalMapper
             public override DiscoveredTable? GetGuidTableIfAny(IMappingTableOptions options)
             {
                 return null;
-            }
-        }
-
-        private class RejectAll : IRejector
-        {
-            public bool Reject(IDataRecord row, [NotNullWhen(true)] out string? reason)
-            {
-                reason = "Rejector is " + nameof(RejectAll);
-                return true;
             }
         }
     }
