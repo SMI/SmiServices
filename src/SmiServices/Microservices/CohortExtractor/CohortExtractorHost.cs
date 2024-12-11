@@ -106,7 +106,7 @@ namespace SmiServices.Microservices.CohortExtractor
         private void InitializeExtractionSources(IRDMPPlatformRepositoryServiceLocator repositoryLocator)
         {
             // Get all extractable catalogues
-            ICatalogue[] catalogues = repositoryLocator
+            var catalogues = repositoryLocator
                 .DataExportRepository
                 .GetAllObjects<ExtractableDataSet>()
                 .Select(eds => eds.Catalogue)
