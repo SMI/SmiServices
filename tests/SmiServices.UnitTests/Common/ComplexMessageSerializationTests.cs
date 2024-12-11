@@ -19,6 +19,7 @@ namespace SmiServices.UnitTests.Common
                 KeyValue = "f",
                 ExtractFileMessagesDispatched = new JsonCompatibleDictionary<MessageHeader, string> { { new MessageHeader(), "dave" } },
                 ExtractionDirectory = "C:\\fish",
+                Modality = "CT",
                 ProjectNumber = "1234-5678",
             };
 
@@ -41,6 +42,7 @@ namespace SmiServices.UnitTests.Common
                 KeyValue = "f",
                 ExtractFileMessagesDispatched = [],
                 ExtractionDirectory = "C:\\fish",
+                Modality = "CT",
                 ProjectNumber = "123",
                 JobSubmittedAt = DateTime.UtcNow,
             };
@@ -80,6 +82,7 @@ namespace SmiServices.UnitTests.Common
                 ExtractionJobIdentifier = Guid.NewGuid(),
                 ProjectNumber = "1234-5678",
                 ExtractionDirectory = "C:\\fish",
+                Modality = "CT",
                 KeyTag = "SeriesInstanceUID",
                 ExtractionIdentifiers = identifiers
             };

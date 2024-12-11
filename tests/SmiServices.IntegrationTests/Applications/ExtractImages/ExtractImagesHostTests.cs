@@ -90,7 +90,7 @@ namespace SmiServices.IntegrationTests.Applications.ExtractImages
                 CohortCsvFile = tmpFile,
                 ProjectId = "1234-5678",
                 NonInteractive = true,
-                Modalities = "CT,MR",
+                Modality = "CT",
                 IsIdentifiableExtraction = true,
                 IsNoFiltersExtraction = true,
             };
@@ -130,7 +130,7 @@ namespace SmiServices.IntegrationTests.Applications.ExtractImages
             Assert.Multiple(() =>
             {
                 Assert.That(receivedRequestMessage.KeyTag, Is.EqualTo("SeriesInstanceUID"));
-                Assert.That(receivedRequestMessage.Modalities, Is.EqualTo("CT,MR"));
+                Assert.That(receivedRequestMessage.Modality, Is.EqualTo("CT"));
                 Assert.That(receivedRequestMessage.ExtractionIdentifiers, Is.EqualTo(new List<string> { "1.2.3.4" }));
 
                 Assert.That(consumedExtReqInfoMsgs, Has.Count.EqualTo(1));
@@ -139,7 +139,7 @@ namespace SmiServices.IntegrationTests.Applications.ExtractImages
             Assert.Multiple(() =>
             {
                 Assert.That(receivedRequestInfoMessage.KeyTag, Is.EqualTo("SeriesInstanceUID"));
-                Assert.That(receivedRequestInfoMessage.ExtractionModality, Is.EqualTo("CT,MR"));
+                Assert.That(receivedRequestInfoMessage.Modality, Is.EqualTo("CT"));
                 Assert.That(receivedRequestInfoMessage.KeyValueCount, Is.EqualTo(1));
             });
 

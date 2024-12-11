@@ -1,242 +1,221 @@
+using Moq;
 using NUnit.Framework;
 using Rdmp.Core.Curation.Data;
 using Rdmp.Core.Repositories;
+using SmiServices.Common;
 using SmiServices.Common.Messages.Extraction;
 using SmiServices.Common.Options;
+using SmiServices.Microservices.CohortExtractor;
 using SmiServices.Microservices.CohortExtractor.RequestFulfillers;
 using System;
+using System.Collections.Generic;
+using System.Data;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
+using System.Text.RegularExpressions;
 
 namespace SmiServices.UnitTests.Microservices.CohortExtractor
 {
     public class FromCataloguesExtractionRequestFulfillerUnitTests
     {
-        [Test]
-        public void GetRejectorsFor_NoRejectors()
+        [OneTimeSetUp]
+        public void OneTimeSetUp()
         {
-            CreateCTMR(out ICatalogue ct, out ICatalogue mr);
-
-            var f = new FromCataloguesExtractionRequestFulfiller([ct, mr]);
-
-            var result = f.GetRejectorsFor(
-                new ExtractionRequestMessage(),
-                new QueryToExecute(
-                    new QueryToExecuteColumnSet(ct, null, null, null, null, false), "FF"));
-
-            Assert.That(result, Is.Empty);
+            FansiImplementations.Load();
         }
 
         [Test]
-        public void GetRejectorsFor_OneBasicRejector()
+        public void Constructor_HappyPath()
         {
-            CreateCTMR(out ICatalogue ct, out ICatalogue mr);
+            // Arrange
 
-            var f = new FromCataloguesExtractionRequestFulfiller([ct, mr]);
-            f.Rejectors.Add(new TestRejector());
+            var catalogue = CreateCatalogue("CT");
 
-            // when we ask for ct to be extracted
-            var result = f.GetRejectorsFor(
-                new ExtractionRequestMessage(),
-                new QueryToExecute(
-                    new QueryToExecuteColumnSet(ct, null, null, null, null, false), "FF"));
+            // Act
 
-            // we should see our rejector being used
-            Assert.That(result.Single(), Is.InstanceOf<TestRejector>());
+            FromCataloguesExtractionRequestFulfiller call() => new([catalogue]);
 
-            // when we ask for mr to be extracted
-            result = f.GetRejectorsFor(
-                new ExtractionRequestMessage(),
-                new QueryToExecute(
-                    new QueryToExecuteColumnSet(mr, null, null, null, null, false), "FF"));
+            // Assert
 
-            // we should still see the rejector being used
-            Assert.That(result.Single(), Is.InstanceOf<TestRejector>());
-        }
-
-
-        [Test]
-        public void ModalitySpecificRejectors_AppliesToModality_AndOverrides()
-        {
-            CreateCTMR(out ICatalogue ct, out ICatalogue mr);
-
-            var f = new FromCataloguesExtractionRequestFulfiller([ct, mr]);
-
-            // basic rejector
-            f.Rejectors.Add(new TestRejector());
-            f.ModalitySpecificRejectors.Add(
-                new ModalitySpecificRejectorOptions { Modalities = "MR", Overrides = true }, new RejectAll());
-
-            // CT should...
-            var result = f.GetRejectorsFor(new ExtractionRequestMessage(), new QueryToExecute(
-                    new QueryToExecuteColumnSet(ct, null, null, null, null, false), "FF")
-            { Modality = "CT" });
-
-            // run with the basic rejector
-            Assert.That(result.Single(), Is.InstanceOf<TestRejector>());
-
-            // MR should...
-            result = f.GetRejectorsFor(new ExtractionRequestMessage(), new QueryToExecute(
-                    new QueryToExecuteColumnSet(mr, null, null, null, null, false), "FF")
-            { Modality = "MR" });
-
-            // use only the modality specific rejector (since it overrides)
-            Assert.That(result.Single(), Is.InstanceOf<RejectAll>());
-        }
-
-
-        [Test]
-        public void ModalitySpecificRejectors_AppliesToModality_DoesNotOverride()
-        {
-            CreateCTMR(out ICatalogue ct, out ICatalogue mr);
-
-            var f = new FromCataloguesExtractionRequestFulfiller([ct, mr]);
-            IRejector rej1;
-            IRejector rej2;
-
-            // basic rejector
-            f.Rejectors.Add(rej1 = new TestRejector());
-            f.ModalitySpecificRejectors.Add(
-                new ModalitySpecificRejectorOptions { Modalities = "MR", Overrides = false }, rej2 = new RejectAll());
-
-            // CT should...
-            var result = f.GetRejectorsFor(new ExtractionRequestMessage(), new QueryToExecute(
-                    new QueryToExecuteColumnSet(ct, null, null, null, null, false), "FF")
-            { Modality = "CT" })
-                .ToArray();
-
-            // run with the basic rejector
-            Assert.That(result.Single(), Is.InstanceOf<TestRejector>());
-
-            // MR should...
-            result = f.GetRejectorsFor(new ExtractionRequestMessage(), new QueryToExecute(
-                    new QueryToExecuteColumnSet(mr, null, null, null, null, false), "FF")
-            { Modality = "MR" })
-                .ToArray();
-
-            // use both the modality specific and the generic rules
-            Assert.That(result, Does.Contain(rej1));
-            Assert.That(result, Does.Contain(rej2));
-        }
-
-
-        [Test]
-        public void ModalitySpecificRejectors_TwoModalities_OneMatches()
-        {
-            CreateCTMR(out ICatalogue ct, out ICatalogue mr);
-
-            var f = new FromCataloguesExtractionRequestFulfiller([ct, mr]);
-            IRejector rej1;
-            IRejector rej2;
-
-            // basic rejector
-            f.Rejectors.Add(rej1 = new TestRejector());
-            f.ModalitySpecificRejectors.Add(
-                new ModalitySpecificRejectorOptions { Modalities = "MR,SR", Overrides = true }, rej2 = new RejectAll());
-
-            // CT should...
-            var result = f.GetRejectorsFor(new ExtractionRequestMessage(), new QueryToExecute(
-                    new QueryToExecuteColumnSet(ct, null, null, null, null, false), "FF")
-            { Modality = "CT" })
-                .ToArray();
-
-            // run with the basic rejector
-            Assert.That(result.Single(), Is.EqualTo(rej1));
-
-            // MR should...
-            result = f.GetRejectorsFor(new ExtractionRequestMessage(), new QueryToExecute(
-                    new QueryToExecuteColumnSet(mr, null, null, null, null, false), "FF")
-            { Modality = "MR" })
-                .ToArray();
-
-            // run with the modality specific rejector 
-            Assert.That(result.Single(), Is.EqualTo(rej2));
-        }
-
-
-        [Test]
-        public void ModalitySpecificRejectors_TwoModalities_BothMatches()
-        {
-            CreateCTMR(out ICatalogue ct, out ICatalogue mr);
-
-            var f = new FromCataloguesExtractionRequestFulfiller([ct, mr]);
-            IRejector rej2;
-
-            // basic rejector
-            f.Rejectors.Add(_ = new TestRejector());
-            f.ModalitySpecificRejectors.Add(
-                new ModalitySpecificRejectorOptions { Modalities = "MR,CT", Overrides = true }, rej2 = new RejectAll());
-
-            // CT should...
-            var result = f.GetRejectorsFor(new ExtractionRequestMessage(), new QueryToExecute(
-                    new QueryToExecuteColumnSet(ct, null, null, null, null, false), "FF")
-            { Modality = "CT" })
-                .ToArray();
-
-            // run with the modality specific rejector 
-            Assert.That(result.Single(), Is.EqualTo(rej2));
-
-            // MR should...
-            result = f.GetRejectorsFor(new ExtractionRequestMessage(), new QueryToExecute(
-                    new QueryToExecuteColumnSet(mr, null, null, null, null, false), "FF")
-            { Modality = "MR" })
-                .ToArray();
-
-            // run with the modality specific rejector 
-            Assert.That(result.Single(), Is.EqualTo(rej2));
+            Assert.DoesNotThrow(() => call());
         }
 
         [Test]
-        public void ModalitySpecificRejectors_MixingOverrideRules()
+        public void Constructor_NoCompatibleCatalogues_Throws()
         {
-            CreateCTMR(out ICatalogue ct, out ICatalogue mr);
+            // Arrange
 
-            var f = new FromCataloguesExtractionRequestFulfiller([ct, mr]);
-            IRejector rej1;
-            IRejector rej2;
+            var mockCatalogue = new Mock<ICatalogue>(MockBehavior.Strict);
+            mockCatalogue.Setup(x => x.ID).Returns(1);
+            mockCatalogue.Setup(x => x.GetAllExtractionInformation(It.IsAny<ExtractionCategory>())).Returns([]);
 
-            // basic rejector
-            f.Rejectors.Add(rej1 = new TestRejector());
+            // Act
 
-            // two rules for MR but one says to override while other says not to!
-            f.ModalitySpecificRejectors.Add(
-                new ModalitySpecificRejectorOptions { Modalities = "MR", Overrides = false }, rej2 = new RejectAll());
-            f.ModalitySpecificRejectors.Add(
-                new ModalitySpecificRejectorOptions { Modalities = "MR", Overrides = true }, rej2 = new RejectAll());
+            FromCataloguesExtractionRequestFulfiller call() => new([mockCatalogue.Object]);
 
-            // CT should...
-            var result = f.GetRejectorsFor(new ExtractionRequestMessage(), new QueryToExecute(
-                    new QueryToExecuteColumnSet(ct, null, null, null, null, false), "FF")
-            { Modality = "CT" })
-                .ToArray();
+            // Assert
 
-            // run with the basic rejector
-            Assert.That(result.Single(), Is.InstanceOf<TestRejector>());
-
-            // MR should...
-            var ex = Assert.Throws<Exception>(() => f.GetRejectorsFor(new ExtractionRequestMessage(), new QueryToExecute(
-                    new QueryToExecuteColumnSet(mr, null, null, null, null, false), "FF")
-            { Modality = "MR" })
-                .ToArray());
-
-            Assert.That(ex!.Message, Is.EqualTo("You cannot mix Overriding and non Overriding ModalitySpecificRejectors.  Bad Modality was 'MR'"));
+            var exc = Assert.Throws<ArgumentOutOfRangeException>(() => call());
+            Assert.That(exc.Message, Is.EqualTo("There are no compatible Catalogues in the repository (See QueryToExecuteColumnSet for required columns) (Parameter 'cataloguesToUseForImageLookup')"));
         }
 
-        private static void CreateCTMR(out ICatalogue ct, out ICatalogue mr)
+        [TestCase("(.)_(.)")]
+        [TestCase("._.")]
+        public void Constructor_InvalidRegex_Throws(string regexString)
         {
-            var mem = new MemoryCatalogueRepository();
+            // Arrange
 
-            ct = new Catalogue(mem, "CT_Image");
-            Add(ct, QueryToExecuteColumnSet.DefaultImagePathColumnName);
-            Add(ct, QueryToExecuteColumnSet.DefaultStudyIdColumnName);
-            Add(ct, QueryToExecuteColumnSet.DefaultSeriesIdColumnName);
-            Add(ct, QueryToExecuteColumnSet.DefaultInstanceIdColumnName);
+            var catalogue = CreateCatalogue("CT");
 
-            mr = new Catalogue(mem, "MR_Image");
-            Add(mr, QueryToExecuteColumnSet.DefaultImagePathColumnName);
-            Add(mr, QueryToExecuteColumnSet.DefaultStudyIdColumnName);
-            Add(mr, QueryToExecuteColumnSet.DefaultSeriesIdColumnName);
-            Add(mr, QueryToExecuteColumnSet.DefaultInstanceIdColumnName);
+            // Act
 
+            FromCataloguesExtractionRequestFulfiller call() => new([catalogue], new Regex(regexString));
+
+            // Assert
+
+            var exc = Assert.Throws<ArgumentOutOfRangeException>(() => call());
+            Assert.That(exc.Message, Is.EqualTo("Must have exactly one non-default capture group (Parameter 'modalityRoutingRegex')"));
+        }
+
+        [Test]
+        public void GetAllMatchingFiles_MatchingModalityNoFiles_ReturnsEmpty()
+        {
+            // Arrange
+
+            var catalogue = CreateCatalogue("CT");
+
+            var message = new ExtractionRequestMessage
+            {
+                KeyTag = "SeriesInstanceUID",
+                Modality = "CT",
+            };
+
+            var fulfiller = new FromCataloguesExtractionRequestFulfiller([catalogue]);
+
+            // Act
+
+            var files = fulfiller.GetAllMatchingFiles(message);
+
+            // Assert
+
+            Assert.That(files.ToList(), Is.Empty);
+        }
+
+        [Test]
+        public void GetAllMatchingFiles_NoCatalogueForModality_Throws()
+        {
+            // Arrange
+
+            var catalogue = CreateCatalogue("CT");
+
+            var message = new ExtractionRequestMessage
+            {
+                KeyTag = "SeriesInstanceUID",
+                Modality = "MR",
+            };
+
+            var fulfiller = new FromCataloguesExtractionRequestFulfiller([catalogue]);
+
+            // Act
+
+            List<ExtractImageCollection> call() => fulfiller.GetAllMatchingFiles(message).ToList();
+
+            // Assert
+
+            var exc = Assert.Throws<Exception>(() => call().ToList());
+            Assert.That(exc!.Message, Does.StartWith("Couldn't find any compatible Catalogues to run extraction queries against for query"));
+        }
+
+        [Test]
+        public void GetAllMatchingFiles_NonMixedOverridingRejectors_Passes()
+        {
+            // Arrange
+
+            var catalogue = CreateCatalogue("CT");
+
+            var message = new ExtractionRequestMessage
+            {
+                KeyTag = "SeriesInstanceUID",
+                Modality = "CT",
+            };
+
+            var fulfiller = new FromCataloguesExtractionRequestFulfiller([catalogue]);
+            fulfiller.ModalitySpecificRejectors.Add(
+                new ModalitySpecificRejectorOptions
+                {
+                    Overrides = true,
+                    Modalities = "CT",
+                },
+                new RejectNone()
+            );
+            fulfiller.ModalitySpecificRejectors.Add(
+                new ModalitySpecificRejectorOptions
+                {
+                    Overrides = true,
+                    Modalities = "CT",
+                },
+                new RejectNone()
+            );
+
+            // Act
+
+            List<ExtractImageCollection> call() => fulfiller.GetAllMatchingFiles(message).ToList();
+
+            // Assert
+
+            Assert.DoesNotThrow(() => call().ToList());
+        }
+
+        [Test]
+        public void GetAllMatchingFiles_MixedOverridingRejectors_Throws()
+        {
+            // Arrange
+
+            var catalogue = CreateCatalogue("CT");
+
+            var message = new ExtractionRequestMessage
+            {
+                KeyTag = "SeriesInstanceUID",
+                Modality = "CT",
+            };
+
+            var fulfiller = new FromCataloguesExtractionRequestFulfiller([catalogue]);
+            fulfiller.ModalitySpecificRejectors.Add(
+                new ModalitySpecificRejectorOptions
+                {
+                    Overrides = true,
+                    Modalities = "CT",
+                },
+                new RejectNone()
+            );
+            fulfiller.ModalitySpecificRejectors.Add(
+                new ModalitySpecificRejectorOptions
+                {
+                    Overrides = false,
+                    Modalities = "CT",
+                },
+                new RejectNone()
+            );
+
+            // Act
+
+            List<ExtractImageCollection> call() => fulfiller.GetAllMatchingFiles(message).ToList();
+
+            // Assert
+
+            var exc = Assert.Throws<Exception>(() => call().ToList());
+            Assert.That(exc!.Message, Is.EqualTo("You cannot mix Overriding and non Overriding ModalitySpecificRejectors. Bad Modality was 'CT'"));
+        }
+
+        private static ICatalogue CreateCatalogue(string modality)
+        {
+            var memoryRepo = new MemoryCatalogueRepository();
+            var catalogue = new Catalogue(memoryRepo, $"{modality}_ImageTable");
+            Add(catalogue, "RelativeFileArchiveURI");
+            Add(catalogue, "StudyInstanceUID");
+            Add(catalogue, "SeriesInstanceUID");
+            Add(catalogue, "SOPInstanceUID");
+            return catalogue;
         }
 
         private static void Add(ICatalogue c, string col)
@@ -246,9 +225,18 @@ namespace SmiServices.UnitTests.Microservices.CohortExtractor
             var ti = new TableInfo(repo, "ff")
             {
                 Server = "ff",
-                Database = "db"
+                Database = "db",
             };
             _ = new ExtractionInformation(repo, ci, new ColumnInfo(repo, col, "varchar(10)", ti), col);
+        }
+
+        private class RejectNone : IRejector
+        {
+            public bool Reject(IDataRecord row, [NotNullWhen(true)] out string? reason)
+            {
+                reason = null;
+                return false;
+            }
         }
     }
 }

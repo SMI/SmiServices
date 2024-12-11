@@ -113,6 +113,7 @@ namespace SmiServices.IntegrationTests.Microservices.DicomAnonymiser
                 ExtractionJobIdentifier = Guid.NewGuid(),
                 ProjectNumber = "1234",
                 ExtractionDirectory = extractDirAbs.Name,
+                Modality = "CT",
                 JobSubmittedAt = DateTime.UtcNow,
                 IsIdentifiableExtraction = false,
                 IsNoFilterExtraction = false,

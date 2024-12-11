@@ -4,18 +4,15 @@ using FellowOakDicom;
 using NUnit.Framework;
 using Rdmp.Core.DataLoad.Triggers;
 using SmiServices.Common.Messages.Extraction;
-using SmiServices.Common.Options;
 using SmiServices.Microservices.CohortExtractor;
-using SmiServices.Microservices.CohortExtractor.Audit;
 using SmiServices.Microservices.CohortExtractor.RequestFulfillers;
 using SmiServices.Microservices.CohortExtractor.RequestFulfillers.Dynamic;
-using SmiServices.UnitTests.Microservices.CohortExtractor;
 using SynthEHR;
 using System;
 using System.Collections.Generic;
 using System.Data;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
-using System.Text.RegularExpressions;
 using Tests.Common;
 using TypeGuesser;
 using DatabaseType = FAnsi.DatabaseType;
@@ -113,6 +110,7 @@ namespace SmiServices.IntegrationTests.Microservices.CohortExtractor
             var msgIn = new ExtractionRequestMessage
             {
                 KeyTag = DicomTag.StudyInstanceUID.DictionaryEntry.Keyword,
+                Modality = "CT",
                 ExtractionIdentifiers = studies
             };
 
@@ -122,7 +120,7 @@ namespace SmiServices.IntegrationTests.Microservices.CohortExtractor
             var fulfiller = new FromCataloguesExtractionRequestFulfiller([cata]);
             fulfiller.Rejectors.Add(useDynamic ? (IRejector)new DynamicRejector(null) : new TestRejector());
 
-            foreach (ExtractImageCollection msgOut in fulfiller.GetAllMatchingFiles(msgIn, new NullAuditExtractions()))
+            foreach (ExtractImageCollection msgOut in fulfiller.GetAllMatchingFiles(msgIn))
             {
                 matches += msgOut.Accepted.Count;
                 Assert.That(msgOut.Rejected, Is.Empty);
@@ -146,7 +144,7 @@ namespace SmiServices.IntegrationTests.Microservices.CohortExtractor
             matches = 0;
             int rejections = 0;
 
-            foreach (ExtractImageCollection msgOut in fulfiller.GetAllMatchingFiles(msgIn, new NullAuditExtractions()))
+            foreach (ExtractImageCollection msgOut in fulfiller.GetAllMatchingFiles(msgIn))
             {
                 matches += msgOut.Accepted.Count;
                 rejections += msgOut.Rejected.Count;
@@ -190,7 +188,7 @@ namespace SmiServices.IntegrationTests.Microservices.CohortExtractor
                 KeyTag = DicomTag.StudyInstanceUID.DictionaryEntry.Keyword,
 
                 //extract only MR (this is what we are actually testing).
-                Modalities = "MR",
+                Modality = "MR",
                 ExtractionIdentifiers = studies
             };
 
@@ -198,13 +196,9 @@ namespace SmiServices.IntegrationTests.Microservices.CohortExtractor
 
             //The strategy pattern implementation that goes to the database but also considers reason
 
+            var fulfiller = new FromCataloguesExtractionRequestFulfiller([cataCT, cataMR]);
 
-            var fulfiller = new FromCataloguesExtractionRequestFulfiller([cataCT, cataMR])
-            {
-                ModalityRoutingRegex = new Regex(CohortExtractorOptions.DefaultModalityRoutingRegex)
-            };
-
-            foreach (ExtractImageCollection msgOut in fulfiller.GetAllMatchingFiles(msgIn, new NullAuditExtractions()))
+            foreach (ExtractImageCollection msgOut in fulfiller.GetAllMatchingFiles(msgIn))
             {
                 matches += msgOut.Accepted.Count;
                 Assert.That(msgOut.Rejected, Is.Empty);
@@ -213,31 +207,10 @@ namespace SmiServices.IntegrationTests.Microservices.CohortExtractor
             //expect only the MR images to be returned
             Assert.That(matches, Is.EqualTo(30));
 
-
             // Ask for something that doesn't exist
-            msgIn.Modalities = "Hello";
-            var ex = Assert.Throws<Exception>(() => fulfiller.GetAllMatchingFiles(msgIn, new NullAuditExtractions()).ToArray());
+            msgIn.Modality = "Hello";
+            var ex = Assert.Throws<Exception>(() => fulfiller.GetAllMatchingFiles(msgIn).ToArray());
             Assert.That(ex!.Message, Does.Contain("Modality=Hello"));
-
-            // Ask for all modalities at once by not specifying any
-            msgIn.Modalities = null;
-            Assert.That(fulfiller.GetAllMatchingFiles(msgIn, new NullAuditExtractions()).Sum(r => r.Accepted.Count), Is.EqualTo(100));
-
-            // Ask for both modalities specifically
-            msgIn.Modalities = "CT,Hello";
-            Assert.That(fulfiller.GetAllMatchingFiles(msgIn, new NullAuditExtractions()).Sum(r => r.Accepted.Count), Is.EqualTo(70));
-
-            // Ask for both modalities specifically
-            msgIn.Modalities = "CT,MR";
-            Assert.That(fulfiller.GetAllMatchingFiles(msgIn, new NullAuditExtractions()).Sum(r => r.Accepted.Count), Is.EqualTo(100));
-
-            //when we don't have that flag anymore the error should tell us that
-            tblCT.DropColumn(tblCT.DiscoverColumn("IsOriginal"));
-            msgIn.Modalities = "CT,MR";
-
-            ex = Assert.Throws(Is.AssignableTo(typeof(Exception)), () => fulfiller.GetAllMatchingFiles(msgIn, new NullAuditExtractions()).ToArray());
-            Assert.That(ex!.Message, Does.Contain("IsOriginal"));
-
         }
 
         /// <summary>
@@ -255,6 +228,23 @@ namespace SmiServices.IntegrationTests.Microservices.CohortExtractor
                 DatabaseType.MySql => $"UPDATE {tbl.GetFullyQualifiedName()} {setSql} LIMIT {topXRows}",
                 _ => throw new ArgumentOutOfRangeException(nameof(tbl)),
             };
+        }
+
+        public class TestRejector : IRejector
+        {
+            public bool Reject(IDataRecord row, [NotNullWhen(true)] out string? reason)
+            {
+                //if the image is not extractable
+                if (!Convert.ToBoolean(row["IsExtractableToDisk"]))
+                {
+                    //tell them why and reject it
+                    reason = (row["IsExtractableToDisk_Reason"] as string)!;
+                    return true;
+                }
+
+                reason = null;
+                return false;
+            }
         }
     }
 }

@@ -20,7 +20,6 @@ namespace SmiServices.Microservices.CohortExtractor
             var bootstrapper = new MicroserviceHostBootstrapper(
                 () => new CohortExtractorHost(
                     globals,
-                    auditor: null,
                     fulfiller: null
                 )
             );

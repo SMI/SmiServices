@@ -2,7 +2,6 @@ using SmiServices.Common.Messages;
 using SmiServices.Common.Messages.Extraction;
 using SmiServices.Common.Messaging;
 using SmiServices.Common.Options;
-using SmiServices.Microservices.CohortExtractor.Audit;
 using SmiServices.Microservices.CohortExtractor.ProjectPathResolvers;
 using SmiServices.Microservices.CohortExtractor.RequestFulfillers;
 using System;
@@ -15,7 +14,6 @@ namespace SmiServices.Microservices.CohortExtractor
         private readonly CohortExtractorOptions _options;
 
         private readonly IExtractionRequestFulfiller _fulfiller;
-        private readonly IAuditExtractions _auditor;
         private readonly IProducerModel _fileMessageProducer;
         private readonly IProducerModel _fileMessageInfoProducer;
 
@@ -23,13 +21,12 @@ namespace SmiServices.Microservices.CohortExtractor
 
         public ExtractionRequestQueueConsumer(
             CohortExtractorOptions options,
-            IExtractionRequestFulfiller fulfiller, IAuditExtractions auditor,
+            IExtractionRequestFulfiller fulfiller,
             IProjectPathResolver pathResolver, IProducerModel fileMessageProducer,
             IProducerModel fileMessageInfoProducer)
         {
             _options = options;
             _fulfiller = fulfiller;
-            _auditor = auditor;
             _resolver = pathResolver;
             _fileMessageProducer = fileMessageProducer;
             _fileMessageInfoProducer = fileMessageInfoProducer;
@@ -38,8 +35,6 @@ namespace SmiServices.Microservices.CohortExtractor
         protected override void ProcessMessageImpl(IMessageHeader header, ExtractionRequestMessage request, ulong tag)
         {
             Logger.Info($"Received message {header.MessageGuid}: {request}");
-
-            _auditor.AuditExtractionRequest(request);
 
             if (!request.ExtractionDirectory.StartsWith(request.ProjectNumber))
             {
@@ -50,7 +45,7 @@ namespace SmiServices.Microservices.CohortExtractor
             string extractionDirectory = request.ExtractionDirectory.TrimEnd('/', '\\');
             string? extractFileRoutingKey = request.IsIdentifiableExtraction ? _options.ExtractIdentRoutingKey : _options.ExtractAnonRoutingKey;
 
-            foreach (ExtractImageCollection matchedFiles in _fulfiller.GetAllMatchingFiles(request, _auditor))
+            foreach (ExtractImageCollection matchedFiles in _fulfiller.GetAllMatchingFiles(request))
             {
                 Logger.Info($"Accepted {matchedFiles.Accepted.Count} and rejected {matchedFiles.Rejected.Count} files for KeyValue {matchedFiles.KeyValue}");
 
@@ -90,8 +85,6 @@ namespace SmiServices.Microservices.CohortExtractor
                     infoMessage.RejectionReasons.TryAdd(rejectReason, 0);
                     infoMessage.RejectionReasons[rejectReason]++;
                 }
-
-                _auditor.AuditExtractFiles(request, matchedFiles);
 
                 infoMessage.KeyValue = matchedFiles.KeyValue;
                 _fileMessageInfoProducer.SendMessage(infoMessage, header, routingKey: null);

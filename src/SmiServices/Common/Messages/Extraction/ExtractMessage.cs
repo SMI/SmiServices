@@ -19,6 +19,9 @@ namespace SmiServices.Common.Messages.Extraction
         public string ExtractionDirectory { get; set; } = null!;
 
         [JsonProperty(Required = Required.Always)]
+        public string Modality { get; set; } = null!;
+
+        [JsonProperty(Required = Required.Always)]
         public DateTime JobSubmittedAt { get; set; }
 
         [JsonProperty(Required = Required.Always)]
@@ -39,6 +42,7 @@ namespace SmiServices.Common.Messages.Extraction
             Guid extractionJobIdentifier,
             string projectNumber,
             string extractionDirectory,
+            string modality,
             DateTime jobSubmittedAt,
             bool isIdentifiableExtraction,
             bool isNoFilterExtraction,
@@ -49,6 +53,7 @@ namespace SmiServices.Common.Messages.Extraction
             ExtractionJobIdentifier = extractionJobIdentifier;
             ProjectNumber = projectNumber;
             ExtractionDirectory = extractionDirectory;
+            Modality = modality;
             JobSubmittedAt = jobSubmittedAt;
             IsIdentifiableExtraction = isIdentifiableExtraction;
             IsNoFilterExtraction = isNoFilterExtraction;
@@ -60,6 +65,7 @@ namespace SmiServices.Common.Messages.Extraction
                 request.ExtractionJobIdentifier,
                 request.ProjectNumber,
                 request.ExtractionDirectory,
+                request.Modality,
                 request.JobSubmittedAt,
                 request.IsIdentifiableExtraction,
                 request.IsNoFilterExtraction,
@@ -71,6 +77,7 @@ namespace SmiServices.Common.Messages.Extraction
             $"ExtractionJobIdentifier={ExtractionJobIdentifier}, " +
             $"ProjectNumber={ProjectNumber}, " +
             $"ExtractionDirectory={ExtractionDirectory}, " +
+            $"Modality={Modality}, " +
             $"JobSubmittedAt={JobSubmittedAt:s}, " +
             $"IsIdentifiableExtraction={IsIdentifiableExtraction}, " +
             $"IsNoFilterExtraction={IsNoFilterExtraction}, " +

@@ -4,6 +4,7 @@ import argparse
 import functools
 import hashlib
 import os
+import shlex
 import subprocess
 from collections.abc import Sequence
 
@@ -37,7 +38,7 @@ def run(
     if env is None:
         env = {}
 
-    subprocess.check_call(("echo", "$", *cmd), cwd=cwd)
+    print(shlex.join(("$", *cmd)))
     subprocess.check_call(cmd, cwd=cwd, env={**os.environ, **env})
 
 

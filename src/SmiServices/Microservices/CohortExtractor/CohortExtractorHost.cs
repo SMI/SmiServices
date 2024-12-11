@@ -11,7 +11,6 @@ using SmiServices.Common.Execution;
 using SmiServices.Common.Messages.Extraction;
 using SmiServices.Common.Messaging;
 using SmiServices.Common.Options;
-using SmiServices.Microservices.CohortExtractor.Audit;
 using SmiServices.Microservices.CohortExtractor.ProjectPathResolvers;
 using SmiServices.Microservices.CohortExtractor.RequestFulfillers;
 using SmiServices.Microservices.CohortExtractor.RequestFulfillers.Dynamic;
@@ -38,7 +37,6 @@ namespace SmiServices.Microservices.CohortExtractor
         public ExtractionRequestQueueConsumer? Consumer { get; set; }
         private readonly CohortExtractorOptions _consumerOptions;
 
-        private IAuditExtractions? _auditor;
         private IExtractionRequestFulfiller? _fulfiller;
         private IProjectPathResolver? _pathResolver;
         private IProducerModel? _fileMessageProducer;
@@ -49,16 +47,14 @@ namespace SmiServices.Microservices.CohortExtractor
         /// Creates a new instance of the host with the given 
         /// </summary>
         /// <param name="options">Settings for the microservice (location of rabbit, queue names etc)</param>
-        /// <param name="auditor">Optional override for the value specified in <see cref="GlobalOptions.CohortExtractorOptions"/></param>
         /// <param name="fulfiller">Optional override for the value specified in <see cref="GlobalOptions.CohortExtractorOptions"/></param>
         /// <param name="fileSystem"></param>
-        public CohortExtractorHost(GlobalOptions options, IAuditExtractions? auditor, IExtractionRequestFulfiller? fulfiller, IFileSystem? fileSystem = null)
+        public CohortExtractorHost(GlobalOptions options, IExtractionRequestFulfiller? fulfiller, IFileSystem? fileSystem = null)
             : base(options)
         {
             _consumerOptions = options.CohortExtractorOptions!;
             _consumerOptions.Validate();
 
-            _auditor = auditor;
             _fulfiller = fulfiller;
             _fileSystem = fileSystem ?? new FileSystem();
         }
@@ -85,7 +81,7 @@ namespace SmiServices.Microservices.CohortExtractor
 
             InitializeExtractionSources(repositoryLocator);
 
-            Consumer = new ExtractionRequestQueueConsumer(Globals.CohortExtractorOptions, _fulfiller!, _auditor!, _pathResolver!, _fileMessageProducer, fileMessageInfoProducer);
+            Consumer = new ExtractionRequestQueueConsumer(Globals.CohortExtractorOptions, _fulfiller!, _pathResolver!, _fileMessageProducer, fileMessageInfoProducer);
 
             MessageBroker.StartConsumer(_consumerOptions, Consumer, isSolo: false);
         }
@@ -114,26 +110,24 @@ namespace SmiServices.Microservices.CohortExtractor
                 .DataExportRepository
                 .GetAllObjects<ExtractableDataSet>()
                 .Select(eds => eds.Catalogue)
+                .Where(catalogue => catalogue != null)
                 .ToArray();
-
-            _auditor ??= ObjectFactory.CreateInstance<IAuditExtractions>(_consumerOptions.AuditorType,
-                typeof(IAuditExtractions).Assembly,
-                repositoryLocator);
-
-            if (_auditor == null)
-                throw new Exception("No IAuditExtractions set");
 
             if (!_consumerOptions.AllCatalogues)
                 catalogues = catalogues.Where(c => _consumerOptions.OnlyCatalogues.Contains(c.ID)).ToArray();
 
-            _fulfiller ??= ObjectFactory.CreateInstance<IExtractionRequestFulfiller>(_consumerOptions.RequestFulfillerType!,
-                typeof(IExtractionRequestFulfiller).Assembly, [catalogues]);
-
             if (_fulfiller == null)
-                throw new Exception("No IExtractionRequestFulfiller set");
+            {
+                var extractionRequestFulfillerTypeStr = _consumerOptions.RequestFulfillerType;
+                if (!Enum.TryParse(extractionRequestFulfillerTypeStr, out ExtractionRequestFulfillerType extractionRequestFulfillerType))
+                    throw new ArgumentException($"Could not parse '{extractionRequestFulfillerTypeStr}' to a valid {nameof(ExtractionRequestFulfillerType)}");
 
-            if (!string.IsNullOrWhiteSpace(_consumerOptions.ModalityRoutingRegex))
-                _fulfiller.ModalityRoutingRegex = new Regex(_consumerOptions.ModalityRoutingRegex);
+                Regex? modalityRoutingRegex = null;
+                if (!string.IsNullOrWhiteSpace(_consumerOptions.ModalityRoutingRegex))
+                    modalityRoutingRegex = new Regex(_consumerOptions.ModalityRoutingRegex, RegexOptions.Compiled);
+
+                _fulfiller = ExtractionRequestFulfillerFactory.Create(extractionRequestFulfillerType, catalogues, modalityRoutingRegex);
+            }
 
             // Bit of a hack until we remove the ObjectFactory calls
             if (!string.IsNullOrWhiteSpace(_consumerOptions.DynamicRulesPath))

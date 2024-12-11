@@ -52,6 +52,7 @@ public class ExtractedFileStatusMessage extends ExtractMessage implements IMessa
 
 		ExtractionJobIdentifier = request.ExtractionJobIdentifier;
 		ExtractionDirectory = request.ExtractionDirectory;
+        Modality = request.Modality;
 		DicomFilePath = request.DicomFilePath;
 		ProjectNumber = request.ProjectNumber;
 		JobSubmittedAt = request.JobSubmittedAt;
@@ -64,6 +65,7 @@ public class ExtractedFileStatusMessage extends ExtractMessage implements IMessa
 
 		sb.append("ExtractionJobIdentifier: " + ExtractionJobIdentifier + "\n");
 		sb.append("ExtractionDirectory: " + ExtractionDirectory + "\n");
+		sb.append("Modality: " + Modality + "\n");
 		sb.append("DicomFilePath: " + DicomFilePath + "\n");
 		sb.append("ProjectNumber: " + ProjectNumber + "\n");
 		sb.append("JobSubmittedAt: " + JobSubmittedAt + "\n");
