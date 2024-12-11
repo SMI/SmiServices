@@ -5,7 +5,6 @@ using NUnit.Framework;
 using Rdmp.Core.DataLoad.Triggers;
 using SmiServices.Common.Messages.Extraction;
 using SmiServices.Microservices.CohortExtractor;
-using SmiServices.Microservices.CohortExtractor.Audit;
 using SmiServices.Microservices.CohortExtractor.RequestFulfillers;
 using SmiServices.Microservices.CohortExtractor.RequestFulfillers.Dynamic;
 using SynthEHR;
@@ -121,7 +120,7 @@ namespace SmiServices.IntegrationTests.Microservices.CohortExtractor
             var fulfiller = new FromCataloguesExtractionRequestFulfiller([cata]);
             fulfiller.Rejectors.Add(useDynamic ? (IRejector)new DynamicRejector(null) : new TestRejector());
 
-            foreach (ExtractImageCollection msgOut in fulfiller.GetAllMatchingFiles(msgIn, new NullAuditExtractions()))
+            foreach (ExtractImageCollection msgOut in fulfiller.GetAllMatchingFiles(msgIn))
             {
                 matches += msgOut.Accepted.Count;
                 Assert.That(msgOut.Rejected, Is.Empty);
@@ -145,7 +144,7 @@ namespace SmiServices.IntegrationTests.Microservices.CohortExtractor
             matches = 0;
             int rejections = 0;
 
-            foreach (ExtractImageCollection msgOut in fulfiller.GetAllMatchingFiles(msgIn, new NullAuditExtractions()))
+            foreach (ExtractImageCollection msgOut in fulfiller.GetAllMatchingFiles(msgIn))
             {
                 matches += msgOut.Accepted.Count;
                 rejections += msgOut.Rejected.Count;
@@ -199,7 +198,7 @@ namespace SmiServices.IntegrationTests.Microservices.CohortExtractor
 
             var fulfiller = new FromCataloguesExtractionRequestFulfiller([cataCT, cataMR]);
 
-            foreach (ExtractImageCollection msgOut in fulfiller.GetAllMatchingFiles(msgIn, new NullAuditExtractions()))
+            foreach (ExtractImageCollection msgOut in fulfiller.GetAllMatchingFiles(msgIn))
             {
                 matches += msgOut.Accepted.Count;
                 Assert.That(msgOut.Rejected, Is.Empty);
@@ -210,7 +209,7 @@ namespace SmiServices.IntegrationTests.Microservices.CohortExtractor
 
             // Ask for something that doesn't exist
             msgIn.Modality = "Hello";
-            var ex = Assert.Throws<Exception>(() => fulfiller.GetAllMatchingFiles(msgIn, new NullAuditExtractions()).ToArray());
+            var ex = Assert.Throws<Exception>(() => fulfiller.GetAllMatchingFiles(msgIn).ToArray());
             Assert.That(ex!.Message, Does.Contain("Modality=Hello"));
         }
 

@@ -8,7 +8,6 @@ using SmiServices.Common.Messages.Extraction;
 using SmiServices.Common.Messaging;
 using SmiServices.Common.Options;
 using SmiServices.Microservices.CohortExtractor;
-using SmiServices.Microservices.CohortExtractor.Audit;
 using SmiServices.Microservices.CohortExtractor.ProjectPathResolvers;
 using SmiServices.Microservices.CohortExtractor.RequestFulfillers;
 using System;
@@ -49,7 +48,7 @@ namespace SmiServices.UnitTests.Microservices.CohortExtractor.Messaging
                 Logger = LogManager.GetCurrentClassLogger();
             }
 
-            public IEnumerable<ExtractImageCollection> GetAllMatchingFiles(ExtractionRequestMessage message, IAuditExtractions auditor)
+            public IEnumerable<ExtractImageCollection> GetAllMatchingFiles(ExtractionRequestMessage message)
             {
                 Logger.Debug($"Found {message.KeyTag}");
 
@@ -144,7 +143,7 @@ namespace SmiServices.UnitTests.Microservices.CohortExtractor.Messaging
             var consumer = new ExtractionRequestQueueConsumer(
                 globals.CohortExtractorOptions!,
                 fakeFulfiller,
-                new NullAuditExtractions(), new StudySeriesOriginalFilenameProjectPathResolver(_fileSystem),
+                new StudySeriesOriginalFilenameProjectPathResolver(_fileSystem),
                 mockFileMessageProducerModel.Object,
                 mockFileInfoMessageProducerModel.Object);
 

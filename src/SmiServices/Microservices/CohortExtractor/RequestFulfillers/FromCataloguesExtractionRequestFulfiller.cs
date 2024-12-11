@@ -2,7 +2,6 @@ using NLog;
 using Rdmp.Core.Curation.Data;
 using SmiServices.Common.Messages.Extraction;
 using SmiServices.Common.Options;
-using SmiServices.Microservices.CohortExtractor.Audit;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -48,7 +47,7 @@ namespace SmiServices.Microservices.CohortExtractor.RequestFulfillers
                 throw new ArgumentOutOfRangeException(nameof(modalityRoutingRegex), $"Must have exactly one non-default capture group");
         }
 
-        public IEnumerable<ExtractImageCollection> GetAllMatchingFiles(ExtractionRequestMessage message, IAuditExtractions auditor)
+        public IEnumerable<ExtractImageCollection> GetAllMatchingFiles(ExtractionRequestMessage message)
         {
             var queries = new List<QueryToExecute>();
             var rejectors = GetRejectorsFor(message);
@@ -65,7 +64,6 @@ namespace SmiServices.Microservices.CohortExtractor.RequestFulfillers
 
                 var query = new QueryToExecute(c, message.KeyTag, rejectors);
                 queries.Add(query);
-                auditor.AuditCatalogueUse(message, c.Catalogue);
             }
 
             _logger.Debug($"Found {queries.Count} Catalogues which support extracting based on '{message.KeyTag}'");

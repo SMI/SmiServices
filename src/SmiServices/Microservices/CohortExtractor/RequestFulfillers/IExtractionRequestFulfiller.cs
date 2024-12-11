@@ -1,6 +1,5 @@
 using SmiServices.Common.Messages.Extraction;
 using SmiServices.Common.Options;
-using SmiServices.Microservices.CohortExtractor.Audit;
 using System.Collections.Generic;
 using System.Text.RegularExpressions;
 
@@ -13,9 +12,8 @@ namespace SmiServices.Microservices.CohortExtractor.RequestFulfillers
         /// correspond to the identifiers in the <paramref name="message"/>.
         /// </summary>
         /// <param name="message">The request you want answered (contains the list of UIDs to extract)</param>
-        /// <param name="auditor">The class we should inform of progress</param>
         /// <returns></returns>
-        IEnumerable<ExtractImageCollection> GetAllMatchingFiles(ExtractionRequestMessage message, IAuditExtractions auditor);
+        IEnumerable<ExtractImageCollection> GetAllMatchingFiles(ExtractionRequestMessage message);
 
         /// <summary>
         /// Controls what records that are fetched back should be reported as non extractable (including the reason why)

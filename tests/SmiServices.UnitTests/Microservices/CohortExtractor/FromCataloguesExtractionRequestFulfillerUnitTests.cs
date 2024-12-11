@@ -5,7 +5,6 @@ using Rdmp.Core.Curation.Data;
 using Rdmp.Core.Repositories;
 using SmiServices.Common;
 using SmiServices.Common.Messages.Extraction;
-using SmiServices.Microservices.CohortExtractor.Audit;
 using SmiServices.Microservices.CohortExtractor.RequestFulfillers;
 using System;
 using System.Linq;
@@ -87,14 +86,11 @@ namespace SmiServices.UnitTests.Microservices.CohortExtractor
                 Modality = "CT",
             };
 
-            var mockAuditor = new Mock<IAuditExtractions>(MockBehavior.Strict);
-            mockAuditor.Setup(x => x.AuditCatalogueUse(It.IsAny<ExtractionRequestMessage>(), It.IsAny<ICatalogue>()));
-
             var fulfiller = new FromCataloguesExtractionRequestFulfiller([catalogue]);
 
             // Act
 
-            var files = fulfiller.GetAllMatchingFiles(message, mockAuditor.Object);
+            var files = fulfiller.GetAllMatchingFiles(message);
 
             // Assert
 
@@ -114,14 +110,11 @@ namespace SmiServices.UnitTests.Microservices.CohortExtractor
                 Modality = "MR",
             };
 
-            var mockAuditor = new Mock<IAuditExtractions>(MockBehavior.Strict);
-            mockAuditor.Setup(x => x.AuditCatalogueUse(It.IsAny<ExtractionRequestMessage>(), It.IsAny<ICatalogue>()));
-
             var fulfiller = new FromCataloguesExtractionRequestFulfiller([catalogue]);
 
             // Act
 
-            var call = () => fulfiller.GetAllMatchingFiles(message, mockAuditor.Object).ToList();
+            var call = () => fulfiller.GetAllMatchingFiles(message).ToList();
 
             // Assert
 
