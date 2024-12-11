@@ -58,7 +58,7 @@ namespace SmiServices.Microservices.CohortExtractor.RequestFulfillers
                 if (!match.Success)
                     continue;
 
-                // NOTE: Match will always have two gropus as we check the regex in the constructor
+                // NOTE: Match will always have two groups as we check the regex in the constructor
                 if (match.Groups[1].Value != message.Modality)
                     continue;
 
