@@ -10,6 +10,7 @@ using SmiServices.Microservices.CohortExtractor.RequestFulfillers;
 using SmiServices.UnitTests.Common;
 using System.Collections.Generic;
 using System.Data;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using Tests.Common;
 
@@ -158,6 +159,15 @@ namespace SmiServices.IntegrationTests.Microservices.CohortExtractor
             int expected = isNoFiltersExtraction ? 1 : 0;
             Assert.That(matching, Has.Length.EqualTo(1));
             Assert.That(matching[0].Accepted, Has.Count.EqualTo(expected));
+        }
+
+        private class RejectAll : IRejector
+        {
+            public bool Reject(IDataRecord row, [NotNullWhen(true)] out string? reason)
+            {
+                reason = "Rejector is " + nameof(RejectAll);
+                return true;
+            }
         }
     }
 }
