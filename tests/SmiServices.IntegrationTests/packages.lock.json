@@ -65,9 +65,9 @@
       },
       "NUnit": {
         "type": "Direct",
-        "requested": "[4.2.2, )",
-        "resolved": "4.2.2",
-        "contentHash": "mon0OPko28yZ/foVXrhiUvq1LReaGsBdziumyyYGxV/pOE4q92fuYeN+AF+gEU5pCjzykcdBt5l7xobTaiBjsg=="
+        "requested": "[4.3.0, )",
+        "resolved": "4.3.0",
+        "contentHash": "dPClyF8aAmN8w/a7csFXUUbj0sivFVmSfX9CplV+dVeVUqnzoNFsLf7TjAPaxlrwbqHsr+F/pLd7ZEV4Sw9YHg=="
       },
       "NUnit.Analyzers": {
         "type": "Direct",
@@ -938,7 +938,7 @@
           "MongoDB.Analyzer": "[1.5.0, )",
           "Moq": "[4.20.72, )",
           "NLog": "[5.3.4, )",
-          "NUnit": "[4.2.2, )",
+          "NUnit": "[4.3.0, )",
           "NunitXml.TestLogger": "[4.1.0, )",
           "System.IO.Abstractions.TestingHelpers": "[21.1.7, )",
           "smi": "[1.0.0, )"
