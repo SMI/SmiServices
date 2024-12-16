@@ -16,11 +16,11 @@
       },
       "HIC.RDMP.Plugin.Test": {
         "type": "Direct",
-        "requested": "[8.4.0, )",
-        "resolved": "8.4.0",
-        "contentHash": "0VQuRDXOAfj8GK5cvyc2pZ0Hlkxn1AzgZSt7v9mGpGdYEoDY9yuunuyOfiqa7GefzbWPHZbNsxn1b2kiEQpomw==",
+        "requested": "[8.4.1, )",
+        "resolved": "8.4.1",
+        "contentHash": "9yN88m+rpbGO0zlOnQviTQe+bo4/gjmslnCguBEWCbyJ995nB3o48leLni1UPDLG7b3FUqeBNdgOnBb7ZUUJJA==",
         "dependencies": {
-          "HIC.RDMP.Plugin": "8.4.0",
+          "HIC.RDMP.Plugin": "8.4.1",
           "Microsoft.NET.Test.Sdk": "17.12.0",
           "NSubstitute": "5.3.0",
           "NUnit": "4.2.2"
@@ -246,8 +246,8 @@
       },
       "Microsoft.Bcl.AsyncInterfaces": {
         "type": "Transitive",
-        "resolved": "8.0.0",
-        "contentHash": "3WA9q9yVqJp222P3x1wYIGDAkpjAku0TMUaaQV22g6L67AI0LdOIrVS7Ht2vJfLHGSPVuqN94vIr15qn+HEkHw=="
+        "resolved": "9.0.0",
+        "contentHash": "owmu2Cr3IQ8yQiBleBHlGk8dSQ12oaF2e7TpzwJKEl4m84kkZJjEY1n33L67Y3zM5jPOjmmbdHjbfiL0RqcMRQ=="
       },
       "Microsoft.Bcl.HashCode": {
         "type": "Transitive",
@@ -910,7 +910,7 @@
           "HIC.DicomTypeTranslation": "[4.1.5, )",
           "HIC.FAnsiSql": "[3.2.7, )",
           "HIC.RDMP.Dicom": "[7.1.3, )",
-          "HIC.RDMP.Plugin": "[8.4.0, )",
+          "HIC.RDMP.Plugin": "[8.4.1, )",
           "IsIdentifiable": "[0.4.0, )",
           "LibArchive.Net": "[0.1.5, )",
           "LineReader": "[0.1.0, )",
@@ -1016,9 +1016,9 @@
       },
       "HIC.RDMP.Plugin": {
         "type": "CentralTransitive",
-        "requested": "[8.4.0, )",
-        "resolved": "8.4.0",
-        "contentHash": "FZH96MSYVb3Qst0DOoMEX0KFskEgN2uunI4QkMVS75zglvw2qvbfc7GHP3Pvb/Flx8Vs3nPmTA6IxEQ21emDNQ==",
+        "requested": "[8.4.1, )",
+        "resolved": "8.4.1",
+        "contentHash": "avJNxZ1Jn3D+4J4CxXJvBgNWUMxWgtaeH97cdKoCHhmYBaklbILCaojMsnoOoUG2EbkuCqHsvLf1nZbUrVT5YA==",
         "dependencies": {
           "AWSSDK.S3": "3.7.408.1",
           "AWSSDK.SSO": "3.7.400.58",
@@ -1030,6 +1030,7 @@
           "HIC.FAnsiSql": "3.2.7",
           "HIC.SynthEHR": "2.0.1",
           "LibArchive.Net": "0.1.5",
+          "Microsoft.Bcl.AsyncInterfaces": "9.0.0",
           "MongoDB.Driver": "3.0.0",
           "NLog": "5.3.4",
           "NPOI": "2.7.2",
