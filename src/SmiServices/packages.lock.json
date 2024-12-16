@@ -61,9 +61,9 @@
       },
       "HIC.RDMP.Plugin": {
         "type": "Direct",
-        "requested": "[8.4.0, )",
-        "resolved": "8.4.0",
-        "contentHash": "FZH96MSYVb3Qst0DOoMEX0KFskEgN2uunI4QkMVS75zglvw2qvbfc7GHP3Pvb/Flx8Vs3nPmTA6IxEQ21emDNQ==",
+        "requested": "[8.4.1, )",
+        "resolved": "8.4.1",
+        "contentHash": "avJNxZ1Jn3D+4J4CxXJvBgNWUMxWgtaeH97cdKoCHhmYBaklbILCaojMsnoOoUG2EbkuCqHsvLf1nZbUrVT5YA==",
         "dependencies": {
           "AWSSDK.S3": "3.7.408.1",
           "AWSSDK.SSO": "3.7.400.58",
@@ -75,6 +75,7 @@
           "HIC.FAnsiSql": "3.2.7",
           "HIC.SynthEHR": "2.0.1",
           "LibArchive.Net": "0.1.5",
+          "Microsoft.Bcl.AsyncInterfaces": "9.0.0",
           "MongoDB.Driver": "3.0.0",
           "NLog": "5.3.4",
           "NPOI": "2.7.2",
@@ -382,8 +383,8 @@
       },
       "Microsoft.Bcl.AsyncInterfaces": {
         "type": "Transitive",
-        "resolved": "8.0.0",
-        "contentHash": "3WA9q9yVqJp222P3x1wYIGDAkpjAku0TMUaaQV22g6L67AI0LdOIrVS7Ht2vJfLHGSPVuqN94vIr15qn+HEkHw=="
+        "resolved": "9.0.0",
+        "contentHash": "owmu2Cr3IQ8yQiBleBHlGk8dSQ12oaF2e7TpzwJKEl4m84kkZJjEY1n33L67Y3zM5jPOjmmbdHjbfiL0RqcMRQ=="
       },
       "Microsoft.Bcl.HashCode": {
         "type": "Transitive",
