@@ -1,3 +1,5 @@
+TODO: Update & move this to docs/
+
 # Dicom Anonymiser (Microservice)
 
 The dicom anonymiser also known as generic wrapper microservice streamlines the existing dicom processing workflow. It serves as a versatile tool capable of calling external programs to perform tasks such as anonymisation of [dicom tags](https://github.com/SMI/ctp-anon-cli), [pixel data](https://github.com/SMI/dicompixelanon) and/or [structured reports](https://github.com/SMI/StructuredReports) based on the dicom image modality.
