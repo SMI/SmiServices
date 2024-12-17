@@ -2,137 +2,43 @@ using NLog;
 using SmiServices.Common.Messages.Extraction;
 using SmiServices.Common.Options;
 using System;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.IO.Abstractions;
+using System.IO;
 
 namespace SmiServices.Microservices.DicomAnonymiser.Anonymisers;
 
-public class DefaultAnonymiser : IDicomAnonymiser
+public class DefaultAnonymiser : IDicomAnonymiser, IDisposable
 {
     private readonly ILogger _logger = LogManager.GetCurrentClassLogger();
-    private readonly DicomAnonymiserOptions _options;
-    private const string _bash = "/bin/bash";
+    private readonly SmiCtpAnonymiser _ctpAnonymiser;
 
     public DefaultAnonymiser(GlobalOptions globalOptions)
     {
-        if (globalOptions.DicomAnonymiserOptions == null)
-            throw new ArgumentNullException(nameof(globalOptions));
+        var dicomAnonymiserOptions = globalOptions.DicomAnonymiserOptions!;
 
-        if (globalOptions.LoggingOptions == null)
-            throw new ArgumentNullException(nameof(globalOptions));
-
-        _options = globalOptions.DicomAnonymiserOptions;
-    }
-
-    /// <summary>
-    /// Creates a process with the given parameters
-    /// </summary>
-    private static Process CreateProcess(string fileName, string arguments, string? workingDirectory = null, Dictionary<string, string>? environmentVariables = null)
-    {
-        var process = new Process
-        {
-            StartInfo = new ProcessStartInfo
-            {
-                FileName = fileName,
-                Arguments = arguments,
-                UseShellExecute = false,
-                RedirectStandardOutput = true,
-                RedirectStandardError = true,
-                WorkingDirectory = workingDirectory ?? string.Empty
-            }
-        };
-
-        if (environmentVariables != null)
-        {
-            foreach (var variable in environmentVariables)
-            {
-                process.StartInfo.EnvironmentVariables[variable.Key] = variable.Value;
-            }
-        }
-
-        return process;
-    }
-
-    private Process CreateCTPAnonProcess(IFileInfo sourceFile, IFileInfo destFile)
-    {
-        string arguments = $"-jar {_options.CtpAnonCliJar} -a {_options.CtpAllowlistScript} -s false {sourceFile} {destFile}";
-
-        return CreateProcess("java", arguments);
-    }
-
-    private Process CreatePixelAnonProcess(IFileInfo sourceFile, IFileInfo destFile)
-    {
-        string activateCommand = $"source {_options.VirtualEnvPath}/bin/activate";
-        string arguments = $"-c \"{activateCommand} && {_options.DicomPixelAnonPath}/dicom_pixel_anon.sh -o {destFile} {sourceFile}\"";
-
-        return CreateProcess(_bash, arguments, _options.DicomPixelAnonPath);
-    }
-
-    // TODO (da 2024-02-23) Use StructuredReports repository to access SRAnonTool
-    private Process CreateSRAnonProcess(IFileInfo sourceFile, IFileInfo destFile)
-    {
-        string arguments = $"{_options.SRAnonymiserToolPath} -i {sourceFile} -o {destFile} -s /Users/daniyalarshad/EPCC/github/NationalSafeHaven/opt/semehr";
-        _ = new Dictionary<string, string> { { "SMI_ROOT", $"{_options.SmiServicesPath}" } };
-
-        return CreateProcess(_bash, arguments);
+        _ctpAnonymiser = new SmiCtpAnonymiser(globalOptions);
     }
 
     /// <summary>
     /// Anonymises a DICOM file based on image modality
     /// </summary>
-    public ExtractedFileStatus Anonymise(ExtractFileMessage message, IFileInfo sourceFile, IFileInfo destFile, out string anonymiserStatusMessage)
+    public ExtractedFileStatus Anonymise(FileInfo sourceFile, FileInfo destFile, string modality, out string? anonymiserStatusMessage)
     {
-        _logger.Info($"Anonymising {sourceFile} to {destFile}");
-
-        if (!RunProcessAndCheckSuccess(CreateCTPAnonProcess(sourceFile, destFile), "CTP Anonymiser"))
+        var status = _ctpAnonymiser.Anonymise(sourceFile, destFile, modality, out string? ctpStatusMessage);
+        if (status != ExtractedFileStatus.Anonymised)
         {
-            anonymiserStatusMessage = "Error running CTP anonymiser";
-            return ExtractedFileStatus.ErrorWontRetry;
+            anonymiserStatusMessage = ctpStatusMessage;
+            return status;
         }
 
-        if (message.Modality == "SR")
-        {
-            if (!RunProcessAndCheckSuccess(CreateSRAnonProcess(sourceFile, destFile), "SR Anonymiser"))
-            {
-                anonymiserStatusMessage = "Error running SR anonymiser";
-                return ExtractedFileStatus.ErrorWontRetry;
-            }
-        }
-        else
-        {
-            if (!RunProcessAndCheckSuccess(CreatePixelAnonProcess(sourceFile, destFile), "Pixel Anonymiser"))
-            {
-                anonymiserStatusMessage = "Error running PIXEL anonymiser";
-                return ExtractedFileStatus.ErrorWontRetry;
-            }
-        }
+        // TODO(rkm 2024-12-17) Implement SR anon here (instead of via CTP), and add pixel anonymiser
 
-        anonymiserStatusMessage = "Anonymisation successful";
+        anonymiserStatusMessage = null;
         return ExtractedFileStatus.Anonymised;
     }
 
-    /// <summary>
-    /// Runs a process and logs the result
-    /// </summary>
-    private bool RunProcessAndCheckSuccess(Process process, string processName)
+    public void Dispose()
     {
-        process.Start();
-        process.WaitForExit();
-
-        var returnCode = process.ExitCode.ToString();
-        LogProcessResult(processName, returnCode, process);
-
-        return returnCode == "0";
+        GC.SuppressFinalize(this);
+        _ctpAnonymiser.Dispose();
     }
-
-    /// <summary>
-    /// Logs the result of a process
-    /// </summary>
-    private void LogProcessResult(string processName, string returnCode, Process process)
-    {
-        var output = returnCode == "0" ? process.StandardOutput.ReadToEnd() : process.StandardError.ReadToEnd();
-        _logger.Info($"{(returnCode == "0" ? "SUCCESS" : "ERROR")} [{processName}]: Return Code {returnCode}\n{output}");
-    }
-
 }

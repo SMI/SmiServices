@@ -14,8 +14,7 @@ public static class AnonymiserFactory
         return anonymiserType switch
         {
             AnonymiserType.DefaultAnonymiser => new DefaultAnonymiser(options),
-            // TODO(rkm 2021-12-07) Can remove the LGTM ignore once an AnonymiserType is implemented
-            _ => throw new NotImplementedException($"No case for AnonymiserType '{anonymiserType}'"), // lgtm[cs/constant-condition]
+                _ => throw new NotImplementedException($"No case for AnonymiserType '{anonymiserType}'"),
         };
     }
 }
