@@ -19,7 +19,6 @@ public class DicomAnonymiserConsumer : Consumer<ExtractFileMessage>
 
     private readonly ILogger _logger = LogManager.GetCurrentClassLogger();
     private readonly DicomAnonymiserOptions _options;
-    private readonly IFileSystem _fileSystem;
     private readonly string _fileSystemRoot;
     private readonly string _extractRoot;
     private readonly IDicomAnonymiser _anonymiser;
@@ -39,12 +38,11 @@ public class DicomAnonymiserConsumer : Consumer<ExtractFileMessage>
         _extractRoot = extractRoot ?? throw new ArgumentNullException(nameof(extractRoot));
         _anonymiser = anonymiser ?? throw new ArgumentNullException(nameof(anonymiser));
         _statusMessageProducer = statusMessageProducer ?? throw new ArgumentNullException(nameof(statusMessageProducer));
-        _fileSystem = fileSystem ?? new FileSystem();
 
-        if (!_fileSystem.Directory.Exists(_fileSystemRoot))
+            if (!Directory.Exists(_fileSystemRoot))
             throw new Exception($"Filesystem root does not exist: '{fileSystemRoot}'");
 
-        if (!_fileSystem.Directory.Exists(_extractRoot))
+            if (!Directory.Exists(_extractRoot))
             throw new Exception($"Extract root does not exist: '{extractRoot}'");
     }
 
@@ -55,7 +53,7 @@ public class DicomAnonymiserConsumer : Consumer<ExtractFileMessage>
 
         var statusMessage = new ExtractedFileStatusMessage(message);
 
-        var sourceFileAbs = _fileSystem.FileInfo.New(_fileSystem.Path.Combine(_fileSystemRoot, message.DicomFilePath));
+            var sourceFileAbs = new FileInfo(Path.Combine(_fileSystemRoot, message.DicomFilePath));
 
         if (!sourceFileAbs.Exists)
         {
@@ -79,33 +77,25 @@ public class DicomAnonymiserConsumer : Consumer<ExtractFileMessage>
             return;
         }
 
-        var extractionDirAbs = _fileSystem.Path.Combine(_extractRoot, message.ExtractionDirectory);
+            var extractionDirAbs = Path.Combine(_extractRoot, message.ExtractionDirectory);
 
         // NOTE(rkm 2021-12-07) Since this directory should have already been created, we treat this more like an assertion and throw if not found.
         // This helps prevent a flood of messages if e.g. the filesystem is temporarily unavailable.
-        if (!_fileSystem.Directory.Exists(extractionDirAbs))
+            if (!Directory.Exists(extractionDirAbs))
             throw new DirectoryNotFoundException($"Expected extraction directory to exist: '{extractionDirAbs}'");
 
-        var destFileAbs = _fileSystem.FileInfo.New(_fileSystem.Path.Combine(extractionDirAbs, message.OutputPath));
+            var destFileAbs = new FileInfo(Path.Combine(extractionDirAbs, message.OutputPath));
 
         destFileAbs.Directory!.Create();
 
         _logger.Debug($"Anonymising '{sourceFileAbs}' to '{destFileAbs}'");
 
-        // TODO (rkm 2024-02-09) Extract modality from cohort extractor instead of opening DICOM file
-        DicomFile dicomFile = DicomFile.Open(sourceFileAbs.FullName);
-        message.Modality = dicomFile.Dataset.GetSingleValue<string>(DicomTag.Modality);
-
-        Console.WriteLine("[DICOM] Modality: " + message.Modality);
-        Console.WriteLine("[DICOM] Source File: " + message.DicomFilePath);
-        Console.WriteLine("[DICOM] Dest File: " + message.OutputPath);
-
         ExtractedFileStatus anonymiserStatus = ExtractedFileStatus.None;
-        string anonymiserStatusMessage = "";
+            string? anonymiserStatusMessage = "";
 
         try
         {
-            anonymiserStatus = _anonymiser.Anonymise(message, sourceFileAbs, destFileAbs, out anonymiserStatusMessage);
+                anonymiserStatus = _anonymiser.Anonymise(sourceFileAbs, destFileAbs, message.Modality, out anonymiserStatusMessage);
         }
         catch (Exception e)
         {
