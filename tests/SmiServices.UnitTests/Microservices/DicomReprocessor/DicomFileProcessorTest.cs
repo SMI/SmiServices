@@ -1,19 +1,16 @@
 using DicomTypeTranslation;
-using FellowOakDicom;
 using MongoDB.Bson;
-using Moq;
 using NUnit.Framework;
 using SmiServices.Common.Messages;
-using SmiServices.Common.Messaging;
 using SmiServices.Common.MongoDB;
-using SmiServices.Common.Options;
 using SmiServices.Microservices.DicomReprocessor;
+using SmiServices.UnitTests.Common.Messaging;
 
 namespace SmiServices.UnitTests.Microservices.DicomReprocessor
 {
     public class DicomFileProcessorTest
     {
-        #region Fixture Methods 
+        #region Fixture Methods
 
         [OneTimeSetUp]
         public void OneTimeSetUp() { }
@@ -38,7 +35,7 @@ namespace SmiServices.UnitTests.Microservices.DicomReprocessor
         [Test]
         public void ProcessDocument_NationalPacsAccessionNumber_IsIgnored()
         {
-            var processor = new DicomFileProcessor(Mock.Of<IProducerModel>(), "");
+            var processor = new DicomFileProcessor(new TestProducer<DicomFileMessage>(), "");
 
             var msg = new DicomFileMessage
             {

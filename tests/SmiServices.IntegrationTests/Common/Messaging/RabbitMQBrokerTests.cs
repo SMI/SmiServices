@@ -68,10 +68,10 @@ namespace SmiServices.IntegrationTests.Common.Messaging
                 ExchangeName = null
             };
 
-            Assert.Throws<ArgumentException>(() => _tester.Broker.SetupProducer(producerOptions));
+            Assert.Throws<ArgumentException>(() => _tester.Broker.SetupProducer<DicomFileMessage>(producerOptions));
 
             producerOptions.ExchangeName = "TEST.DoesNotExistExchange";
-            Assert.Throws<ApplicationException>(() => _tester.Broker.SetupProducer(producerOptions));
+            Assert.Throws<ApplicationException>(() => _tester.Broker.SetupProducer<DicomFileMessage>(producerOptions));
         }
 
         /// <summary>
@@ -93,7 +93,7 @@ namespace SmiServices.IntegrationTests.Common.Messaging
         public void TestShutdownExitsProperly()
         {
             // Setup some consumers/producers so some channels are created
-            _tester.Broker.SetupProducer(_testProducerOptions);
+            _tester.Broker.SetupProducer<DicomFileMessage>(_testProducerOptions);
             _tester.Broker.StartConsumer(_testConsumerOptions, _mockConsumer);
         }
 
@@ -121,7 +121,7 @@ namespace SmiServices.IntegrationTests.Common.Messaging
 
             Assert.That(testAdapter.ShutdownCalled, Is.True);
             Assert.Throws<ApplicationException>(() => testAdapter.StartConsumer(_testConsumerOptions, _mockConsumer));
-            Assert.Throws<ApplicationException>(() => testAdapter.SetupProducer(_testProducerOptions));
+            Assert.Throws<ApplicationException>(() => testAdapter.SetupProducer<DicomFileMessage>(_testProducerOptions));
         }
 
         [Test]
@@ -145,7 +145,7 @@ namespace SmiServices.IntegrationTests.Common.Messaging
         [Test]
         public void TestMultipleConfirmsOk()
         {
-            var pm = _tester.Broker.SetupProducer(_testProducerOptions, true);
+            var pm = _tester.Broker.SetupProducer<TestMessage>(_testProducerOptions, true);
 
             pm.SendMessage(new TestMessage(), isInResponseTo: null, routingKey: null);
 
@@ -198,7 +198,7 @@ namespace SmiServices.IntegrationTests.Common.Messaging
             tester.Broker.StartConsumer(_testConsumerOptions, consumer!, true);
 
             //send a message to trigger consumer behaviour
-            tester.SendMessage(_testConsumerOptions, new TestMessage());
+            tester.Broker.SetupProducer<TestMessage>(_testProducerOptions).SendMessage(new TestMessage(), null, null);
 
             //give the message time to get picked up
             Thread.Sleep(3000);
@@ -259,7 +259,7 @@ namespace SmiServices.IntegrationTests.Common.Messaging
 
             // Act
             // Assert
-            Assert.DoesNotThrow(() => broker.SetupProducer(producerOptions));
+            Assert.DoesNotThrow(() => broker.SetupProducer<DicomFileMessage>(producerOptions));
         }
 
         [Test]
@@ -280,7 +280,7 @@ namespace SmiServices.IntegrationTests.Common.Messaging
 
             // Act
             // Assert
-            var exc = Assert.Throws<ArgumentException>(() => broker.SetupProducer(producerOptions));
+            var exc = Assert.Throws<ArgumentException>(() => broker.SetupProducer<DicomFileMessage>(producerOptions));
             Assert.That(exc?.Message, Is.EqualTo("Could not parse 'Foo' to a valid BackoffProviderType"));
         }
 
@@ -302,12 +302,12 @@ namespace SmiServices.IntegrationTests.Common.Messaging
 
             // Act
             // Assert
-            Assert.DoesNotThrow(() => broker.SetupProducer(producerOptions));
+            Assert.DoesNotThrow(() => broker.SetupProducer<DicomFileMessage>(producerOptions));
         }
 
         private class ThrowingConsumer : Consumer<TestMessage>
         {
-            public int HeldMessages { get => _heldMessages; }
+            public int HeldMessages => _heldMessages;
 
             protected override void ProcessMessageImpl(IMessageHeader header, TestMessage msg, ulong tag)
             {
@@ -322,18 +322,18 @@ namespace SmiServices.IntegrationTests.Common.Messaging
         {
             foreach (var prop in dictionary)
             {
-                if (prop.Value is byte[] bytes)
+                switch (prop.Value)
                 {
-                    Console.WriteLine($"{prop.Key}:\t{Encoding.UTF8.GetString(bytes)}");
-                }
-                else if (prop.Value is IDictionary<string, object> value)
-                {
-                    Console.WriteLine($"{prop.Key}:");
-                    PrintObjectDictionary(value);
-                }
-                else
-                {
-                    Console.WriteLine($"{prop.Key}:\t{prop.Value}");
+                    case byte[] bytes:
+                        Console.WriteLine($"{prop.Key}:\t{Encoding.UTF8.GetString(bytes)}");
+                        break;
+                    case IDictionary<string, object> value:
+                        Console.WriteLine($"{prop.Key}:");
+                        PrintObjectDictionary(value);
+                        break;
+                    default:
+                        Console.WriteLine($"{prop.Key}:\t{prop.Value}");
+                        break;
                 }
             }
         }

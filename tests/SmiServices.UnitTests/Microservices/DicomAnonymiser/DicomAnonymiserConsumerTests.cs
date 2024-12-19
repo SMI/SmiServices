@@ -16,6 +16,7 @@ using System.IO;
 using System.IO.Abstractions;
 using System.IO.Abstractions.TestingHelpers;
 using System.Linq.Expressions;
+using SmiServices.UnitTests.Common.Messaging;
 
 namespace SmiServices.UnitTests.Microservices.DicomAnonymiser
 {
@@ -108,7 +109,7 @@ namespace SmiServices.UnitTests.Microservices.DicomAnonymiser
 
         private DicomAnonymiserConsumer GetNewDicomAnonymiserConsumer(
             IDicomAnonymiser? mockDicomAnonymiser = null,
-            IProducerModel? mockProducerModel = null
+            IProducerModel<ExtractedFileStatusMessage>? mockProducerModel = null
         )
         {
             var consumer = new DicomAnonymiserConsumer(
@@ -116,7 +117,7 @@ namespace SmiServices.UnitTests.Microservices.DicomAnonymiser
                 _dicomRootDirInfo.FullName,
                 _extractRootDirInfo.FullName,
                 mockDicomAnonymiser ?? new Mock<IDicomAnonymiser>(MockBehavior.Strict).Object,
-                mockProducerModel ?? new Mock<IProducerModel>(MockBehavior.Strict).Object,
+                mockProducerModel ?? new TestProducer<ExtractedFileStatusMessage>(),
                 _mockFs
             );
             consumer.SetModel(_mockModel.Object);
@@ -216,21 +217,9 @@ namespace SmiServices.UnitTests.Microservices.DicomAnonymiser
             _mockFs.File.SetAttributes(_sourceDcmPathAbs, _mockFs.File.GetAttributes(_sourceDcmPathAbs) & ~FileAttributes.ReadOnly);
             _mockFs.File.Delete(_sourceDcmPathAbs);
 
-            Expression<Func<IProducerModel, IMessageHeader>> expectedCall =
-                x => x.SendMessage(
-                    It.Is<ExtractedFileStatusMessage>(x =>
-                        x.Status == ExtractedFileStatus.FileMissing &&
-                        x.StatusMessage == $"Could not find file to anonymise: '{_sourceDcmPathAbs}'" &&
-                        x.OutputFilePath == null
-                     ),
-                    It.IsAny<IMessageHeader>(),
-                    _options.RoutingKeyFailure
-                );
+            var mockProducerModel = new TestProducer<ExtractedFileStatusMessage>();
 
-            var mockProducerModel = new Mock<IProducerModel>();
-            mockProducerModel.Setup(expectedCall);
-
-            var consumer = GetNewDicomAnonymiserConsumer(null, mockProducerModel.Object);
+            var consumer = GetNewDicomAnonymiserConsumer(null, mockProducerModel);
 
             // Act
 
@@ -238,9 +227,16 @@ namespace SmiServices.UnitTests.Microservices.DicomAnonymiser
 
             // Assert
 
-            TestTimelineAwaiter.Await(() => consumer.AckCount == 1 && consumer.NackCount == 0);
+            TestTimelineAwaiter.Await(() => consumer is { AckCount: 1, NackCount: 0 });
 
-            mockProducerModel.Verify(expectedCall, Times.Once);
+            Assert.Multiple(() =>
+            {
+                Assert.That(mockProducerModel.Bodies, Has.Count.EqualTo(1));
+                Assert.That(mockProducerModel.LastMessage?.Status, Is.EqualTo(ExtractedFileStatus.FileMissing));
+                Assert.That(mockProducerModel.LastMessage?.StatusMessage, Is.EqualTo($"Could not find file to anonymise: '{_sourceDcmPathAbs}'"));
+                Assert.That(mockProducerModel.LastMessage?.OutputFilePath, Is.Null);
+                Assert.That(mockProducerModel.LastRoutingKey, Is.EqualTo(_options.RoutingKeyFailure));
+            });
         }
 
         [Test]
@@ -249,21 +245,8 @@ namespace SmiServices.UnitTests.Microservices.DicomAnonymiser
             // Arrange
 
             _mockFs.File.SetAttributes(_sourceDcmPathAbs, _mockFs.File.GetAttributes(_sourceDcmPathAbs) & ~FileAttributes.ReadOnly);
-
-            Expression<Func<IProducerModel, IMessageHeader>> expectedCall =
-                x => x.SendMessage(
-                    It.Is<ExtractedFileStatusMessage>(x =>
-                        x.Status == ExtractedFileStatus.ErrorWontRetry &&
-                        x.StatusMessage == $"Source file was writeable and FailIfSourceWriteable is set: '{_sourceDcmPathAbs}'" &&
-                        x.OutputFilePath == null
-                     ),
-                    It.IsAny<IMessageHeader>(),
-                    _options.RoutingKeyFailure
-                );
-            var mockProducerModel = new Mock<IProducerModel>();
-            mockProducerModel.Setup(expectedCall);
-
-            var consumer = GetNewDicomAnonymiserConsumer(null, mockProducerModel.Object);
+            var mockProducerModel = new TestProducer<ExtractedFileStatusMessage>();
+            var consumer = GetNewDicomAnonymiserConsumer(null, mockProducerModel);
 
             // Act
 
@@ -271,9 +254,12 @@ namespace SmiServices.UnitTests.Microservices.DicomAnonymiser
 
             // Assert
 
-            TestTimelineAwaiter.Await(() => consumer.AckCount == 1 && consumer.NackCount == 0);
-
-            mockProducerModel.Verify(expectedCall, Times.Once);
+            TestTimelineAwaiter.Await(() => consumer is { AckCount: 1, NackCount: 0 });
+            Assert.That(mockProducerModel.LastMessage?.Status == ExtractedFileStatus.ErrorWontRetry &&
+                        mockProducerModel.LastMessage.StatusMessage ==
+                        $"Source file was writeable and FailIfSourceWriteable is set: '{_sourceDcmPathAbs}'" &&
+                        mockProducerModel.LastMessage.OutputFilePath is null &&
+                        mockProducerModel.LastRoutingKey == _options.RoutingKeyFailure && mockProducerModel.TotalSent == 1);
         }
 
         [Test]

@@ -1,13 +1,11 @@
-using Moq;
 using NUnit.Framework;
 using SmiServices.Common.Messages;
 using SmiServices.Common.Messages.Extraction;
-using SmiServices.Common.Messaging;
 using SmiServices.Common.Options;
 using SmiServices.Microservices.FileCopier;
-using SmiServices.UnitTests.Common;
 using System;
 using System.IO.Abstractions.TestingHelpers;
+using SmiServices.UnitTests.Common.Messaging;
 
 namespace SmiServices.UnitTests.Microservices.FileCopier
 {
@@ -22,7 +20,7 @@ namespace SmiServices.UnitTests.Microservices.FileCopier
         private readonly byte[] _expectedContents = [0b00, 0b01, 0b10, 0b11];
         private ExtractFileMessage _requestMessage = null!;
 
-        #region Fixture Methods 
+        #region Fixture Methods
 
         [OneTimeSetUp]
         public void OneTimeSetUp()
@@ -36,7 +34,7 @@ namespace SmiServices.UnitTests.Microservices.FileCopier
             _mockFileSystem.Directory.CreateDirectory(FileSystemRoot);
             _mockFileSystem.Directory.CreateDirectory(ExtractRoot);
             _relativeSrc = _mockFileSystem.Path.Combine("input", "a.dcm");
-            string src = _mockFileSystem.Path.Combine(FileSystemRoot, _relativeSrc);
+            var src = _mockFileSystem.Path.Combine(FileSystemRoot, _relativeSrc);
             _mockFileSystem.Directory.CreateDirectory(_mockFileSystem.Directory.GetParent(src)!.FullName);
             _mockFileSystem.File.WriteAllBytes(src, _expectedContents);
         }
@@ -72,21 +70,10 @@ namespace SmiServices.UnitTests.Microservices.FileCopier
         [Test]
         public void Test_FileCopier_HappyPath()
         {
-            var mockProducerModel = new Mock<IProducerModel>(MockBehavior.Strict);
-            ExtractedFileStatusMessage? sentStatusMessage = null;
-            string? sentRoutingKey = null;
-            mockProducerModel
-                .Setup(x => x.SendMessage(It.IsAny<IMessage>(), It.IsAny<IMessageHeader>(), It.IsAny<string>()))
-                .Callback((IMessage message, IMessageHeader header, string routingKey) =>
-                {
-                    sentStatusMessage = (ExtractedFileStatusMessage)message;
-                    sentRoutingKey = routingKey;
-                })
-                .Returns(() => null!);
-
+            var mockProducerModel = new TestProducer<ExtractedFileStatusMessage>();
             var requestHeader = new MessageHeader();
 
-            var copier = new ExtractionFileCopier(_options, mockProducerModel.Object, FileSystemRoot, ExtractRoot, _mockFileSystem);
+            var copier = new ExtractionFileCopier(_options, mockProducerModel, FileSystemRoot, ExtractRoot, _mockFileSystem);
             copier.ProcessMessage(_requestMessage, requestHeader);
 
             var expectedStatusMessage = new ExtractedFileStatusMessage(_requestMessage)
@@ -97,11 +84,11 @@ namespace SmiServices.UnitTests.Microservices.FileCopier
             };
             Assert.Multiple(() =>
             {
-                Assert.That(sentStatusMessage, Is.EqualTo(expectedStatusMessage));
-                Assert.That(sentRoutingKey, Is.EqualTo(_options.NoVerifyRoutingKey));
+                Assert.That(mockProducerModel.LastMessage, Is.EqualTo(expectedStatusMessage));
+                Assert.That(mockProducerModel.LastRoutingKey, Is.EqualTo(_options.NoVerifyRoutingKey));
             });
 
-            string expectedDest = _mockFileSystem.Path.Combine(ExtractRoot, _requestMessage.ExtractionDirectory, "out.dcm");
+            var expectedDest = _mockFileSystem.Path.Combine(ExtractRoot, _requestMessage.ExtractionDirectory, "out.dcm");
             Assert.Multiple(() =>
             {
                 Assert.That(_mockFileSystem.File.Exists(expectedDest), Is.True);
@@ -112,22 +99,11 @@ namespace SmiServices.UnitTests.Microservices.FileCopier
         [Test]
         public void Test_FileCopier_MissingFile_SendsMessage()
         {
-            var mockProducerModel = new Mock<IProducerModel>(MockBehavior.Strict);
-            ExtractedFileStatusMessage? sentStatusMessage = null;
-            string? sentRoutingKey = null;
-            mockProducerModel
-                .Setup(x => x.SendMessage(It.IsAny<IMessage>(), It.IsAny<IMessageHeader>(), It.IsAny<string>()))
-                .Callback((IMessage message, IMessageHeader header, string routingKey) =>
-                {
-                    sentStatusMessage = (ExtractedFileStatusMessage)message;
-                    sentRoutingKey = routingKey;
-                })
-                .Returns(() => null!);
-
+            var mockProducerModel = new TestProducer<ExtractedFileStatusMessage>();
             _requestMessage.DicomFilePath = "missing.dcm";
             var requestHeader = new MessageHeader();
 
-            var copier = new ExtractionFileCopier(_options, mockProducerModel.Object, FileSystemRoot, ExtractRoot, _mockFileSystem);
+            var copier = new ExtractionFileCopier(_options, mockProducerModel, FileSystemRoot, ExtractRoot, _mockFileSystem);
             copier.ProcessMessage(_requestMessage, requestHeader);
 
             var expectedStatusMessage = new ExtractedFileStatusMessage(_requestMessage)
@@ -139,32 +115,21 @@ namespace SmiServices.UnitTests.Microservices.FileCopier
             };
             Assert.Multiple(() =>
             {
-                Assert.That(sentStatusMessage, Is.EqualTo(expectedStatusMessage));
-                Assert.That(sentRoutingKey, Is.EqualTo(_options.NoVerifyRoutingKey));
+                Assert.That(mockProducerModel.LastMessage, Is.EqualTo(expectedStatusMessage));
+                Assert.That(mockProducerModel.LastRoutingKey, Is.EqualTo(_options.NoVerifyRoutingKey));
             });
         }
 
         [Test]
         public void Test_FileCopier_ExistingOutputFile_IsOverwritten()
         {
-            var mockProducerModel = new Mock<IProducerModel>(MockBehavior.Strict);
-            ExtractedFileStatusMessage? sentStatusMessage = null;
-            string? sentRoutingKey = null;
-            mockProducerModel
-                .Setup(x => x.SendMessage(It.IsAny<IMessage>(), It.IsAny<IMessageHeader>(), It.IsAny<string>()))
-                .Callback((IMessage message, IMessageHeader header, string routingKey) =>
-                {
-                    sentStatusMessage = (ExtractedFileStatusMessage)message;
-                    sentRoutingKey = routingKey;
-                })
-                .Returns(() => null!);
-
+            var mockProducerModel = new TestProducer<ExtractedFileStatusMessage>();
             var requestHeader = new MessageHeader();
-            string expectedDest = _mockFileSystem.Path.Combine(ExtractRoot, _requestMessage.ExtractionDirectory, "out.dcm");
-            _mockFileSystem.Directory.GetParent(expectedDest)!.Create();
+            var expectedDest = _mockFileSystem.Path.Combine(ExtractRoot, _requestMessage.ExtractionDirectory, "out.dcm");
+            _mockFileSystem.Directory.GetParent(expectedDest)?.Create();
             _mockFileSystem.File.WriteAllBytes(expectedDest, [0b0]);
 
-            var copier = new ExtractionFileCopier(_options, mockProducerModel.Object, FileSystemRoot, ExtractRoot, _mockFileSystem);
+            var copier = new ExtractionFileCopier(_options, mockProducerModel, FileSystemRoot, ExtractRoot, _mockFileSystem);
             copier.ProcessMessage(_requestMessage, requestHeader);
 
             var expectedStatusMessage = new ExtractedFileStatusMessage(_requestMessage)
@@ -176,8 +141,8 @@ namespace SmiServices.UnitTests.Microservices.FileCopier
             };
             Assert.Multiple(() =>
             {
-                Assert.That(sentStatusMessage, Is.EqualTo(expectedStatusMessage));
-                Assert.That(sentRoutingKey, Is.EqualTo(_options.NoVerifyRoutingKey));
+                Assert.That(mockProducerModel.LastMessage, Is.EqualTo(expectedStatusMessage));
+                Assert.That(mockProducerModel.LastRoutingKey, Is.EqualTo(_options.NoVerifyRoutingKey));
                 Assert.That(_mockFileSystem.File.ReadAllBytes(expectedDest), Is.EqualTo(_expectedContents));
             });
         }

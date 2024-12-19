@@ -134,16 +134,8 @@ namespace SmiServices.IntegrationTests.Microservices.DicomTagReader
 
             IMessage? message = null;
 
-            _helper.TestImageModel
-                .Setup(x => x.SendMessage(It.IsAny<IMessage>(), It.IsAny<IMessageHeader>(), It.IsAny<string>()))
-                .Returns(new MessageHeader());
-
-            _helper.TestSeriesModel
-                .Setup(x => x.SendMessage(It.IsAny<IMessage>(), It.IsAny<IMessageHeader>(), It.IsAny<string>()))
-                .Callback<IMessage, IMessageHeader, string>((m, h, s) => message = m)
-                .Returns(new MessageHeader());
-
-            var tagReader = new SerialTagReader(_helper.Options.DicomTagReaderOptions!, _helper.Options.FileSystemOptions, _helper.TestSeriesModel.Object, _helper.TestImageModel.Object, new FileSystem());
+            var tagReader = new SerialTagReader(_helper.Options.DicomTagReaderOptions!,
+                _helper.Options.FileSystemOptions, _helper.TestSeriesModel, _helper.TestImageModel, new FileSystem());
             tagReader.ReadTags(new MessageHeader(), _helper.TestAccessionDirectoryMessage);
 
             Assert.That(message, Is.Not.EqualTo(null));

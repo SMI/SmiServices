@@ -15,6 +15,7 @@ using System;
 using System.IO.Abstractions;
 using System.IO.Abstractions.TestingHelpers;
 using System.Threading;
+using SmiServices.UnitTests.Common.Messaging;
 
 namespace SmiServices.UnitTests.Microservices.CohortExtractor.Messaging
 {
@@ -75,20 +76,8 @@ namespace SmiServices.UnitTests.Microservices.CohortExtractor.Messaging
         private void AssertMessagePublishedWithSpecifiedKey(GlobalOptions globals, bool isIdentifiableExtraction, string expectedRoutingKey)
         {
             var fakeFulfiller = new FakeFulfiller();
-
-            var mockFileMessageProducerModel = new Mock<IProducerModel>(MockBehavior.Strict);
-            string? fileMessageRoutingKey = null;
-            mockFileMessageProducerModel
-                .Setup(x => x.SendMessage(It.IsAny<IMessage>(), It.IsAny<IMessageHeader>(), It.IsNotNull<string>()))
-                .Callback((IMessage _, IMessageHeader __, string routingKey) => { fileMessageRoutingKey = routingKey; })
-                .Returns(new MessageHeader());
-            mockFileMessageProducerModel.Setup(x => x.WaitForConfirms());
-
-            var mockFileInfoMessageProducerModel = new Mock<IProducerModel>(MockBehavior.Strict);
-            mockFileInfoMessageProducerModel
-                .Setup(x => x.SendMessage(It.IsAny<IMessage>(), It.IsAny<IMessageHeader>(), null))
-                .Returns(new MessageHeader());
-            mockFileInfoMessageProducerModel.Setup(x => x.WaitForConfirms());
+            var mockFileMessageProducerModel = new TestProducer<ExtractFileMessage>();
+            var mockFileInfoMessageProducerModel = new TestProducer<ExtractFileCollectionInfoMessage>();
 
             var msg = new ExtractionRequestMessage
             {
@@ -106,8 +95,8 @@ namespace SmiServices.UnitTests.Microservices.CohortExtractor.Messaging
                 globals.CohortExtractorOptions!,
                 fakeFulfiller,
                 new NullAuditExtractions(), new StudySeriesOriginalFilenameProjectPathResolver(_fileSystem),
-                mockFileMessageProducerModel.Object,
-                mockFileInfoMessageProducerModel.Object);
+                mockFileMessageProducerModel,
+                mockFileInfoMessageProducerModel);
 
             var fatalCalled = false;
             FatalErrorEventArgs? fatalErrorEventArgs = null;
@@ -118,16 +107,16 @@ namespace SmiServices.UnitTests.Microservices.CohortExtractor.Messaging
             };
 
             var mockModel = new Mock<IModel>(MockBehavior.Strict);
-            mockModel.Setup(x => x.IsClosed).Returns(false);
-            mockModel.Setup(x => x.BasicAck(It.IsAny<ulong>(), It.IsAny<bool>())).Verifiable();
+            mockModel.Setup(static x => x.IsClosed).Returns(false);
+            mockModel.Setup(static x => x.BasicAck(It.IsAny<ulong>(), It.IsAny<bool>())).Verifiable();
 
             consumer.SetModel(mockModel.Object);
             consumer.TestMessage(msg);
 
             Thread.Sleep(500); // Fatal call is race-y
             Assert.That(fatalCalled, Is.False, $"Fatal was called with {fatalErrorEventArgs}");
-            mockModel.Verify(x => x.BasicAck(It.IsAny<ulong>(), It.IsAny<bool>()), Times.Once);
-            Assert.That(fileMessageRoutingKey, Is.EqualTo(expectedRoutingKey));
+            mockModel.Verify(static x => x.BasicAck(It.IsAny<ulong>(), It.IsAny<bool>()), Times.Once);
+            Assert.That(mockFileMessageProducerModel.LastRoutingKey, Is.EqualTo(expectedRoutingKey));
         }
 
         #endregion

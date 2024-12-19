@@ -40,10 +40,10 @@ namespace SmiServices.Common.Options
         public override string ToString()
         {
             var sb = new StringBuilder();
-            sb.Append("QueueName: " + QueueName);
-            sb.Append(", AutoAck: " + AutoAck);
-            sb.Append(", QoSPrefetchCount: " + QoSPrefetchCount);
-            sb.Append(", HoldUnprocessableMessages: " + HoldUnprocessableMessages);
+            sb.Append($"QueueName: {QueueName}");
+            sb.Append($", AutoAck: {AutoAck}");
+            sb.Append($", QoSPrefetchCount: {QoSPrefetchCount}");
+            sb.Append($", HoldUnprocessableMessages: {HoldUnprocessableMessages}");
             return sb.ToString();
         }
     }

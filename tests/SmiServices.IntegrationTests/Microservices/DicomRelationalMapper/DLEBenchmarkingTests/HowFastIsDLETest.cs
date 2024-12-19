@@ -103,12 +103,15 @@ namespace SmiServices.IntegrationTests.Microservices.DicomRelationalMapper.DLEBe
             using (var tester = new MicroserviceTester(_globals.RabbitOptions!, _globals.DicomRelationalMapperOptions))
             {
                 using var host = new DicomRelationalMapperHost(_globals);
-                tester.SendMessages(_globals.DicomRelationalMapperOptions, allImages.Select(GetFileMessageForDataset), true);
+                if (host.Consumer is null)
+                    throw new Exception("Consumer was null");
 
                 Console.WriteLine("Starting Host");
                 host.Start();
 
-                Stopwatch sw = Stopwatch.StartNew();
+                var sw = Stopwatch.StartNew();
+                foreach (var msg in allImages.Select(GetFileMessageForDataset))
+                    host.Consumer.TestMessage(msg);
                 TestTimelineAwaiter.Await(() => host.Consumer!.AckCount == numberOfImages, null, 20 * 60 * 100); //1 minute
 
                 Console.Write($"Time For DLE:{sw.Elapsed.TotalSeconds}s");

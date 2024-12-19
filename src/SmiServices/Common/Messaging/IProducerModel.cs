@@ -6,7 +6,7 @@ namespace SmiServices.Common.Messaging
     /// <summary>
     /// Interface for an object which can send messages to RabbitMQ.
     /// </summary>
-    public interface IProducerModel<T> where T : IMessage
+    public interface IProducerModel<in T> where T : IMessage
     {
         /// <summary>
         /// Sends a <see cref="IMessage"/> to a RabbitMQ exchange with the appropriate <see cref="IMessageHeader"/>.

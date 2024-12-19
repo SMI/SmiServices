@@ -4,42 +4,30 @@ using Newtonsoft.Json;
 using NUnit.Framework;
 using RabbitMQ.Client;
 using SmiServices.Common.Events;
-using SmiServices.Common.Messages;
 using SmiServices.Common.Messages.Extraction;
-using SmiServices.Common.Messaging;
 using SmiServices.Microservices.IsIdentifiable;
-using SmiServices.UnitTests.Common;
 using SmiServices.UnitTests.TestCommon;
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.IO.Abstractions;
 using System.IO.Abstractions.TestingHelpers;
-using System.Linq.Expressions;
+using SmiServices.UnitTests.Common.Messaging;
+using SmiServices.Common.Messaging;
 
 namespace SmiServices.UnitTests.Microservices.IsIdentifiable
 {
-    public class IsIdentifiableQueueConsumerTests
+    public sealed class IsIdentifiableQueueConsumerTests
     {
         #region Fixture Methods
 
         private MockFileSystem _mockFs = null!;
         private IDirectoryInfo _extractRootDirInfo = null!;
         private string _extractDir = null!;
-        ExtractedFileStatusMessage _extractedFileStatusMessage = null!;
+        private ExtractedFileStatusMessage _extractedFileStatusMessage = null!;
         private Mock<IModel> _mockModel = null!;
-        FatalErrorEventArgs? _fatalArgs;
-        Mock<IProducerModel> _mockProducerModel = null!;
-        Expression<Func<IProducerModel, IMessageHeader>> _expectedSendMessageCall = null!;
-        ExtractedFileVerificationMessage _response = null!;
-
-        [OneTimeSetUp]
-        public void OneTimeSetUp()
-        {
-        }
-
-        [OneTimeTearDown]
-        public void OneTimeTearDown() { }
+        private FatalErrorEventArgs? _fatalArgs;
+        private readonly TestProducer<ExtractedFileVerificationMessage> _mockProducerModel = new();
 
         #endregion
 
@@ -51,7 +39,7 @@ namespace SmiServices.UnitTests.Microservices.IsIdentifiable
             _mockFs = new MockFileSystem();
             _extractRootDirInfo = _mockFs.Directory.CreateDirectory("extract");
 
-            var extractDirName = "extractDir";
+            const string extractDirName = "extractDir";
             _extractDir = _mockFs.Path.Combine(_extractRootDirInfo.FullName, extractDirName);
             _mockFs.Directory.CreateDirectory(_extractDir);
             _mockFs.AddFile(_mockFs.Path.Combine(_extractDir, "foo-an.dcm"), null);
@@ -66,30 +54,23 @@ namespace SmiServices.UnitTests.Microservices.IsIdentifiable
             };
 
             _mockModel = new Mock<IModel>(MockBehavior.Strict);
-            _mockModel.Setup(x => x.IsClosed).Returns(false);
-            _mockModel.Setup(x => x.BasicAck(It.IsAny<ulong>(), It.IsAny<bool>()));
-            _mockModel.Setup(x => x.BasicNack(It.IsAny<ulong>(), It.IsAny<bool>(), It.IsAny<bool>()));
+            _mockModel.Setup(static x => x.IsClosed).Returns(false);
+            _mockModel.Setup(static x => x.BasicAck(It.IsAny<ulong>(), It.IsAny<bool>()));
+            _mockModel.Setup(static x => x.BasicNack(It.IsAny<ulong>(), It.IsAny<bool>(), It.IsAny<bool>()));
 
             _fatalArgs = null;
-
-            _mockProducerModel = new Mock<IProducerModel>(MockBehavior.Strict);
-            _expectedSendMessageCall = x => x.SendMessage(It.IsAny<ExtractedFileVerificationMessage>(), It.IsAny<MessageHeader>(), null);
-            _mockProducerModel
-                .Setup(_expectedSendMessageCall)
-                .Callback<IMessage, IMessageHeader, string>((x, _, _) => _response = (ExtractedFileVerificationMessage)x)
-                .Returns(new MessageHeader());
         }
 
         [TearDown]
         public void TearDown() { }
 
         private IsIdentifiableQueueConsumer GetNewIsIdentifiableQueueConsumer(
-            IProducerModel? mockProducerModel = null,
+            IProducerModel<ExtractedFileVerificationMessage>? mockProducerModel = null,
             IClassifier? mockClassifier = null
         )
         {
             var consumer = new IsIdentifiableQueueConsumer(
-                mockProducerModel ?? new Mock<IProducerModel>(MockBehavior.Strict).Object,
+                mockProducerModel ?? new TestProducer<ExtractedFileVerificationMessage>(),
                 _extractRootDirInfo.FullName,
                 mockClassifier ?? new Mock<IClassifier>(MockBehavior.Strict).Object,
                 _mockFs
@@ -106,15 +87,15 @@ namespace SmiServices.UnitTests.Microservices.IsIdentifiable
         [Test]
         public void Constructor_WhitespaceExtractionRoot_ThrowsException()
         {
-            var exc = Assert.Throws<ArgumentException>(() =>
+            var exc = Assert.Throws<ArgumentException>(static () =>
             {
-                new IsIdentifiableQueueConsumer(
-                    new Mock<IProducerModel>().Object,
+                _ = new IsIdentifiableQueueConsumer(
+                    new TestProducer<ExtractedFileVerificationMessage>(),
                     "   ",
                     new Mock<IClassifier>().Object
                 );
             });
-            Assert.That(exc!.Message, Is.EqualTo("Argument cannot be null or whitespace (Parameter 'extractionRoot')"));
+            Assert.That(exc?.Message, Is.EqualTo("Argument cannot be null or whitespace (Parameter 'extractionRoot')"));
         }
 
         [Test]
@@ -124,25 +105,26 @@ namespace SmiServices.UnitTests.Microservices.IsIdentifiable
 
             var exc = Assert.Throws<DirectoryNotFoundException>(() =>
             {
-                new IsIdentifiableQueueConsumer(
-                   new Mock<IProducerModel>().Object,
-                   "foo",
-                   new Mock<IClassifier>().Object,
-                   mockFs
+                _ = new IsIdentifiableQueueConsumer(
+                    new TestProducer<ExtractedFileVerificationMessage>(),
+                    "foo",
+                    new Mock<IClassifier>().Object,
+                    mockFs
                 );
             });
-            Assert.That(exc!.Message, Is.EqualTo("Could not find the extraction root 'foo' in the filesystem"));
+            Assert.That(exc?.Message, Is.EqualTo("Could not find the extraction root 'foo' in the filesystem"));
         }
 
         [Test]
         public void ProcessMessage_HappyPath_NoFailures()
         {
             // Arrange
+            _mockProducerModel.Bodies.Clear();
 
             var mockClassifier = new Mock<IClassifier>(MockBehavior.Strict);
-            mockClassifier.Setup(x => x.Classify(It.IsAny<IFileInfo>())).Returns([]);
+            mockClassifier.Setup(static x => x.Classify(It.IsAny<IFileInfo>())).Returns([]);
 
-            var consumer = GetNewIsIdentifiableQueueConsumer(_mockProducerModel.Object, mockClassifier.Object);
+            var consumer = GetNewIsIdentifiableQueueConsumer(_mockProducerModel, mockClassifier.Object);
 
             // Act
 
@@ -155,11 +137,12 @@ namespace SmiServices.UnitTests.Microservices.IsIdentifiable
                 Assert.That(consumer.NackCount, Is.EqualTo(0));
                 Assert.That(consumer.AckCount, Is.EqualTo(1));
             });
-            _mockProducerModel.Verify(_expectedSendMessageCall, Times.Once);
+
             Assert.Multiple(() =>
             {
-                Assert.That(_response.Status, Is.EqualTo(VerifiedFileStatus.NotIdentifiable));
-                Assert.That(_response.Report, Is.EqualTo("[]"));
+                Assert.That(_mockProducerModel.TotalSent, Is.EqualTo(1));
+                Assert.That(_mockProducerModel.LastMessage?.Status, Is.EqualTo(VerifiedFileStatus.NotIdentifiable));
+                Assert.That(_mockProducerModel.LastMessage?.Report, Is.EqualTo("[]"));
             });
         }
 
@@ -167,13 +150,14 @@ namespace SmiServices.UnitTests.Microservices.IsIdentifiable
         public void ProcessMessage_HappyPath_WithFailures()
         {
             // Arrange
+            _mockProducerModel.Bodies.Clear();
 
             var mockClassifier = new Mock<IClassifier>(MockBehavior.Strict);
-            var failure = new Failure([new("foo", FailureClassification.Person, 123)]);
+            var failure = new Failure([new FailurePart("foo", FailureClassification.Person, 123)]);
             var failures = new List<Failure> { failure };
-            mockClassifier.Setup(x => x.Classify(It.IsAny<IFileInfo>())).Returns(failures);
+            mockClassifier.Setup(static x => x.Classify(It.IsAny<IFileInfo>())).Returns(failures);
 
-            var consumer = GetNewIsIdentifiableQueueConsumer(_mockProducerModel.Object, mockClassifier.Object);
+            var consumer = GetNewIsIdentifiableQueueConsumer(_mockProducerModel, mockClassifier.Object);
 
             // Act
 
@@ -186,11 +170,11 @@ namespace SmiServices.UnitTests.Microservices.IsIdentifiable
                 Assert.That(consumer.NackCount, Is.EqualTo(0));
                 Assert.That(consumer.AckCount, Is.EqualTo(1));
             });
-            _mockProducerModel.Verify(_expectedSendMessageCall, Times.Once);
             Assert.Multiple(() =>
             {
-                Assert.That(_response.Status, Is.EqualTo(VerifiedFileStatus.IsIdentifiable));
-                Assert.That(_response.Report, Is.EqualTo(JsonConvert.SerializeObject(failures)));
+                Assert.That(_mockProducerModel.TotalSent, Is.EqualTo(1));
+                Assert.That(_mockProducerModel.LastMessage?.Status, Is.EqualTo(VerifiedFileStatus.IsIdentifiable));
+                Assert.That(_mockProducerModel.LastMessage?.Report, Is.EqualTo(JsonConvert.SerializeObject(failures)));
             });
         }
 
@@ -214,7 +198,7 @@ namespace SmiServices.UnitTests.Microservices.IsIdentifiable
             Assert.Multiple(() =>
             {
                 Assert.That(_fatalArgs?.Message, Is.EqualTo("ProcessMessageImpl threw unhandled exception"));
-                Assert.That(_fatalArgs!.Exception!.Message, Is.EqualTo("Received an ExtractedFileStatusMessage message with Status 'ErrorWontRetry' and StatusMessage 'foo'"));
+                Assert.That(_fatalArgs?.Exception?.Message, Is.EqualTo("Received an ExtractedFileStatusMessage message with Status 'ErrorWontRetry' and StatusMessage 'foo'"));
                 Assert.That(consumer.NackCount, Is.EqualTo(0));
                 Assert.That(consumer.AckCount, Is.EqualTo(0));
             });
@@ -224,8 +208,8 @@ namespace SmiServices.UnitTests.Microservices.IsIdentifiable
         public void ProcessMessage_MissingFile_SendsErrorWontRetry()
         {
             // Arrange
-
-            var consumer = GetNewIsIdentifiableQueueConsumer(_mockProducerModel.Object);
+            _mockProducerModel.Bodies.Clear();
+            var consumer = GetNewIsIdentifiableQueueConsumer(_mockProducerModel);
 
             _extractedFileStatusMessage.OutputFilePath = "bar-an.dcm";
 
@@ -233,28 +217,28 @@ namespace SmiServices.UnitTests.Microservices.IsIdentifiable
 
             consumer.TestMessage(_extractedFileStatusMessage);
 
+            var outPath = _mockFs.Path.Combine(_extractDir, "bar-an.dcm");
             Assert.Multiple(() =>
             {
                 // Assert
-
                 Assert.That(consumer.NackCount, Is.EqualTo(0));
                 Assert.That(consumer.AckCount, Is.EqualTo(1));
+                Assert.That(_mockProducerModel.TotalSent, Is.EqualTo(1));
+                Assert.That(_mockProducerModel.LastMessage?.Status, Is.EqualTo(VerifiedFileStatus.ErrorWontRetry));
+                Assert.That(_mockProducerModel.LastMessage?.Report, Is.EqualTo($"Exception while processing ExtractedFileStatusMessage: Could not find file to process '{outPath}'"));
             });
-            _mockProducerModel.Verify(_expectedSendMessageCall, Times.Once);
-            Assert.That(_response.Status, Is.EqualTo(VerifiedFileStatus.ErrorWontRetry));
-            var outPath = _mockFs.Path.Combine(_extractDir, "bar-an.dcm");
-            Assert.That(_response.Report, Is.EqualTo($"Exception while processing ExtractedFileStatusMessage: Could not find file to process '{outPath}'"));
         }
 
         [Test]
         public void ProcessMessage_ClassifierArithmeticException_SendsErrorWontRetry()
         {
             // Arrange
+            _mockProducerModel.Bodies.Clear();
 
             var mockClassifier = new Mock<IClassifier>(MockBehavior.Strict);
-            mockClassifier.Setup(x => x.Classify(It.IsAny<IFileInfo>())).Throws(new ArithmeticException("divide by zero"));
+            mockClassifier.Setup(static x => x.Classify(It.IsAny<IFileInfo>())).Throws(new ArithmeticException("divide by zero"));
 
-            var consumer = GetNewIsIdentifiableQueueConsumer(_mockProducerModel.Object, mockClassifier.Object);
+            var consumer = GetNewIsIdentifiableQueueConsumer(_mockProducerModel, mockClassifier.Object);
 
             // Act
 
@@ -266,12 +250,10 @@ namespace SmiServices.UnitTests.Microservices.IsIdentifiable
 
                 Assert.That(consumer.NackCount, Is.EqualTo(0));
                 Assert.That(consumer.AckCount, Is.EqualTo(1));
-            });
-            _mockProducerModel.Verify(_expectedSendMessageCall, Times.Once);
-            Assert.Multiple(() =>
-            {
-                Assert.That(_response.Status, Is.EqualTo(VerifiedFileStatus.ErrorWontRetry));
-                Assert.That(_response.Report, Does.StartWith("Exception while classifying ExtractedFileStatusMessage:\nSystem.ArithmeticException: divide by zero"));
+
+                Assert.That(_mockProducerModel.TotalSent, Is.EqualTo(1));
+                Assert.That(_mockProducerModel.LastMessage?.Status, Is.EqualTo(VerifiedFileStatus.ErrorWontRetry));
+                Assert.That(_mockProducerModel.LastMessage?.Report, Does.StartWith("Exception while classifying ExtractedFileStatusMessage:\nSystem.ArithmeticException: divide by zero"));
             });
         }
 

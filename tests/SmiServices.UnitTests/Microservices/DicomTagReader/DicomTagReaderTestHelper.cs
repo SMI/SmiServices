@@ -8,6 +8,7 @@ using SmiServices.Common.Options;
 using SmiServices.UnitTests.Common;
 using System.IO;
 using System.IO.Abstractions.TestingHelpers;
+using SmiServices.UnitTests.Common.Messaging;
 
 
 namespace SmiServices.UnitTests.Microservices.DicomTagReader
@@ -26,8 +27,8 @@ namespace SmiServices.UnitTests.Microservices.DicomTagReader
         private IConnection _testConnection = null!;
         private IModel _testModel = null!;
 
-        public Mock<IProducerModel> TestSeriesModel = null!;
-        public Mock<IProducerModel> TestImageModel = null!;
+        public readonly TestProducer<SeriesMessage> TestSeriesModel = new();
+        public readonly TestProducer<DicomFileMessage> TestImageModel = new();
 
         public MockFileSystem MockFileSystem = null!;
         public IMicroserviceHost MockHost = null!;
@@ -82,9 +83,6 @@ namespace SmiServices.UnitTests.Microservices.DicomTagReader
             {
                 DirectoryPath = @"C:\Temp\",
             };
-
-            TestSeriesModel = new Mock<IProducerModel>();
-            TestImageModel = new Mock<IProducerModel>();
 
             MockFileSystem = new MockFileSystem();
             MockFileSystem.AddDirectory(@"C:\Temp");

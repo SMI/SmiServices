@@ -1,12 +1,10 @@
-using Moq;
 using NUnit.Framework;
 using SmiServices.Applications.DicomDirectoryProcessor.DirectoryFinders;
 using SmiServices.Common.Messages;
-using SmiServices.Common.Messaging;
-using SmiServices.UnitTests.Common;
 using System.Collections.Generic;
 using System.IO;
 using System.IO.Abstractions.TestingHelpers;
+using SmiServices.UnitTests.Common.Messaging;
 
 
 namespace SmiServices.UnitTests.Applications.DicomDirectoryProcessor
@@ -59,23 +57,15 @@ namespace SmiServices.UnitTests.Applications.DicomDirectoryProcessor
                 { "2017/01/01/01.01.2017/", 1 }
             };
 
-            var totalSent = 0;
+            var mockProducerModel = new TestProducer<AccessionDirectoryMessage>();
+            var pacsFinder = new PacsDirectoryFinder(rootDir, mockFs, "*.dcm", mockProducerModel);
 
-            var mockProducerModel = new Mock<IProducerModel>();
-            mockProducerModel
-                .Setup(x => x.SendMessage(It.IsAny<IMessage>(),
-                                            null,
-                                            null))
-                .Callback(() => ++totalSent);
-
-            var pacsFinder = new PacsDirectoryFinder(rootDir, mockFs, "*.dcm", mockProducerModel.Object);
-
-            foreach (KeyValuePair<string, int> item in testCases)
+            foreach (var (key, value) in testCases)
             {
-                totalSent = 0;
-                pacsFinder.SearchForDicomDirectories(Path.GetFullPath(Path.Combine(rootDir, item.Key)));
+                var prevTotalSent = mockProducerModel.TotalSent;
+                pacsFinder.SearchForDicomDirectories(Path.GetFullPath(Path.Combine(rootDir, key)));
 
-                Assert.That(totalSent, Is.EqualTo(item.Value));
+                Assert.That(mockProducerModel.TotalSent, Is.EqualTo(prevTotalSent + value));
             }
         }
     }

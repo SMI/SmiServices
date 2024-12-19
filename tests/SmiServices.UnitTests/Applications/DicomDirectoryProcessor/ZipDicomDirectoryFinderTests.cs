@@ -7,6 +7,8 @@ using SmiServices.UnitTests.Common;
 using System.Collections.Generic;
 using System.IO;
 using System.IO.Abstractions.TestingHelpers;
+using NUnit.Framework.Legacy;
+using SmiServices.UnitTests.Common.Messaging;
 
 
 namespace SmiServices.UnitTests.Applications.DicomDirectoryProcessor
@@ -49,14 +51,12 @@ namespace SmiServices.UnitTests.Applications.DicomDirectoryProcessor
                 DirectoryPath = "FFF/DDD".Replace('/', Path.DirectorySeparatorChar)
             };
 
-            string rootDir = Path.GetFullPath("/PACS");
-            var mockProducerModel = new Mock<IProducerModel>();
-            var ddf = new ZipDicomDirectoryFinder(rootDir, fileSystem, "*.dcm", mockProducerModel.Object);
+            var rootDir = Path.GetFullPath("/PACS");
+            var mockProducerModel = new TestProducer<AccessionDirectoryMessage>();
+            var ddf = new ZipDicomDirectoryFinder(rootDir, fileSystem, "*.dcm", mockProducerModel);
             ddf.SearchForDicomDirectories(rootDir);
 
-            mockProducerModel.Verify(pm => pm.SendMessage(m1, null, It.IsAny<string>()));
-            mockProducerModel.Verify(pm => pm.SendMessage(m2, null, It.IsAny<string>()));
-            mockProducerModel.Verify(pm => pm.SendMessage(m3, null, It.IsAny<string>()));
+            Assert.That(new AccessionDirectoryMessage[] { m1, m2, m3 }, Is.EqualTo(mockProducerModel.Bodies).AsCollection);
         }
     }
 }

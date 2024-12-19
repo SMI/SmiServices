@@ -19,6 +19,7 @@ using System.Collections.Generic;
 using System.Data;
 using System.Diagnostics;
 using System.Threading.Tasks;
+using SmiServices.UnitTests.Common.Messaging;
 using Tests.Common;
 using DatabaseType = FAnsi.DatabaseType;
 
@@ -58,7 +59,7 @@ namespace SmiServices.IntegrationTests.Microservices.IdentifierMapper
             var swapper = new PreloadTableSwapper();
             swapper.Setup(options);
 
-            var consumer = new IdentifierMapperQueueConsumer(Mock.Of<IProducerModel>(), swapper);
+            var consumer = new IdentifierMapperQueueConsumer(new TestProducer<DicomFileMessage>(), swapper);
 
             var msg = GetTestDicomFileMessage();
 
@@ -94,7 +95,7 @@ namespace SmiServices.IntegrationTests.Microservices.IdentifierMapper
             var swapper = new TableLookupSwapper();
             swapper.Setup(options);
 
-            var consumer = new IdentifierMapperQueueConsumer(Mock.Of<IProducerModel>(), swapper)
+            var consumer = new IdentifierMapperQueueConsumer(new TestProducer<DicomFileMessage>(), swapper)
             {
                 AllowRegexMatching = true
             };
@@ -186,20 +187,19 @@ namespace SmiServices.IntegrationTests.Microservices.IdentifierMapper
             {
                 tester.CreateExchange(options.IdentifierMapperOptions.AnonImagesProducerOptions!.ExchangeName!, null);
 
-                Console.WriteLine("Pushing good messages to Rabbit...");
-                tester.SendMessages(options.IdentifierMapperOptions, goodChis, true);
-
                 var host = new IdentifierMapperHost(options, swapper);
                 tester.StopOnDispose.Add(host);
 
                 Console.WriteLine("Starting host");
 
-                Stopwatch sw = Stopwatch.StartNew();
+                var sw = Stopwatch.StartNew();
                 host.Start();
+                foreach (var msg in goodChis)
+                    host.Consumer.TestMessage(msg);
 
                 TestTimelineAwaiter.Await(() => host.Consumer.AckCount == batchSize);
 
-                Console.WriteLine("Good message processing (" + batchSize + ") took:" + sw.ElapsedMilliseconds + "ms");
+                Console.WriteLine($"Good message processing ({batchSize}) took:{sw.ElapsedMilliseconds}ms");
                 host.Stop("Test finished");
             }
 
@@ -209,16 +209,15 @@ namespace SmiServices.IntegrationTests.Microservices.IdentifierMapper
             {
                 tester.CreateExchange(options.IdentifierMapperOptions.AnonImagesProducerOptions.ExchangeName!, null);
 
-                Console.WriteLine("Pushing bad messages to Rabbit...");
-                tester.SendMessages(options.IdentifierMapperOptions, badChis, true);
-
                 var host = new IdentifierMapperHost(options, swapper);
                 tester.StopOnDispose.Add(host);
 
                 Console.WriteLine("Starting host");
 
-                Stopwatch sw = Stopwatch.StartNew();
+                var sw = Stopwatch.StartNew();
                 host.Start();
+                foreach (var msg in badChis)
+                    host.Consumer.TestMessage(msg);
 
                 TestTimelineAwaiter.Await(() => host.Consumer.AckCount == batchSize);
 
@@ -314,7 +313,7 @@ namespace SmiServices.IntegrationTests.Microservices.IdentifierMapper
             swapper.Setup(options);
             swapper.Setup(options); //this isn't just for the lols, this will test both the 'create it mode' and the 'discover it mode'
 
-            var consumer = new IdentifierMapperQueueConsumer(Mock.Of<IProducerModel>(), swapper);
+            var consumer = new IdentifierMapperQueueConsumer(new TestProducer<DicomFileMessage>(), swapper);
 
             var msg = GetTestDicomFileMessage();
 
@@ -446,7 +445,7 @@ namespace SmiServices.IntegrationTests.Microservices.IdentifierMapper
             var swapper = new SwapForFixedValueTester("meeee");
             swapper.Setup(options);
 
-            var consumer = new IdentifierMapperQueueConsumer(Mock.Of<IProducerModel>(), swapper);
+            var consumer = new IdentifierMapperQueueConsumer(new TestProducer<DicomFileMessage>(), swapper);
 
             var msg = GetTestDicomFileMessage(testCase: testCase);
 
@@ -480,7 +479,7 @@ namespace SmiServices.IntegrationTests.Microservices.IdentifierMapper
             var swapper = new SwapForFixedValueTester("meeee");
             swapper.Setup(options);
 
-            var consumer = new IdentifierMapperQueueConsumer(Mock.Of<IProducerModel>(), swapper);
+            var consumer = new IdentifierMapperQueueConsumer(new TestProducer<DicomFileMessage>(), swapper);
 
             var msg = GetTestDicomFileMessage(testCase: testCase);
 
@@ -510,7 +509,7 @@ namespace SmiServices.IntegrationTests.Microservices.IdentifierMapper
             var swapper = new SwapForFixedValueTester(null);
             swapper.Setup(options);
 
-            var consumer = new IdentifierMapperQueueConsumer(Mock.Of<IProducerModel>(), swapper);
+            var consumer = new IdentifierMapperQueueConsumer(new TestProducer<DicomFileMessage>(), swapper);
 
             var msg = GetTestDicomFileMessage();
 

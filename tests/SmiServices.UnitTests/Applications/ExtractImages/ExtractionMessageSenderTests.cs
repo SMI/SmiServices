@@ -13,6 +13,8 @@ using System.IO.Abstractions;
 using System.IO.Abstractions.TestingHelpers;
 using System.Linq;
 using System.Linq.Expressions;
+using SmiServices.UnitTests.Common.Messaging;
+using NSubstitute.ExceptionExtensions;
 
 
 namespace SmiServices.UnitTests.Applications.ExtractImages
@@ -64,14 +66,8 @@ namespace SmiServices.UnitTests.Applications.ExtractImages
         [TestCase(false)]
         public void HappyPath_Interactive(bool confirm)
         {
-            Expression<Func<IProducerModel, IMessageHeader?>> expr = x => x.SendMessage(It.IsAny<IMessage>(), null, It.IsAny<string>());
-
-            var mockExtractionRequestProducer = new Mock<IProducerModel>(MockBehavior.Strict);
-            mockExtractionRequestProducer.Setup(expr).Returns((IMessageHeader?)null);
-
-            var mockExtractionRequestInfoProducer = new Mock<IProducerModel>(MockBehavior.Strict);
-            mockExtractionRequestInfoProducer.Setup(expr).Returns((IMessageHeader?)null);
-
+            var mockExtractionRequestProducer = new TestProducer<ExtractionRequestMessage>();
+            var mockExtractionRequestInfoProducer = new TestProducer<ExtractionRequestInfoMessage>();
             var fs = new MockFileSystem();
             const string extractRoot = "extractRoot";
             var extractDir = fs.Path.Join("proj1", "extractions", "foo");
@@ -79,8 +75,8 @@ namespace SmiServices.UnitTests.Applications.ExtractImages
             var processor = new ExtractionMessageSender(
                 new ExtractImagesOptions(),
                 new ExtractImagesCliOptions { ProjectId = "1234-5678" },
-                mockExtractionRequestProducer.Object,
-                mockExtractionRequestInfoProducer.Object,
+                mockExtractionRequestProducer,
+                mockExtractionRequestInfoProducer,
                 fs,
                 extractRoot,
                 extractDir,
@@ -93,31 +89,29 @@ namespace SmiServices.UnitTests.Applications.ExtractImages
 
             if (confirm)
             {
-                mockExtractionRequestProducer.Verify(expr, Times.Once);
-                mockExtractionRequestInfoProducer.Verify(expr, Times.Once);
-
-                Assert.That(fs.File.Exists(fs.Path.Join(extractRoot, extractDir, "jobId.txt")), Is.True);
+                Assert.Multiple(() =>
+                {
+                    Assert.That(mockExtractionRequestProducer.TotalSent, Is.EqualTo(1));
+                    Assert.That(mockExtractionRequestInfoProducer.TotalSent, Is.EqualTo(1));
+                    Assert.That(fs.File.Exists(fs.Path.Join(extractRoot, extractDir, "jobId.txt")), Is.True);
+                });
             }
             else
             {
-                mockExtractionRequestProducer.Verify(expr, Times.Never);
-                mockExtractionRequestInfoProducer.Verify(expr, Times.Never);
-
-                Assert.That(fs.Directory.Exists(extractDir), Is.False);
+                Assert.Multiple(() =>
+                {
+                    Assert.That(mockExtractionRequestProducer.TotalSent, Is.EqualTo(0));
+                    Assert.That(mockExtractionRequestInfoProducer.TotalSent, Is.EqualTo(0));
+                    Assert.That(fs.Directory.Exists(extractDir), Is.False);
+                });
             }
         }
 
         [Test]
         public void HappyPath_NonInteractive()
         {
-            Expression<Func<IProducerModel, IMessageHeader?>> expr = x => x.SendMessage(It.IsAny<IMessage>(), null, It.IsAny<string>());
-
-            var mockExtractionRequestProducer = new Mock<IProducerModel>(MockBehavior.Strict);
-            mockExtractionRequestProducer.Setup(expr).Returns((IMessageHeader?)null);
-
-            var mockExtractionRequestInfoProducer = new Mock<IProducerModel>(MockBehavior.Strict);
-            mockExtractionRequestInfoProducer.Setup(expr).Returns((IMessageHeader?)null);
-
+            var mockExtractionRequestProducer = new TestProducer<ExtractionRequestMessage>();
+            var mockExtractionRequestInfoProducer = new TestProducer<ExtractionRequestInfoMessage>();
             var fs = new MockFileSystem();
             const string extractRoot = "extractRoot";
             var extractDir = fs.Path.Join("proj1", "extractions", "foo");
@@ -125,8 +119,8 @@ namespace SmiServices.UnitTests.Applications.ExtractImages
             var processor = new ExtractionMessageSender(
                 new ExtractImagesOptions(),
                 new ExtractImagesCliOptions { ProjectId = "1234-5678", NonInteractive = true },
-                mockExtractionRequestProducer.Object,
-                mockExtractionRequestInfoProducer.Object,
+                mockExtractionRequestProducer,
+                mockExtractionRequestInfoProducer,
                 fs,
                 extractRoot,
                 extractDir,
@@ -137,10 +131,12 @@ namespace SmiServices.UnitTests.Applications.ExtractImages
             var idList = new List<string> { "foo" };
             processor.SendMessages(ExtractionKey.StudyInstanceUID, idList);
 
-            mockExtractionRequestProducer.Verify(expr, Times.Once);
-            mockExtractionRequestInfoProducer.Verify(expr, Times.Once);
-
-            Assert.That(fs.File.Exists(fs.Path.Join(extractRoot, extractDir, "jobId.txt")), Is.True);
+            Assert.Multiple(() =>
+            {
+                Assert.That(mockExtractionRequestProducer.TotalSent, Is.EqualTo(1));
+                Assert.That(mockExtractionRequestInfoProducer.TotalSent, Is.EqualTo(1));
+                Assert.That(fs.File.Exists(fs.Path.Join(extractRoot, extractDir, "jobId.txt")), Is.True);
+            });
         }
 
         [TestCase("")]
@@ -152,8 +148,8 @@ namespace SmiServices.UnitTests.Applications.ExtractImages
                 var _ = new ExtractionMessageSender(
                     new ExtractImagesOptions(),
                     new ExtractImagesCliOptions(),
-                    new Mock<IProducerModel>(MockBehavior.Loose).Object,
-                    new Mock<IProducerModel>(MockBehavior.Loose).Object,
+                    new TestProducer<ExtractionRequestMessage>(),
+                    new TestProducer<ExtractionRequestInfoMessage>(),
                     new FileSystem(),
                     "extractionRoot",
                     dir,
@@ -167,8 +163,8 @@ namespace SmiServices.UnitTests.Applications.ExtractImages
                 var _ = new ExtractionMessageSender(
                     new ExtractImagesOptions(),
                     new ExtractImagesCliOptions(),
-                    new Mock<IProducerModel>(MockBehavior.Loose).Object,
-                    new Mock<IProducerModel>(MockBehavior.Loose).Object,
+                    new TestProducer<ExtractionRequestMessage>(),
+                    new TestProducer<ExtractionRequestInfoMessage>(),
                     new FileSystem(),
                     dir,
                     "extractionDir",
@@ -187,8 +183,8 @@ namespace SmiServices.UnitTests.Applications.ExtractImages
                 var _ = new ExtractionMessageSender(
                     new ExtractImagesOptions(),
                     new ExtractImagesCliOptions { ProjectId = projectId },
-                    new Mock<IProducerModel>(MockBehavior.Loose).Object,
-                    new Mock<IProducerModel>(MockBehavior.Loose).Object,
+                    new TestProducer<ExtractionRequestMessage>(),
+                    new TestProducer<ExtractionRequestInfoMessage>(),
                     new FileSystem(),
                     "extractRoot",
                     "extractDir",
@@ -206,8 +202,8 @@ namespace SmiServices.UnitTests.Applications.ExtractImages
                 var _ = new ExtractionMessageSender(
                     new ExtractImagesOptions { MaxIdentifiersPerMessage = 0 },
                     new ExtractImagesCliOptions(),
-                    new Mock<IProducerModel>(MockBehavior.Loose).Object,
-                    new Mock<IProducerModel>(MockBehavior.Loose).Object,
+                    new TestProducer<ExtractionRequestMessage>(),
+                    new TestProducer<ExtractionRequestInfoMessage>(),
                     new FileSystem(),
                     "extractRoot",
                     "extractDir",
@@ -224,8 +220,8 @@ namespace SmiServices.UnitTests.Applications.ExtractImages
             var sender = new ExtractionMessageSender(
                 new ExtractImagesOptions(),
                 new ExtractImagesCliOptions { ProjectId = "1234-5678" },
-                new Mock<IProducerModel>(MockBehavior.Loose).Object,
-                new Mock<IProducerModel>(MockBehavior.Loose).Object,
+                new TestProducer<ExtractionRequestMessage>(),
+                new TestProducer<ExtractionRequestInfoMessage>(),
                 new FileSystem(),
                     "extractRoot",
                 "extractDir",
@@ -237,47 +233,36 @@ namespace SmiServices.UnitTests.Applications.ExtractImages
             {
                 sender.SendMessages(ExtractionKey.StudyInstanceUID, []);
             });
-            Assert.That(exc!.Message, Is.EqualTo("ID list is empty"));
+            Assert.That(exc?.Message, Is.EqualTo("ID list is empty"));
         }
 
         [Test]
         public void ListChunking_CorrectIds()
         {
-            Expression<Func<IProducerModel, IMessageHeader?>> expr = x => x.SendMessage(It.IsAny<IMessage>(), null, It.IsAny<string>());
-
-            var calledWith = new List<string>();
-
-            var mockExtractionRequestProducer = new Mock<IProducerModel>(MockBehavior.Strict);
-            mockExtractionRequestProducer
-                .Setup(expr)
-                .Returns((IMessageHeader?)null)
-                .Callback((IMessage msg, IMessageHeader _, string __) =>
-                {
-                    calledWith.AddRange(((ExtractionRequestMessage)msg).ExtractionIdentifiers);
-                });
-
-            var mockExtractionRequestInfoProducer = new Mock<IProducerModel>(MockBehavior.Strict);
-            mockExtractionRequestInfoProducer.Setup(expr).Returns((IMessageHeader?)null);
+            var mockExtractionRequestProducer = new TestProducer<ExtractionRequestMessage>();
+            var mockExtractionRequestInfoProducer = new TestProducer<ExtractionRequestInfoMessage>();
 
             var processor = new ExtractionMessageSender(
                 new ExtractImagesOptions { MaxIdentifiersPerMessage = 1 },
                 new ExtractImagesCliOptions { ProjectId = "1234-5678", NonInteractive = true },
-                mockExtractionRequestProducer.Object,
-                mockExtractionRequestInfoProducer.Object,
+                mockExtractionRequestProducer,
+                mockExtractionRequestInfoProducer,
                 new FileSystem(),
-                    "extractRoot",
+                "extractRoot",
                 "extractDir",
                 new TestDateTimeProvider(),
                 new RealConsoleInput()
             );
 
-            List<string> idList = Enumerable.Range(0, 5).Select(x => x.ToString()).ToList();
+            var idList = Enumerable.Range(0, 5).Select(static x => x.ToString()).ToList();
             processor.SendMessages(ExtractionKey.StudyInstanceUID, idList);
 
-            mockExtractionRequestProducer.Verify(expr, Times.Exactly(5));
-            mockExtractionRequestInfoProducer.Verify(expr, Times.Once);
-
-            Assert.That(idList.SequenceEqual(calledWith), Is.True);
+            Assert.Multiple(() =>
+            {
+                Assert.That(mockExtractionRequestProducer.TotalSent, Is.EqualTo(5));
+                Assert.That(mockExtractionRequestInfoProducer.TotalSent, Is.EqualTo(1));
+                Assert.That(idList.SequenceEqual(mockExtractionRequestProducer.Bodies.SelectMany(static x => x.ExtractionIdentifiers)), Is.True);
+            });
         }
 
         [TestCase(1, 1, 1)] // nIds = maxPerMessage  => 1 message
@@ -285,31 +270,29 @@ namespace SmiServices.UnitTests.Applications.ExtractImages
         [TestCase(2, 1, 2)] // nIds > maxPerMessage => 2 messages
         public void ListChunking_EdgeCases(int nIds, int maxPerMessage, int expectedMessages)
         {
-            Expression<Func<IProducerModel, IMessageHeader?>> expr = x => x.SendMessage(It.IsAny<IMessage>(), null, It.IsAny<string>());
-
-            var mockExtractionRequestProducer = new Mock<IProducerModel>(MockBehavior.Strict);
-            mockExtractionRequestProducer.Setup(expr).Returns((IMessageHeader?)null);
-
-            var mockExtractionRequestInfoProducer = new Mock<IProducerModel>(MockBehavior.Strict);
-            mockExtractionRequestInfoProducer.Setup(expr).Returns((IMessageHeader?)null);
+            var mockExtractionRequestProducer = new TestProducer<ExtractionRequestMessage>();
+            var mockExtractionRequestInfoProducer = new TestProducer<ExtractionRequestInfoMessage>();
 
             var processor = new ExtractionMessageSender(
                 new ExtractImagesOptions { MaxIdentifiersPerMessage = maxPerMessage },
                 new ExtractImagesCliOptions { ProjectId = "1234-5678", NonInteractive = true },
-                mockExtractionRequestProducer.Object,
-                mockExtractionRequestInfoProducer.Object,
+                mockExtractionRequestProducer,
+                mockExtractionRequestInfoProducer,
                 new FileSystem(),
-                    "extractRoot",
+                "extractRoot",
                 "extractDir",
                 new TestDateTimeProvider(),
                 new RealConsoleInput()
             );
 
-            List<string> idList = Enumerable.Range(0, nIds).Select(x => x.ToString()).ToList();
+            var idList = Enumerable.Range(0, nIds).Select(static x => x.ToString()).ToList();
             processor.SendMessages(ExtractionKey.StudyInstanceUID, idList);
 
-            mockExtractionRequestProducer.Verify(expr, Times.Exactly(expectedMessages));
-            mockExtractionRequestInfoProducer.Verify(expr, Times.Once);
+            Assert.Multiple(() =>
+            {
+                Assert.That(mockExtractionRequestProducer.TotalSent, Is.EqualTo(expectedMessages));
+                Assert.That(mockExtractionRequestInfoProducer.TotalSent, Is.EqualTo(1));
+            });
         }
 
         #endregion

@@ -50,7 +50,7 @@ namespace SmiServices.IntegrationTests.Microservices.DicomTagReader.Messaging
         {
             fileSystem ??= _helper.MockFileSystem;
 
-            return new SerialTagReader(_helper.Options.DicomTagReaderOptions!, _helper.Options.FileSystemOptions!, _helper.TestSeriesModel.Object, _helper.TestImageModel.Object, fileSystem);
+            return new SerialTagReader(_helper.Options.DicomTagReaderOptions!, _helper.Options.FileSystemOptions!, _helper.TestSeriesModel, _helper.TestImageModel, fileSystem);
         }
 
         private void CheckAckNackCounts(DicomTagReaderConsumer consumer, int desiredAckCount, int desiredNackCount)
@@ -78,14 +78,6 @@ namespace SmiServices.IntegrationTests.Microservices.DicomTagReader.Messaging
             _helper.TestAccessionDirectoryMessage.DirectoryPath = _helper.TestDir.FullName;
             _helper.Options.FileSystemOptions!.FileSystemRoot = _helper.TestDir.FullName;
 
-            _helper.TestImageModel
-                .Setup(x => x.SendMessage(It.IsAny<IMessage>(), It.IsAny<MessageHeader>(), It.IsAny<string>()))
-                .Returns(new MessageHeader());
-
-            _helper.TestSeriesModel
-                .Setup(x => x.SendMessage(It.IsAny<IMessage>(), It.IsAny<MessageHeader>(), It.IsAny<string>()))
-                .Returns(new MessageHeader());
-
             CheckAckNackCounts(new DicomTagReaderConsumer(GetMockTagReader(new FileSystem()), Mock.Of<GlobalOptions>()), 1, 0);
         }
 
@@ -96,14 +88,6 @@ namespace SmiServices.IntegrationTests.Microservices.DicomTagReader.Messaging
         public void TestInvalidMessageNack()
         {
             _helper.MockFileSystem.AddFile(@"C:\Temp\invalidDicomFile.dcm", new MockFileData([0x12, 0x34, 0x56, 0x78]));
-
-            _helper.TestImageModel
-                .Setup(x => x.SendMessage(It.IsAny<IMessage>(), It.IsAny<MessageHeader>(), It.IsAny<string>()))
-                .Returns(new MessageHeader());
-
-            _helper.TestSeriesModel
-                .Setup(x => x.SendMessage(It.IsAny<IMessage>(), It.IsAny<MessageHeader>(), It.IsAny<string>()))
-                .Returns(new MessageHeader());
 
             CheckAckNackCounts(new DicomTagReaderConsumer(GetMockTagReader(), Mock.Of<GlobalOptions>()), 0, 1);
         }

@@ -44,7 +44,7 @@ namespace SmiServices.UnitTests.Common
 
             using var model = Broker.GetModel(nameof(MicroserviceTester));
             //setup a sender channel for each of the consumers you want to test sending messages to
-            foreach (ConsumerOptions consumer in peopleYouWantToSendMessagesTo)
+            foreach (var consumer in peopleYouWantToSendMessagesTo)
             {
                 if (!consumer.QueueName!.Contains("TEST."))
                     consumer.QueueName = consumer.QueueName.Insert(0, "TEST.");
@@ -81,21 +81,6 @@ namespace SmiServices.UnitTests.Common
         public void SendMessage(ConsumerOptions toConsumer, IMessage msg)
         {
             _sendToConsumers[toConsumer].SendMessage(msg, isInResponseTo: null, routingKey: null);
-            _sendToConsumers[toConsumer].WaitForConfirms();
-        }
-
-        /// <summary>
-        /// Sends the given message to your consumer, you must have passed the consumer into the MicroserviceTester constructor since all adapter setup happens via option
-        /// at MessageBroker construction time
-        /// </summary>
-        /// <param name="toConsumer"></param>
-        /// <param name="messages"></param>
-        /// <param name="generateIMessageHeaders"></param>
-        public void SendMessages(ConsumerOptions toConsumer, IEnumerable<IMessage> messages, bool generateIMessageHeaders)
-        {
-            foreach (IMessage msg in messages)
-                _sendToConsumers[toConsumer].SendMessage(msg, generateIMessageHeaders ? new MessageHeader() : null, routingKey: null);
-
             _sendToConsumers[toConsumer].WaitForConfirms();
         }
 
