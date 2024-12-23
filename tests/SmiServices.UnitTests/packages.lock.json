@@ -81,12 +81,6 @@
         "resolved": "4.6.0",
         "contentHash": "R7e1+a4vuV/YS+ItfL7f//rG+JBvVeVLX4mHzFEZo4W1qEKl8Zz27AqvQSAqo+BtIzUCo4aAJMYa56VXS4hudw=="
       },
-      "NunitXml.TestLogger": {
-        "type": "Direct",
-        "requested": "[4.1.0, )",
-        "resolved": "4.1.0",
-        "contentHash": "l2zl8JttE12XY2QOf/W/PWcukhzp0Ez2XpD5s1HDk/RoLE3QLVKvQoOlAIbzbchtScNN9Hmuv6Iku6XOtZMrGg=="
-      },
       "System.IO.Abstractions.TestingHelpers": {
         "type": "Direct",
         "requested": "[21.1.7, )",
