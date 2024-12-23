@@ -61,9 +61,9 @@
       },
       "HIC.RDMP.Plugin": {
         "type": "Direct",
-        "requested": "[8.4.1, )",
-        "resolved": "8.4.1",
-        "contentHash": "avJNxZ1Jn3D+4J4CxXJvBgNWUMxWgtaeH97cdKoCHhmYBaklbILCaojMsnoOoUG2EbkuCqHsvLf1nZbUrVT5YA==",
+        "requested": "[8.4.2, )",
+        "resolved": "8.4.2",
+        "contentHash": "M5iYSamxek3CDq+7+viF8tdnmdwmv9XPFfZ0aHJEicWxBrflCQE+ySbc3ExbVxowSZ8CGEjPT6Qxy9kOqfQECg==",
         "dependencies": {
           "AWSSDK.S3": "3.7.408.1",
           "AWSSDK.SSO": "3.7.400.58",
