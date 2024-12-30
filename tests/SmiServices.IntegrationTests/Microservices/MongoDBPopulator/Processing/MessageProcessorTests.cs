@@ -5,7 +5,6 @@ using SmiServices.Common.Messages;
 using SmiServices.Common.Options;
 using SmiServices.Microservices.MongoDBPopulator;
 using SmiServices.Microservices.MongoDBPopulator.Processing;
-using SmiServices.UnitTests.Common;
 using SmiServices.UnitTests.Microservices.MongoDbPopulator;
 using System;
 using System.Threading;
@@ -64,7 +63,7 @@ namespace SmiServices.IntegrationTests.Microservices.MongoDBPopulator.Processing
 
             public override void AddToWriteQueue(SeriesMessage message, IMessageHeader header, ulong deliveryTag)
             {
-                ToProcess.Enqueue(new Tuple<BsonDocument, ulong>(new BsonDocument { { "hello", "world" } }, deliveryTag));
+                ToProcess.Enqueue(new Tuple<BsonDocument, IMessageHeader, ulong>(new BsonDocument { { "hello", "world" } }, new MessageHeader(), deliveryTag));
             }
 
             public override void StopProcessing(string reason)

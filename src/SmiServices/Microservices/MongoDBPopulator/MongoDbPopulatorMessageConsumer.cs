@@ -38,6 +38,8 @@ namespace SmiServices.Microservices.MongoDBPopulator
 
             ConsumerOptions = consumerOptions;
             Logger.Debug(_messageTypePrefix + "Constructed for " + typeof(T).Name);
+
+            Processor.OnAck += (o, a) => { Ack(a.Header, a.DeliveryTag); };
         }
 
         private void ExceptionCallback(Exception e)
