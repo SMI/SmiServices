@@ -2,7 +2,7 @@ using Moq;
 using NLog;
 using NLog.Targets;
 using NUnit.Framework;
-using RabbitMQ.Client;
+using NUnit.Framework.Internal;
 using RabbitMQ.Client.Exceptions;
 using SmiServices.Common.Messages;
 using SmiServices.Common.Messaging;
@@ -13,8 +13,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading;
-using System.Threading.Channels;
-using NUnit.Framework.Internal;
 
 namespace SmiServices.IntegrationTests.Common.Messaging
 {
@@ -29,7 +27,7 @@ namespace SmiServices.IntegrationTests.Common.Messaging
         private Consumer<IMessage> _mockConsumer = null!;
         private GlobalOptions _testOptions = null!;
 
-        [OneTimeSetUp]
+        [SetUp]
         public void OneTimeSetUp()
         {
             _testOptions = new GlobalOptionsFactory().Load(nameof(RabbitMQBrokerTests));
@@ -50,7 +48,7 @@ namespace SmiServices.IntegrationTests.Common.Messaging
             _tester = new MicroserviceTester(_testOptions.RabbitOptions!, _testConsumerOptions);
         }
 
-        [OneTimeTearDown]
+        [TearDown]
         public void TearDown()
         {
             _tester.Shutdown();
@@ -178,8 +176,7 @@ namespace SmiServices.IntegrationTests.Common.Messaging
             Assert.Throws<AlreadyClosedException>(() => model.WaitForConfirms());
         }
 
-        [TestCase(typeof(DoNothingConsumer))]
-        public void Test_Shutdown(Type consumerType)
+        public void Test_Shutdown()
         {
             MemoryTarget target = new()
             {
@@ -190,7 +187,7 @@ namespace SmiServices.IntegrationTests.Common.Messaging
 
             var o = new GlobalOptionsFactory().Load(nameof(Test_Shutdown));
 
-            var consumer = (IConsumer<TestMessage>?)Activator.CreateInstance(consumerType);
+            var consumer = new DoNothingConsumer();
 
             //connect to rabbit with a new consumer
             using var tester = new MicroserviceTester(o.RabbitOptions!, [_testConsumerOptions]) { CleanUpAfterTest = false };
@@ -205,12 +202,7 @@ namespace SmiServices.IntegrationTests.Common.Messaging
             //now attempt to shut down adapter
             tester.Broker.Shutdown(RabbitMQBroker.DefaultOperationTimeout);
 
-            var expectedErrorMessage = consumer switch
-            {
-                DoNothingConsumer => "exiting (shutdown was called)",
-                _ => "nothing to see here"
-            };
-
+            var expectedErrorMessage = "exiting (shutdown was called)";
             Assert.That(target.Logs.Any(s => s.Contains(expectedErrorMessage)), Is.True, $"Expected message {expectedErrorMessage} was not found, messages were:" + string.Join(Environment.NewLine, target.Logs));
         }
 
