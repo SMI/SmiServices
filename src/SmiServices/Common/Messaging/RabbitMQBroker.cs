@@ -99,8 +99,6 @@ namespace SmiServices.Common.Messaging
             if (ShutdownCalled)
                 throw new ApplicationException("Adapter has been shut down");
 
-            ArgumentNullException.ThrowIfNull(consumerOptions);
-
             if (!consumerOptions.VerifyPopulated())
                 throw new ArgumentException("The given ConsumerOptions has invalid values");
 
@@ -166,6 +164,40 @@ namespace SmiServices.Common.Messaging
             model.BasicConsume(ebc, consumerOptions.QueueName, consumerOptions.AutoAck);
             _logger.Debug($"Consumer task started [QueueName={consumerOptions?.QueueName}]");
             return taskId;
+        }
+
+        public void StartControlConsumer(ConsumerOptions consumerOptions, ControlMessageConsumer controlMessageConsumer)
+        {
+            if (ShutdownCalled)
+                throw new ApplicationException("Adapter has been shut down");
+
+            if (!consumerOptions.VerifyPopulated())
+                throw new ArgumentException("The given ConsumerOptions has invalid values");
+
+            var model = _connection.CreateModel();
+            model.BasicQos(0, consumerOptions.QoSPrefetchCount, false);
+
+            EventingBasicConsumer ebc = new(model);
+            ebc.Received += (o, a) => { controlMessageConsumer.ProcessMessage(a); };
+
+            void shutdown(object? o, ShutdownEventArgs a)
+            {
+                var reason = "cancellation was requested";
+                if (ebc.Model.IsClosed)
+                    reason = "channel is closed";
+                if (ShutdownCalled)
+                    reason = "shutdown was called";
+                _logger.Debug($"Consumer for {consumerOptions.QueueName} exiting ({reason})");
+            }
+            model.ModelShutdown += shutdown;
+            ebc.Shutdown += shutdown;
+
+            var resources = new ConsumerResources(ebc, consumerOptions.QueueName!, model);
+            lock (_oResourceLock)
+                _rabbitResources.Add(Guid.NewGuid(), resources);
+
+            model.BasicConsume(ebc, consumerOptions.QueueName, consumerOptions.AutoAck);
+            _logger.Debug($"Consumer task started [QueueName={consumerOptions?.QueueName}]");
         }
 
         /// <summary>

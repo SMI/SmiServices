@@ -12,6 +12,8 @@ namespace SmiServices.Common
 
         Guid StartConsumer<T>(ConsumerOptions consumerOptions, IConsumer<T> consumer, bool isSolo) where T : IMessage;
 
+        void StartControlConsumer(ConsumerOptions consumerOptions, ControlMessageConsumer controlMessageConsumer);
+
         void StopConsumer(Guid taskId, TimeSpan timeout);
 
         IProducerModel SetupProducer(ProducerOptions producerOptions, bool isBatch);
