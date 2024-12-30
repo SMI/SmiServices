@@ -4,6 +4,7 @@ using RabbitMQ.Client.Events;
 using RabbitMQ.Client.Exceptions;
 using SmiServices.Common.Events;
 using SmiServices.Common.Messages;
+using SmiServices.Common.MessageSerialization;
 using SmiServices.Common.Options;
 using System;
 using System.Collections.Generic;
@@ -125,10 +126,8 @@ namespace SmiServices.Common.Messaging
             }
 
             EventingBasicConsumer ebc = new(model);
-            ebc.Received += (o, a) =>
-            {
-                consumer.ProcessMessage(a);
-            };
+            ebc.Received += (o, a) => HandleMessage(o, a, consumer);
+
             void shutdown(object? o, ShutdownEventArgs a)
             {
                 var reason = "cancellation was requested";
@@ -164,6 +163,51 @@ namespace SmiServices.Common.Messaging
             model.BasicConsume(ebc, consumerOptions.QueueName, consumerOptions.AutoAck);
             _logger.Debug($"Consumer task started [QueueName={consumerOptions?.QueueName}]");
             return taskId;
+        }
+
+        private void HandleMessage<T>(object? sender, BasicDeliverEventArgs deliverArgs, IConsumer<T> consumer) where T : IMessage
+        {
+            var model = ((EventingBasicConsumer)sender!).Model;
+
+            Encoding enc = Encoding.UTF8;
+            MessageHeader header;
+
+            try
+            {
+                if (deliverArgs.BasicProperties?.ContentEncoding != null)
+                    enc = Encoding.GetEncoding(deliverArgs.BasicProperties.ContentEncoding);
+
+                var headers = deliverArgs.BasicProperties?.Headers
+                    ?? throw new ArgumentNullException(nameof(deliverArgs), "A part of deliverArgs.BasicProperties.Headers was null");
+
+                header = MessageHeader.FromDict(headers, enc);
+                header.Log(_logger, LogLevel.Trace, "Received");
+            }
+            catch (Exception e)
+            {
+                _logger.Error("Message header content was null, or could not be parsed into a MessageHeader object: " + e);
+                model.BasicNack(deliverArgs.DeliveryTag, multiple: false, requeue: false);
+                return;
+            }
+
+            T message;
+
+            try
+            {
+                message = JsonConvert.DeserializeObject<T>(deliverArgs);
+            }
+            catch (Newtonsoft.Json.JsonSerializationException e)
+            {
+                // Deserialization exception - Can never process this message
+
+                _logger.Debug($"JsonSerializationException, doing ErrorAndNack for message (DeliveryTag {deliverArgs.DeliveryTag})");
+                var errorMessage = $"Could not deserialize message to {typeof(T).Name} object. Likely an issue with the message content";
+                header.Log(_logger, LogLevel.Error, errorMessage, e);
+                model.BasicNack(deliverArgs.DeliveryTag, multiple: false, requeue: false);
+                return;
+            }
+
+            consumer.ProcessMessage(header, message, deliverArgs.DeliveryTag);
         }
 
         public void StartControlConsumer(ConsumerOptions consumerOptions, ControlMessageConsumer controlMessageConsumer)

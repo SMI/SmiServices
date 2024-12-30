@@ -1,5 +1,4 @@
 using RabbitMQ.Client;
-using RabbitMQ.Client.Events;
 using SmiServices.Common.Events;
 using SmiServices.Common.Messages;
 using SmiServices.Common.Options;
@@ -14,8 +13,7 @@ namespace SmiServices.Common.Messaging
         /// <summary>
         /// Process a message received by the adapter.
         /// </summary>
-        /// <param name="basicDeliverEventArgs">The message and all associated information.</param>
-        void ProcessMessage(BasicDeliverEventArgs basicDeliverEventArgs);
+        void ProcessMessage(IMessageHeader header, T message, ulong tag);
 
         /// <summary>
         /// Callback raised when Ack-ing a message
