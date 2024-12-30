@@ -18,7 +18,7 @@ namespace SmiServices.UnitTests.Common
             var fatalCalled = false;
             consumer.OnFatal += (sender, args) => fatalCalled = true;
 
-            consumer.TestMessage(new TestMessage());
+            consumer.ProcessMessage(new MessageHeader(), new TestMessage(), 1);
 
             Thread.Sleep(1000);
             Assert.That(fatalCalled, Is.True);

@@ -187,7 +187,7 @@ namespace SmiServices.UnitTests.Microservices.DicomAnonymiser
 
             // Act
 
-            consumer.TestMessage(_extractFileMessage);
+            consumer.ProcessMessage(new MessageHeader(), _extractFileMessage, 1);
 
             // Assert
 
@@ -227,7 +227,7 @@ namespace SmiServices.UnitTests.Microservices.DicomAnonymiser
 
             // Act
 
-            consumer.TestMessage(_extractFileMessage);
+            consumer.ProcessMessage(new MessageHeader(), _extractFileMessage, 1);
 
             // Assert
 
@@ -260,7 +260,7 @@ namespace SmiServices.UnitTests.Microservices.DicomAnonymiser
 
             // Act
 
-            consumer.TestMessage(_extractFileMessage);
+            consumer.ProcessMessage(new MessageHeader(), _extractFileMessage, 1);
 
             // Assert
 
@@ -283,7 +283,7 @@ namespace SmiServices.UnitTests.Microservices.DicomAnonymiser
 
             // Act
 
-            consumer.TestMessage(_extractFileMessage);
+            consumer.ProcessMessage(new MessageHeader(), _extractFileMessage, 1);
 
             // Assert
 

@@ -1,13 +1,11 @@
 
 using Moq;
 using NUnit.Framework;
-using RabbitMQ.Client;
 using SmiServices.Common.Messages;
 using SmiServices.Common.Options;
 using SmiServices.Microservices.DicomTagReader.Execution;
 using SmiServices.Microservices.DicomTagReader.Messaging;
 using SmiServices.UnitTests.Microservices.DicomTagReader;
-using System;
 using System.IO.Abstractions;
 using System.IO.Abstractions.TestingHelpers;
 
@@ -52,7 +50,7 @@ namespace SmiServices.IntegrationTests.Microservices.DicomTagReader.Messaging
             var fatalCalled = false;
             consumer.OnFatal += (sender, args) => fatalCalled = true;
 
-            consumer.TestMessage(_helper.TestAccessionDirectoryMessage);
+            consumer.ProcessMessage(new MessageHeader(), _helper.TestAccessionDirectoryMessage, 1);
 
             Assert.Multiple(() =>
             {

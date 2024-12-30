@@ -97,7 +97,7 @@ internal class AnonVerificationMessageConsumerTests
 
         // Act
 
-        consumer.TestMessage(_invalidMessage);
+        consumer.ProcessMessage(new MessageHeader(), _invalidMessage, 1);
 
         Assert.Multiple(() =>
         {
@@ -124,7 +124,7 @@ internal class AnonVerificationMessageConsumerTests
 
         // Act
 
-        consumer.TestMessage(_emptyReportMessage);
+        consumer.ProcessMessage(new MessageHeader(), _emptyReportMessage, 1);
 
         Assert.Multiple(() =>
         {
@@ -147,7 +147,7 @@ internal class AnonVerificationMessageConsumerTests
 
         // Act
 
-        consumer.TestMessage(_emptyReportMessage);
+        consumer.ProcessMessage(new MessageHeader(), _emptyReportMessage, 1);
 
         Assert.Multiple(() =>
         {
@@ -159,7 +159,7 @@ internal class AnonVerificationMessageConsumerTests
 
         // Act
 
-        consumer.TestMessage(_emptyReportMessage);
+        consumer.ProcessMessage(new MessageHeader(), _emptyReportMessage, 1);
 
         Assert.Multiple(() =>
         {
@@ -182,7 +182,7 @@ internal class AnonVerificationMessageConsumerTests
 
         // Act
 
-        consumer.TestMessage(_emptyReportMessage);
+        consumer.ProcessMessage(new MessageHeader(), _emptyReportMessage, 1);
 
         SleepWithEarlyExit(verificationMessageQueueFlushTime, () => consumer.AckCount == 1);
 
@@ -213,13 +213,13 @@ internal class AnonVerificationMessageConsumerTests
 
         // Act
 
-        consumer.TestMessage(_emptyReportMessage);
+        consumer.ProcessMessage(new MessageHeader(), _emptyReportMessage, 1);
 
         SleepWithEarlyExit(verificationMessageQueueFlushTime, () => hasThrown);
 
         Thread.Sleep(100); // Allow time for exception handler to run and exit
 
-        consumer.TestMessage(_emptyReportMessage);
+        consumer.ProcessMessage(new MessageHeader(), _emptyReportMessage, 1);
 
         Assert.Multiple(() =>
         {
