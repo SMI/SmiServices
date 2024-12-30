@@ -60,12 +60,6 @@ namespace SmiServices.Microservices.MongoDBPopulator
             if (Processor.IsStopping)
                 return;
 
-            if (Processor.Model == null)
-            {
-                Logger.Debug("First message, setting the Processor's model");
-                Processor.Model = Model;
-            }
-
             try
             {
                 ((IMessageProcessor<T>)Processor).AddToWriteQueue(message, header, tag);

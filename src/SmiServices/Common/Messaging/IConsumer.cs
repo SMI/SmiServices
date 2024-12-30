@@ -11,12 +11,6 @@ namespace SmiServices.Common.Messaging
     public interface IConsumer
     {
         /// <summary>
-        /// Set the <see cref="IModel"/> which messages will be processed with
-        /// </summary>
-        /// <param name="model"></param> 
-        void SetModel(IModel model);
-
-        /// <summary>
         /// Process a message received by the adapter.
         /// </summary>
         /// <param name="basicDeliverEventArgs">The message and all associated information.</param>

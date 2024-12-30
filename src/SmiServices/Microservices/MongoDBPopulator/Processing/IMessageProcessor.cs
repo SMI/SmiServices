@@ -26,11 +26,6 @@ namespace SmiServices.Microservices.MongoDBPopulator.Processing
         /// </summary>
         bool IsStopping { get; }
 
-        /// <summary>
-        /// Model to acknowledge messages on
-        /// </summary>
-        IModel? Model { get; set; }
-
         event SmiAckEventHandler? OnAck;
 
         /// <summary>

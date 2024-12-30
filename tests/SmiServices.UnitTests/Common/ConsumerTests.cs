@@ -47,13 +47,4 @@ namespace SmiServices.UnitTests.Common
 
         }
     }
-
-    public class SelfClosingConsumer : Consumer<TestMessage>
-    {
-        protected override void ProcessMessageImpl(IMessageHeader header, TestMessage msg, ulong tag)
-        {
-            Model!.Close();
-        }
-    }
-
 }

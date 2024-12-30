@@ -10,7 +10,6 @@ using SmiServices.Common.Messages;
 using SmiServices.Common.Options;
 using SmiServices.Microservices.MongoDBPopulator;
 using SmiServices.Microservices.MongoDBPopulator.Processing;
-using SmiServices.UnitTests.Common;
 using SmiServices.UnitTests.Microservices.MongoDbPopulator;
 using System;
 using System.Collections.Generic;
@@ -89,7 +88,7 @@ namespace SmiServices.IntegrationTests.Microservices.MongoDBPopulator.Processing
                 .Setup(x => x.WriteMany(It.IsAny<IList<BsonDocument>>(), It.IsAny<string>()))
                 .Returns(WriteResult.Failure);
 
-            var processor = new ImageMessageProcessor(_helper.Globals.MongoDbPopulatorOptions, mockAdapter.Object, 1, delegate { }) { Model = Mock.Of<IModel>() };
+            var processor = new ImageMessageProcessor(_helper.Globals.MongoDbPopulatorOptions, mockAdapter.Object, 1, delegate { });
 
             Assert.Throws<ApplicationException>(() => processor.AddToWriteQueue(_helper.TestImageMessage, new MessageHeader(), 1));
         }
@@ -109,10 +108,7 @@ namespace SmiServices.IntegrationTests.Microservices.MongoDBPopulator.Processing
             var callbackUsed = false;
             void exceptionCallback(Exception exception) { callbackUsed = true; }
 
-            var processor = new ImageMessageProcessor(options.MongoDbPopulatorOptions, testAdapter, 1, exceptionCallback)
-            {
-                Model = Mock.Of<IModel>()
-            };
+            var processor = new ImageMessageProcessor(options.MongoDbPopulatorOptions, testAdapter, 1, exceptionCallback);
 
             var header = new MessageHeader();
 
@@ -142,8 +138,6 @@ namespace SmiServices.IntegrationTests.Microservices.MongoDBPopulator.Processing
 
             var adapter = new MongoDbAdapter("ImageProcessor", options.MongoDatabases!.ExtractionStoreOptions!, "largeDocumentTest");
             var processor = new ImageMessageProcessor(options.MongoDbPopulatorOptions, adapter, 1, (Exception _) => { });
-            var mockModel = Mock.Of<IModel>();
-            processor.Model = mockModel;
 
             var dataset = new DicomDataset
             {
@@ -184,8 +178,6 @@ namespace SmiServices.IntegrationTests.Microservices.MongoDBPopulator.Processing
 
             var adapter = new MongoDbAdapter("ImageProcessor", options.MongoDatabases!.ExtractionStoreOptions!, "largeDocumentTest");
             var processor = new ImageMessageProcessor(options.MongoDbPopulatorOptions!, adapter, 2, (Exception e) => { });
-            var mockModel = Mock.Of<IModel>();
-            processor.Model = mockModel;
 
             var dataset = new DicomDataset
             {

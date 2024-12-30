@@ -155,10 +155,6 @@ namespace SmiServices.UnitTests.Microservices.CohortExtractor.Messaging
                 fatalErrorEventArgs = args;
             };
 
-            var mockModel = new Mock<IModel>(MockBehavior.Strict);
-            mockModel.Setup(x => x.IsClosed).Returns(false);
-
-            consumer.SetModel(mockModel.Object);
             consumer.TestMessage(msg);
 
             Thread.Sleep(500); // Fatal call is race-y

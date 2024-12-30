@@ -33,9 +33,6 @@ namespace SmiServices.Microservices.MongoDBPopulator.Processing
             if (IsStopping)
                 return;
 
-            if (Model == null)
-                throw new ApplicationException("Model needs to be set before messages can be processed");
-
             DicomDataset dataset;
 
             try
@@ -91,10 +88,6 @@ namespace SmiServices.Microservices.MongoDBPopulator.Processing
         /// </summary>
         protected override void ProcessQueue()
         {
-            // Will happen when ProcessQueue is called before we receive our first message
-            if (Model == null)
-                return;
-
             lock (LockObj)
             {
                 if (ToProcess.Count == 0)
