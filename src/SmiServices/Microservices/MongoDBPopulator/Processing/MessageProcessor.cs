@@ -35,12 +35,6 @@ namespace SmiServices.Microservices.MongoDBPopulator.Processing
 
         #region Concrete Fields/Properties
 
-        /// <inheritdoc />
-        /// <summary>
-        /// Model to use when sending ACK for messages
-        /// </summary>
-        public IModel? Model { get; set; }
-
         public event SmiAckEventHandler? OnAck;
 
         /// <inheritdoc />

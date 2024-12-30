@@ -16,7 +16,6 @@ namespace SmiServices.UnitTests.Microservices.FileCopier
         #region Fixture Methods 
 
         private ExtractFileMessage _message = null!;
-        private Mock<IModel> _mockModel = null!;
         private Mock<IFileCopier> _mockFileCopier = null!;
 
         [OneTimeSetUp]
@@ -44,10 +43,6 @@ namespace SmiServices.UnitTests.Microservices.FileCopier
                 IsIdentifiableExtraction = true,
                 OutputPath = "bar",
             };
-            _mockModel = new Mock<IModel>(MockBehavior.Strict);
-            _mockModel.Setup(x => x.IsClosed).Returns(false);
-            _mockModel.Setup(x => x.BasicAck(It.IsAny<ulong>(), It.IsAny<bool>()));
-            _mockModel.Setup(x => x.BasicNack(It.IsAny<ulong>(), It.IsAny<bool>(), It.IsAny<bool>()));
 
             _mockFileCopier = new Mock<IFileCopier>(MockBehavior.Strict);
             _mockFileCopier.Setup(x => x.ProcessMessage(It.IsAny<ExtractFileMessage>(), It.IsAny<IMessageHeader>()));
@@ -64,7 +59,6 @@ namespace SmiServices.UnitTests.Microservices.FileCopier
         public void Test_FileCopyQueueConsumer_ValidMessage_IsAcked()
         {
             var consumer = new FileCopyQueueConsumer(_mockFileCopier.Object);
-            consumer.SetModel(_mockModel.Object);
 
             consumer.TestMessage(_message);
 
@@ -78,7 +72,6 @@ namespace SmiServices.UnitTests.Microservices.FileCopier
             _mockFileCopier.Setup(x => x.ProcessMessage(It.IsAny<ExtractFileMessage>(), It.IsAny<IMessageHeader>())).Throws<ApplicationException>();
 
             var consumer = new FileCopyQueueConsumer(_mockFileCopier.Object);
-            consumer.SetModel(_mockModel.Object);
 
             consumer.TestMessage(_message);
 
@@ -92,7 +85,6 @@ namespace SmiServices.UnitTests.Microservices.FileCopier
             _mockFileCopier.Setup(x => x.ProcessMessage(It.IsAny<ExtractFileMessage>(), It.IsAny<IMessageHeader>())).Throws<Exception>();
 
             var consumer = new FileCopyQueueConsumer(_mockFileCopier.Object);
-            consumer.SetModel(_mockModel.Object);
 
             var fatalCalled = false;
             consumer.OnFatal += (sender, _) => fatalCalled = true;
@@ -116,7 +108,6 @@ namespace SmiServices.UnitTests.Microservices.FileCopier
             _mockFileCopier.Setup(x => x.ProcessMessage(It.IsAny<ExtractFileMessage>(), It.IsAny<IMessageHeader>())).Throws<Exception>();
 
             var consumer = new FileCopyQueueConsumer(_mockFileCopier.Object);
-            consumer.SetModel(_mockModel.Object);
 
             var fatalCalled = false;
             consumer.OnFatal += (sender, _) => fatalCalled = true;

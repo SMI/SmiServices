@@ -27,7 +27,6 @@ namespace SmiServices.UnitTests.Microservices.IsIdentifiable
         private IDirectoryInfo _extractRootDirInfo = null!;
         private string _extractDir = null!;
         ExtractedFileStatusMessage _extractedFileStatusMessage = null!;
-        private Mock<IModel> _mockModel = null!;
         FatalErrorEventArgs? _fatalArgs;
         Mock<IProducerModel> _mockProducerModel = null!;
         Expression<Func<IProducerModel, IMessageHeader>> _expectedSendMessageCall = null!;
@@ -65,11 +64,6 @@ namespace SmiServices.UnitTests.Microservices.IsIdentifiable
                 OutputFilePath = "foo-an.dcm",
             };
 
-            _mockModel = new Mock<IModel>(MockBehavior.Strict);
-            _mockModel.Setup(x => x.IsClosed).Returns(false);
-            _mockModel.Setup(x => x.BasicAck(It.IsAny<ulong>(), It.IsAny<bool>()));
-            _mockModel.Setup(x => x.BasicNack(It.IsAny<ulong>(), It.IsAny<bool>(), It.IsAny<bool>()));
-
             _fatalArgs = null;
 
             _mockProducerModel = new Mock<IProducerModel>(MockBehavior.Strict);
@@ -94,7 +88,6 @@ namespace SmiServices.UnitTests.Microservices.IsIdentifiable
                 mockClassifier ?? new Mock<IClassifier>(MockBehavior.Strict).Object,
                 _mockFs
             );
-            consumer.SetModel(_mockModel.Object);
             consumer.OnFatal += (_, args) => _fatalArgs = args;
             return consumer;
         }

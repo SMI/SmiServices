@@ -178,7 +178,6 @@ namespace SmiServices.IntegrationTests.Common.Messaging
             Assert.Throws<AlreadyClosedException>(() => model.WaitForConfirms());
         }
 
-        [TestCase(typeof(SelfClosingConsumer))]
         [TestCase(typeof(DoNothingConsumer))]
         public void Test_Shutdown(Type consumerType)
         {
@@ -208,7 +207,6 @@ namespace SmiServices.IntegrationTests.Common.Messaging
 
             var expectedErrorMessage = consumer switch
             {
-                SelfClosingConsumer => "exiting (channel is closed)",
                 DoNothingConsumer => "exiting (shutdown was called)",
                 _ => "nothing to see here"
             };

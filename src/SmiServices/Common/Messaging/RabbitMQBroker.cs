@@ -125,7 +125,6 @@ namespace SmiServices.Common.Messaging
                 throw new ApplicationException($"Already a consumer on queue {consumerOptions.QueueName} and solo consumer was specified");
             }
 
-            consumer.SetModel(model);
             EventingBasicConsumer ebc = new(model);
             ebc.Received += (o, a) =>
             {

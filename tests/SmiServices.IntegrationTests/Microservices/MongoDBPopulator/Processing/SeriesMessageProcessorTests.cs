@@ -5,12 +5,10 @@ using MongoDB.Bson;
 using MongoDB.Driver;
 using Moq;
 using NUnit.Framework;
-using RabbitMQ.Client;
 using SmiServices.Common.Messages;
 using SmiServices.Common.Options;
 using SmiServices.Microservices.MongoDBPopulator;
 using SmiServices.Microservices.MongoDBPopulator.Processing;
-using SmiServices.UnitTests.Common;
 using SmiServices.UnitTests.Microservices.MongoDbPopulator;
 using System;
 using System.Collections.Generic;
@@ -77,7 +75,7 @@ namespace SmiServices.IntegrationTests.Microservices.MongoDBPopulator.Processing
                 .Setup(x => x.WriteMany(It.IsAny<IList<BsonDocument>>(), It.IsAny<string>()))
                 .Returns(WriteResult.Failure);
 
-            var processor = new SeriesMessageProcessor(_helper.Globals.MongoDbPopulatorOptions, mockAdapter.Object, 1, delegate { }) { Model = Mock.Of<IModel>() };
+            var processor = new SeriesMessageProcessor(_helper.Globals.MongoDbPopulatorOptions, mockAdapter.Object, 1, delegate { });
 
             Assert.Throws<ApplicationException>(() => processor.AddToWriteQueue(_helper.TestSeriesMessage, new MessageHeader(), 1));
         }
@@ -97,10 +95,7 @@ namespace SmiServices.IntegrationTests.Microservices.MongoDBPopulator.Processing
             var callbackUsed = false;
             void exceptionCallback(Exception exception) { callbackUsed = true; }
 
-            var processor = new SeriesMessageProcessor(options.MongoDbPopulatorOptions, testAdapter, 1, exceptionCallback)
-            {
-                Model = Mock.Of<IModel>()
-            };
+            var processor = new SeriesMessageProcessor(options.MongoDbPopulatorOptions, testAdapter, 1, exceptionCallback);
 
             // Max queue size set to 1 so will immediately process this
             processor.AddToWriteQueue(_helper.TestSeriesMessage, new MessageHeader(), 1);

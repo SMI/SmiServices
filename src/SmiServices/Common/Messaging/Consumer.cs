@@ -1,6 +1,5 @@
 
 using NLog;
-using RabbitMQ.Client;
 using RabbitMQ.Client.Events;
 using SmiServices.Common.Events;
 using SmiServices.Common.Messages;
@@ -46,8 +45,6 @@ namespace SmiServices.Common.Messaging
         private readonly object _oConsumeLock = new();
         private bool _exiting;
 
-        protected IModel? Model;
-
         public virtual void Shutdown()
         {
 
@@ -72,15 +69,6 @@ namespace SmiServices.Common.Messaging
             Logger = LogManager.GetLogger(loggerName);
         }
 
-
-        public void SetModel(IModel model)
-        {
-            if (model.IsClosed)
-                throw new ArgumentException("Model is closed");
-
-            Model = model;
-        }
-
         public virtual void ProcessMessage(BasicDeliverEventArgs deliverArgs)
         {
             lock (_oConsumeLock)
@@ -88,10 +76,6 @@ namespace SmiServices.Common.Messaging
                 if (_exiting)
                     return;
             }
-
-            // Handled by RabbitMQ adapter in normal operation - only an issue in testing I think
-            if (Model == null)
-                throw new NullReferenceException("Model not set - use SetModel before processing messages");
 
             // If we did not receive a valid header, ditch the message and continue.
             // Control messages (no header) are handled in their own ProcessMessage implementation

@@ -18,22 +18,16 @@ namespace SmiServices.IntegrationTests.Microservices.DicomTagReader.Messaging
     {
         private readonly DicomTagReaderTestHelper _helper = new();
 
-        private IModel? _mockModel = null!;
-
-
         [OneTimeSetUp]
         public void OneTimeSetUp()
         {
             _helper.SetUpSuite();
-
-            _mockModel = Mock.Of<IModel>();
         }
 
         [OneTimeTearDown]
         public void OneTimeTearDown()
         {
             _helper.Dispose();
-            _mockModel?.Dispose();
         }
 
         [SetUp]
@@ -58,7 +52,6 @@ namespace SmiServices.IntegrationTests.Microservices.DicomTagReader.Messaging
             var fatalCalled = false;
             consumer.OnFatal += (sender, args) => fatalCalled = true;
 
-            consumer.SetModel(_mockModel ?? throw new InvalidOperationException());
             consumer.TestMessage(_helper.TestAccessionDirectoryMessage);
 
             Assert.Multiple(() =>
