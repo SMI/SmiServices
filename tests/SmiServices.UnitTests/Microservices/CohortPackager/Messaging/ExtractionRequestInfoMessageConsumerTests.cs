@@ -50,7 +50,7 @@ internal class ExtractionRequestInfoMessageConsumerTests
 
         // Act
 
-        consumer.TestMessage(message);
+        consumer.ProcessMessage(new MessageHeader(), message, 1);
 
         Assert.Multiple(() =>
         {
@@ -77,7 +77,7 @@ internal class ExtractionRequestInfoMessageConsumerTests
 
         // Act
 
-        consumer.TestMessage(message);
+        consumer.ProcessMessage(new MessageHeader(), message, 1);
 
         Assert.Multiple(() =>
         {

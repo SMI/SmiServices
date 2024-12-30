@@ -56,7 +56,7 @@ internal class AnonFailedMessageConsumerTests
 
         // Act
 
-        consumer.TestMessage(message);
+        consumer.ProcessMessage(new MessageHeader(), message, 1);
 
         Assert.Multiple(() =>
         {
@@ -89,7 +89,7 @@ internal class AnonFailedMessageConsumerTests
 
         // Act
 
-        consumer.TestMessage(message);
+        consumer.ProcessMessage(new MessageHeader(), message, 1);
 
         Assert.Multiple(() =>
         {

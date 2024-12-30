@@ -60,7 +60,7 @@ namespace SmiServices.UnitTests.Microservices.FileCopier
         {
             var consumer = new FileCopyQueueConsumer(_mockFileCopier.Object);
 
-            consumer.TestMessage(_message);
+            consumer.ProcessMessage(new MessageHeader(), _message, 1);
 
             TestTimelineAwaiter.Await(() => consumer.AckCount == 1 && consumer.NackCount == 0);
         }
@@ -73,7 +73,7 @@ namespace SmiServices.UnitTests.Microservices.FileCopier
 
             var consumer = new FileCopyQueueConsumer(_mockFileCopier.Object);
 
-            consumer.TestMessage(_message);
+            consumer.ProcessMessage(new MessageHeader(), _message, 1);
 
             TestTimelineAwaiter.Await(() => consumer.AckCount == 0 && consumer.NackCount == 1);
         }
@@ -89,7 +89,7 @@ namespace SmiServices.UnitTests.Microservices.FileCopier
             var fatalCalled = false;
             consumer.OnFatal += (sender, _) => fatalCalled = true;
 
-            consumer.TestMessage(_message);
+            consumer.ProcessMessage(new MessageHeader(), _message, 1);
 
             TestTimelineAwaiter.Await(() => fatalCalled, "Expected Fatal to be called");
             Assert.Multiple(() =>
@@ -112,7 +112,7 @@ namespace SmiServices.UnitTests.Microservices.FileCopier
             var fatalCalled = false;
             consumer.OnFatal += (sender, _) => fatalCalled = true;
 
-            consumer.TestMessage(_message);
+            consumer.ProcessMessage(new MessageHeader(), _message, 1);
 
             TestTimelineAwaiter.Await(() => fatalCalled, "Expected Fatal to be called");
             Assert.Multiple(() =>

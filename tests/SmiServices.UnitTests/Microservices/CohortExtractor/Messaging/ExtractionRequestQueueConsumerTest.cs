@@ -155,7 +155,7 @@ namespace SmiServices.UnitTests.Microservices.CohortExtractor.Messaging
                 fatalErrorEventArgs = args;
             };
 
-            consumer.TestMessage(msg);
+            consumer.ProcessMessage(new MessageHeader(), msg, 1);
 
             Thread.Sleep(500); // Fatal call is race-y
             Assert.That(fatalCalled, Is.False, $"Fatal was called with {fatalErrorEventArgs}");

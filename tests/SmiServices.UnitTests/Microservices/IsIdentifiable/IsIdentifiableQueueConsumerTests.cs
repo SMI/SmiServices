@@ -2,13 +2,11 @@ using IsIdentifiable.Failures;
 using Moq;
 using Newtonsoft.Json;
 using NUnit.Framework;
-using RabbitMQ.Client;
 using SmiServices.Common.Events;
 using SmiServices.Common.Messages;
 using SmiServices.Common.Messages.Extraction;
 using SmiServices.Common.Messaging;
 using SmiServices.Microservices.IsIdentifiable;
-using SmiServices.UnitTests.Common;
 using SmiServices.UnitTests.TestCommon;
 using System;
 using System.Collections.Generic;
@@ -139,7 +137,7 @@ namespace SmiServices.UnitTests.Microservices.IsIdentifiable
 
             // Act
 
-            consumer.TestMessage(_extractedFileStatusMessage);
+            consumer.ProcessMessage(new MessageHeader(), _extractedFileStatusMessage, 1);
 
             Assert.Multiple(() =>
             {
@@ -170,7 +168,7 @@ namespace SmiServices.UnitTests.Microservices.IsIdentifiable
 
             // Act
 
-            consumer.TestMessage(_extractedFileStatusMessage);
+            consumer.ProcessMessage(new MessageHeader(), _extractedFileStatusMessage, 1);
 
             Assert.Multiple(() =>
             {
@@ -199,7 +197,7 @@ namespace SmiServices.UnitTests.Microservices.IsIdentifiable
 
             // Act
 
-            consumer.TestMessage(_extractedFileStatusMessage);
+            consumer.ProcessMessage(new MessageHeader(), _extractedFileStatusMessage, 1);
 
             // Assert
 
@@ -224,7 +222,7 @@ namespace SmiServices.UnitTests.Microservices.IsIdentifiable
 
             // Act
 
-            consumer.TestMessage(_extractedFileStatusMessage);
+            consumer.ProcessMessage(new MessageHeader(), _extractedFileStatusMessage, 1);
 
             Assert.Multiple(() =>
             {
@@ -251,7 +249,7 @@ namespace SmiServices.UnitTests.Microservices.IsIdentifiable
 
             // Act
 
-            consumer.TestMessage(_extractedFileStatusMessage);
+            consumer.ProcessMessage(new MessageHeader(), _extractedFileStatusMessage, 1);
 
             Assert.Multiple(() =>
             {

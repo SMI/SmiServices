@@ -97,18 +97,6 @@ namespace SmiServices.Common.Messaging
             }
         }
 
-        public void TestMessage(T msg)
-        {
-            try
-            {
-                ProcessMessageImpl(new MessageHeader(), msg, 1);
-            }
-            catch (Exception e)
-            {
-                Fatal("ProcessMessageImpl threw unhandled exception", e);
-            }
-        }
-
         protected abstract void ProcessMessageImpl(IMessageHeader header, T message, ulong tag);
 
         /// <summary>
