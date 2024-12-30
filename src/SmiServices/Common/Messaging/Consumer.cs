@@ -3,12 +3,9 @@ using NLog;
 using RabbitMQ.Client.Events;
 using SmiServices.Common.Events;
 using SmiServices.Common.Messages;
-using SmiServices.Common.MessageSerialization;
 using System;
 using System.Collections.Generic;
-using System.Diagnostics.CodeAnalysis;
 using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 
 namespace SmiServices.Common.Messaging
@@ -69,7 +66,7 @@ namespace SmiServices.Common.Messaging
             Logger = LogManager.GetLogger(loggerName);
         }
 
-        public virtual void ProcessMessage(BasicDeliverEventArgs deliverArgs)
+        public void ProcessMessage(IMessageHeader header, T message, ulong tag)
         {
             lock (_oConsumeLock)
             {
@@ -77,42 +74,13 @@ namespace SmiServices.Common.Messaging
                     return;
             }
 
-            // If we did not receive a valid header, ditch the message and continue.
-            // Control messages (no header) are handled in their own ProcessMessage implementation
-
-            Encoding enc = Encoding.UTF8;
-            MessageHeader header;
-
             try
             {
-                if (deliverArgs.BasicProperties?.ContentEncoding != null)
-                    enc = Encoding.GetEncoding(deliverArgs.BasicProperties.ContentEncoding);
-
-                var headers = deliverArgs.BasicProperties?.Headers
-                    ?? throw new ArgumentNullException(nameof(deliverArgs), "A part of deliverArgs.BasicProperties.Headers was null");
-
-                header = MessageHeader.FromDict(headers, enc);
-                header.Log(Logger, LogLevel.Trace, "Received");
+                ProcessMessageImpl(header, message, tag);
             }
             catch (Exception e)
             {
-                Logger.Error("Message header content was null, or could not be parsed into a MessageHeader object: " + e);
-
-                DiscardSingleMessage(deliverArgs.DeliveryTag);
-
-                return;
-            }
-
-            try
-            {
-                if (!SafeDeserializeToMessage(header, deliverArgs, out T? message))
-                    return;
-                ProcessMessageImpl(header, message, deliverArgs.DeliveryTag);
-            }
-            catch (Exception e)
-            {
-                var messageBody = Encoding.UTF8.GetString(deliverArgs.Body.Span);
-                Logger.Error(e, $"Unhandled exception when processing message {header.MessageGuid} with body: {messageBody}");
+                Logger.Error(e, $"Unhandled exception when processing message {header.MessageGuid}");
 
                 if (HoldUnprocessableMessages)
                 {
@@ -141,35 +109,7 @@ namespace SmiServices.Common.Messaging
             }
         }
 
-
         protected abstract void ProcessMessageImpl(IMessageHeader header, T message, ulong tag);
-
-        /// <summary>
-        /// Safely deserialize a <see cref="BasicDeliverEventArgs"/> to an <see cref="IMessage"/>. Returns true if the deserialization
-        /// was successful (message available from the out parameter), or false (out iMessage is null)
-        /// <param name="header"></param>
-        /// <param name="deliverArgs"></param>
-        /// <param name="iMessage"></param>
-        /// <returns></returns>
-        /// </summary>
-        protected bool SafeDeserializeToMessage(IMessageHeader header, BasicDeliverEventArgs deliverArgs, [NotNullWhen(true)] out T? iMessage)
-        {
-            try
-            {
-                iMessage = JsonConvert.DeserializeObject<T>(deliverArgs);
-                return true;
-            }
-            catch (Newtonsoft.Json.JsonSerializationException e)
-            {
-                // Deserialization exception - Can never process this message
-
-                Logger.Debug("JsonSerializationException, doing ErrorAndNack for message (DeliveryTag " + deliverArgs.DeliveryTag + ")");
-                ErrorAndNack(header, deliverArgs.DeliveryTag, DeserializationMessage(), e);
-
-                iMessage = default;
-                return false;
-            }
-        }
 
         /// <summary>
         /// Instructs RabbitMQ to discard a single message and not requeue it
@@ -238,12 +178,6 @@ namespace SmiServices.Common.Messaging
                     throw new Exception("No handlers when attempting to raise OnFatal for this exception", exception);
                 }
             }
-        }
-
-
-        private static string DeserializationMessage()
-        {
-            return "Could not deserialize message to " + typeof(T).Name + " object. Likely an issue with the message content";
         }
     }
 }
