@@ -1,9 +1,6 @@
 using SmiServices.Common.Execution;
 using SmiServices.Common.Messages;
 using SmiServices.Common.Options;
-using System;
-using System.Collections.Generic;
-using System.Linq;
 
 namespace SmiServices.Microservices.MongoDBPopulator
 {
@@ -12,17 +9,14 @@ namespace SmiServices.Microservices.MongoDBPopulator
     /// </summary>
     public class MongoDbPopulatorHost : MicroserviceHost
     {
-        public readonly List<IMongoDbPopulatorMessageConsumer> Consumers = [];
-
+        public readonly MongoDbPopulatorMessageConsumer<SeriesMessage> SeriesConsumer;
+        public readonly MongoDbPopulatorMessageConsumer<DicomFileMessage> ImageConsumer;
 
         public MongoDbPopulatorHost(GlobalOptions options)
             : base(options)
         {
-            Consumers.Add(new MongoDbPopulatorMessageConsumer<SeriesMessage>(options.MongoDatabases!.DicomStoreOptions!, options.MongoDbPopulatorOptions!, options.MongoDbPopulatorOptions!.SeriesQueueConsumerOptions!));
-            Consumers.Add(new MongoDbPopulatorMessageConsumer<DicomFileMessage>(options.MongoDatabases.DicomStoreOptions!, options.MongoDbPopulatorOptions, options.MongoDbPopulatorOptions.ImageQueueConsumerOptions!));
-
-            if (Consumers.Count == 0)
-                throw new ArgumentException("No consumers created from the given options");
+            SeriesConsumer = new MongoDbPopulatorMessageConsumer<SeriesMessage>(options.MongoDatabases!.DicomStoreOptions!, options.MongoDbPopulatorOptions!, options.MongoDbPopulatorOptions!.SeriesQueueConsumerOptions!);
+            ImageConsumer = new MongoDbPopulatorMessageConsumer<DicomFileMessage>(options.MongoDatabases.DicomStoreOptions!, options.MongoDbPopulatorOptions, options.MongoDbPopulatorOptions.ImageQueueConsumerOptions!);
         }
 
         /// <summary>
@@ -32,8 +26,8 @@ namespace SmiServices.Microservices.MongoDBPopulator
         {
             Logger.Info("Starting consumers");
 
-            foreach (IMongoDbPopulatorMessageConsumer consumer in Consumers)
-                MessageBroker.StartConsumer(consumer.ConsumerOptions, consumer, isSolo: false);
+            MessageBroker.StartConsumer(SeriesConsumer.ConsumerOptions, SeriesConsumer, isSolo: false);
+            MessageBroker.StartConsumer(ImageConsumer.ConsumerOptions, ImageConsumer, isSolo: false);
 
             Logger.Info("Consumers successfully started");
         }
@@ -44,8 +38,8 @@ namespace SmiServices.Microservices.MongoDBPopulator
         /// <param name="reason"></param>
         public override void Stop(string reason)
         {
-            foreach (IMongoDbPopulatorMessageConsumer consumer in Consumers)
-                consumer.Processor.StopProcessing("Host - " + reason);
+            SeriesConsumer.Processor.StopProcessing("Host - " + reason);
+            ImageConsumer.Processor.StopProcessing("Host - " + reason);
 
             base.Stop(reason);
         }
