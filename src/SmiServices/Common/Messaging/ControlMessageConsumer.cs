@@ -1,9 +1,9 @@
 
+using NLog;
 using RabbitMQ.Client;
 using RabbitMQ.Client.Events;
 using RabbitMQ.Client.Exceptions;
 using SmiServices.Common.Events;
-using SmiServices.Common.Messages;
 using SmiServices.Common.Options;
 using System;
 using System.Linq;
@@ -13,8 +13,10 @@ using System.Threading.Tasks;
 
 namespace SmiServices.Common.Messaging
 {
-    public class ControlMessageConsumer : Consumer<IMessage>
+    public class ControlMessageConsumer
     {
+        private readonly ILogger _logger = LogManager.GetCurrentClassLogger();
+
         public readonly ConsumerOptions ControlConsumerOptions = new()
         {
             QoSPrefetchCount = 1,
@@ -59,21 +61,21 @@ namespace SmiServices.Common.Messaging
         /// and shouldn't be included in any Ack/Nack counts
         /// </summary>
         /// <param name="e"></param>
-        public override void ProcessMessage(BasicDeliverEventArgs e)
+        public void ProcessMessage(BasicDeliverEventArgs e)
         {
             try
             {
                 // For now we only deal with the simple case of "smi.control.<who>.<what>". Can expand later on depending on our needs
                 // Queues will be deleted when the connection is closed so don't need to worry about messages being leftover
 
-                Logger.Info("Control message received with routing key: " + e.RoutingKey);
+                _logger.Info("Control message received with routing key: " + e.RoutingKey);
 
                 string[] split = e.RoutingKey.ToLower().Split('.');
                 string? body = GetBodyFromArgs(e);
 
                 if (split.Length < 4)
                 {
-                    Logger.Debug("Control command shorter than the minimum format");
+                    _logger.Debug("Control command shorter than the minimum format");
                     return;
                 }
 
@@ -88,7 +90,7 @@ namespace SmiServices.Common.Messaging
                 // Ignore any messages not meant for us
                 if (!actor.Equals("all") && !actor.Equals(_processName))
                 {
-                    Logger.Debug("Control command did not match this service");
+                    _logger.Debug("Control command did not match this service");
                     return;
                 }
 
@@ -99,11 +101,11 @@ namespace SmiServices.Common.Messaging
                     if (StopHost == null)
                     {
                         // This should never really happen
-                        Logger.Info("Received stop command but no stop event registered");
+                        _logger.Info("Received stop command but no stop event registered");
                         return;
                     }
 
-                    Logger.Info("Stop request received, raising StopHost event");
+                    _logger.Info("Stop request received, raising StopHost event");
                     Task.Run(() => StopHost.Invoke());
 
                     return;
@@ -111,7 +113,7 @@ namespace SmiServices.Common.Messaging
 
                 if (action.StartsWith("ping"))
                 {
-                    Logger.Info("Pong!");
+                    _logger.Info("Pong!");
                     return;
                 }
 
@@ -122,36 +124,30 @@ namespace SmiServices.Common.Messaging
                 // Else raise the event if any hosts have specific control needs
                 if (ControlEvent != null)
                 {
-                    Logger.Debug("Control message not handled, raising registered ControlEvent(s)");
+                    _logger.Debug("Control message not handled, raising registered ControlEvent(s)");
                     ControlEvent(Regex.Replace(action, @"[\d]", ""), body);
 
                     return;
                 }
 
                 // Else we should ignore it?
-                Logger.Warn("Unhandled control message with routing key: " + e.RoutingKey);
+                _logger.Warn("Unhandled control message with routing key: " + e.RoutingKey);
             }
             catch (Exception exception)
             {
-                Fatal("ProcessMessageImpl threw unhandled exception", exception);
+                _logger.Error(exception, "ProcessMessageImpl threw unhandled exception");
             }
         }
 
         /// <summary>
         /// Ensures the control queue is cleaned up on exit. Should have been deleted already, but this ensures it
         /// </summary>
-        public override void Shutdown()
+        public void Shutdown()
         {
             using var model = _connection.CreateModel();
-            Logger.Debug($"Deleting control queue: {ControlConsumerOptions.QueueName}");
+            _logger.Debug($"Deleting control queue: {ControlConsumerOptions.QueueName}");
             model.QueueDelete(ControlConsumerOptions.QueueName);
         }
-
-        // NOTE(rkm 2020-05-12) Not used in this implementation
-        protected override void ProcessMessageImpl(IMessageHeader header, IMessage message, ulong tag) => throw new NotImplementedException("ControlMessageConsumer does not implement ProcessMessageImpl");
-
-        // NOTE(rkm 2020-05-12) Control messages are automatically acknowledged, so nothing to do here
-        protected override void ErrorAndNack(IMessageHeader header, ulong tag, string message, Exception exc) => throw new NotImplementedException($"ErrorAndNack called for control message {tag} ({exc})");
 
         /// <summary>
         /// Creates a one-time connection to set up the required control queue and bindings on the RabbitMQ server.
@@ -170,7 +166,7 @@ namespace SmiServices.Common.Messaging
                 throw new ApplicationException($"The given control exchange was not found on the server: \"{controlExchangeName}\"", e);
             }
 
-            Logger.Debug($"Creating control queue {ControlConsumerOptions.QueueName}");
+            _logger.Debug($"Creating control queue {ControlConsumerOptions.QueueName}");
 
             // Declare our queue with:
             // durable = false (queue will not persist over restarts of the RabbitMq server)
@@ -179,13 +175,13 @@ namespace SmiServices.Common.Messaging
             model.QueueDeclare(ControlConsumerOptions.QueueName, durable: false, exclusive: false, autoDelete: true);
 
             // Binding for any control requests, i.e. "stop"
-            Logger.Debug($"Creating binding {controlExchangeName}->{ControlConsumerOptions.QueueName} with key {ControlQueueBindingKey}");
+            _logger.Debug($"Creating binding {controlExchangeName}->{ControlConsumerOptions.QueueName} with key {ControlQueueBindingKey}");
             model.QueueBind(ControlConsumerOptions.QueueName, controlExchangeName, ControlQueueBindingKey);
 
             // Specific microservice binding key, ignoring the id at the end of the process name
             string bindingKey = $"smi.control.{_processName}.*";
 
-            Logger.Debug($"Creating binding {controlExchangeName}->{ControlConsumerOptions.QueueName} with key {bindingKey}");
+            _logger.Debug($"Creating binding {controlExchangeName}->{ControlConsumerOptions.QueueName} with key {bindingKey}");
             model.QueueBind(ControlConsumerOptions.QueueName, controlExchangeName, bindingKey);
         }
 
