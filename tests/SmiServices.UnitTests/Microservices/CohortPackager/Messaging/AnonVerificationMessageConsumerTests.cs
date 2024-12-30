@@ -5,7 +5,6 @@ using SmiServices.Common.Messages;
 using SmiServices.Common.Messages.Extraction;
 using SmiServices.Microservices.CohortPackager;
 using SmiServices.Microservices.CohortPackager.ExtractJobStorage;
-using SmiServices.UnitTests.Common;
 using System;
 using System.Collections.Concurrent;
 using System.Threading;
@@ -52,7 +51,7 @@ internal class AnonVerificationMessageConsumerTests
             {
                 while (_writeQueueCount > 0)
                 {
-                    _processedList.Enqueue(new Tuple<IMessageHeader, ulong>(null!, 0));
+                    _processedList.Enqueue(new Tuple<IMessageHeader, ulong>(new MessageHeader(), 0));
                     --_writeQueueCount;
                 }
             });
@@ -64,7 +63,9 @@ internal class AnonVerificationMessageConsumerTests
     private AnonVerificationMessageConsumer NewConsumer(bool processBatches, int maxUnacknowledgedMessages, TimeSpan verificationMessageQueueFlushTime)
     {
         var consumer = new AnonVerificationMessageConsumer(_mockJobStore.Object, processBatches, maxUnacknowledgedMessages, verificationMessageQueueFlushTime);
-        consumer.SetModel(new Mock<IModel>(MockBehavior.Loose).Object);
+        var mockModel = new Mock<IModel>(MockBehavior.Strict);
+        mockModel.Setup(x => x.IsClosed).Returns(false);
+        consumer.SetModel(mockModel.Object);
         return consumer;
     }
 

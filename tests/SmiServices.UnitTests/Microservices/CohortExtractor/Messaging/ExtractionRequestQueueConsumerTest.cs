@@ -157,14 +157,13 @@ namespace SmiServices.UnitTests.Microservices.CohortExtractor.Messaging
 
             var mockModel = new Mock<IModel>(MockBehavior.Strict);
             mockModel.Setup(x => x.IsClosed).Returns(false);
-            mockModel.Setup(x => x.BasicAck(It.IsAny<ulong>(), It.IsAny<bool>())).Verifiable();
 
             consumer.SetModel(mockModel.Object);
             consumer.TestMessage(msg);
 
             Thread.Sleep(500); // Fatal call is race-y
             Assert.That(fatalCalled, Is.False, $"Fatal was called with {fatalErrorEventArgs}");
-            mockModel.Verify(x => x.BasicAck(It.IsAny<ulong>(), It.IsAny<bool>()), Times.Once);
+            Assert.That(consumer.AckCount, Is.EqualTo(1));
             Assert.That(fileMessageRoutingKey, Is.EqualTo(expectedRoutingKey));
         }
 
