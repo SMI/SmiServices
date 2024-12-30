@@ -1,4 +1,5 @@
 using RabbitMQ.Client;
+using SmiServices.Common.Events;
 using SmiServices.Common.Messages;
 
 namespace SmiServices.Microservices.MongoDBPopulator.Processing
@@ -29,6 +30,8 @@ namespace SmiServices.Microservices.MongoDBPopulator.Processing
         /// Model to acknowledge messages on
         /// </summary>
         IModel? Model { get; set; }
+
+        event SmiAckEventHandler? OnAck;
 
         /// <summary>
         /// Count of the total number of acknowledged messages during this processors lifetime

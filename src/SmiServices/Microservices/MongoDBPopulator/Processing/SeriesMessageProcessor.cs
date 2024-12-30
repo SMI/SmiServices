@@ -73,7 +73,7 @@ namespace SmiServices.Microservices.MongoDBPopulator.Processing
 
             lock (LockObj)
             {
-                ToProcess.Enqueue(new Tuple<BsonDocument, ulong>(document, deliveryTag));
+                ToProcess.Enqueue(new Tuple<BsonDocument, IMessageHeader, ulong>(document, header, deliveryTag));
 
                 if (ToProcess.Count >= MaxQueueSize)
                     forceProcess = true;
@@ -114,8 +114,8 @@ namespace SmiServices.Microservices.MongoDBPopulator.Processing
                 {
                     Logger.Debug("SeriesMessageProcessor: Wrote " + ToProcess.Count + " messages successfully, sending ACKs");
 
-                    foreach (ulong deliveryTag in ToProcess.Select(t => t.Item2))
-                        Model.BasicAck(deliveryTag, false);
+                    foreach (var (_, header, deliveryTag) in ToProcess)
+                        Ack(header, deliveryTag);
 
                     AckCount += ToProcess.Count;
                     ToProcess.Clear();

@@ -9,7 +9,6 @@ using SmiServices.Common.Messages;
 using SmiServices.Common.Options;
 using SmiServices.Microservices.MongoDBPopulator;
 using SmiServices.Microservices.MongoDBPopulator.Processing;
-using SmiServices.UnitTests.Common;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -64,7 +63,7 @@ namespace SmiServices.UnitTests.Microservices.MongoDbPopulator.Execution.Process
                 string modality = testModalities[i];
                 ds.AddOrUpdate(DicomTag.Modality, modality);
                 msg.DicomDataset = DicomTypeTranslater.SerializeDatasetToJson(ds);
-                processor.AddToWriteQueue(msg, null, (ulong)i);
+                processor.AddToWriteQueue(msg, new MessageHeader(), (ulong)i);
             }
 
             ds.AddOrUpdate(DicomTag.Modality, "CT");

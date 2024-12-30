@@ -1,6 +1,7 @@
 using MongoDB.Bson;
 using NLog;
 using RabbitMQ.Client;
+using SmiServices.Common.Events;
 using SmiServices.Common.Messages;
 using SmiServices.Common.Options;
 using System;
@@ -40,6 +41,8 @@ namespace SmiServices.Microservices.MongoDBPopulator.Processing
         /// </summary>
         public IModel? Model { get; set; }
 
+        public event SmiAckEventHandler? OnAck;
+
         /// <inheritdoc />
         /// <summary>
         /// Indicates if the object is actively processing messages
@@ -61,7 +64,7 @@ namespace SmiServices.Microservices.MongoDBPopulator.Processing
         protected int FailedWriteAttempts;
         protected readonly int FailedWriteLimit;
 
-        protected readonly Queue<Tuple<BsonDocument, ulong>> ToProcess = new();
+        protected readonly Queue<Tuple<BsonDocument, IMessageHeader, ulong>> ToProcess = new();
         protected readonly int MaxQueueSize;
         protected readonly object LockObj = new();
         private readonly SysTimers.Timer _processTimer;
@@ -118,6 +121,11 @@ namespace SmiServices.Microservices.MongoDBPopulator.Processing
             // Forces process to wait until any current processing is finished
             lock (LockObj)
                 Logger.Debug("Lock released, no more messages will be processed");
+        }
+
+        protected void Ack(IMessageHeader header, ulong deliveryTag)
+        {
+            OnAck?.Invoke(this, new SmiAckEventArgs(header) { DeliveryTag = deliveryTag, Multiple = false });
         }
 
         #endregion

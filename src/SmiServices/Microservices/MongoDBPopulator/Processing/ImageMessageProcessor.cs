@@ -30,7 +30,7 @@ namespace SmiServices.Microservices.MongoDBPopulator.Processing
             : base(options, mongoDbAdapter, maxQueueSize, exceptionCallback) { }
 
 
-        public override void AddToWriteQueue(DicomFileMessage message, IMessageHeader? header, ulong deliveryTag)
+        public override void AddToWriteQueue(DicomFileMessage message, IMessageHeader header, ulong deliveryTag)
         {
             // Only time we are not processing is if we are shutting down anyway
             if (IsStopping)
@@ -80,7 +80,7 @@ namespace SmiServices.Microservices.MongoDBPopulator.Processing
 
             lock (LockObj)
             {
-                ToProcess.Enqueue(new Tuple<BsonDocument, ulong>(document, deliveryTag));
+                ToProcess.Enqueue(new Tuple<BsonDocument, IMessageHeader, ulong>(document, header, deliveryTag));
 
                 if (ToProcess.Count >= MaxQueueSize)
                     forceProcess = true;
@@ -123,11 +123,12 @@ namespace SmiServices.Microservices.MongoDBPopulator.Processing
                             Logger.Debug($"Wrote {modalityDocs.Count} documents successfully, sending ACKs");
 
                             // Hopefully this uses ReferenceEquals, otherwise will be slow...
-                            foreach (ulong deliveryTag in ToProcess
-                                    .Where(x => modalityDocs.Contains(x.Item1))
-                                    .Select(x => x.Item2))
+                            foreach (
+                                var (_, header, deliveryTag) in
+                                ToProcess.Where(x => modalityDocs.Contains(x.Item1))
+                            )
                             {
-                                Model.BasicAck(deliveryTag, false);
+                                Ack(header, deliveryTag);
                             }
 
                             AckCount += modalityDocs.Count;
