@@ -31,7 +31,7 @@
     <PackageVersion Include="System.IO.FileSystem" Version="4.3.0" />
     <PackageVersion Include="System.Private.Uri" Version="4.3.2" />
     <PackageVersion Include="Terminal.Gui" Version="1.17.1" />
-    <PackageVersion Include="YamlDotNet" Version="16.2.1" />
+    <PackageVersion Include="YamlDotNet" Version="16.3.0" />
     <!-- Test Packages -->
     <PackageVersion Include="HIC.BadMedicine.Dicom" Version="0.1.2" />
     <PackageVersion Include="HIC.RDMP.Plugin.Test" Version="8.4.2" />
