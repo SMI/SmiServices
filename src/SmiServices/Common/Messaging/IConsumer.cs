@@ -1,6 +1,7 @@
 using RabbitMQ.Client;
 using RabbitMQ.Client.Events;
 using SmiServices.Common.Events;
+using SmiServices.Common.Messages;
 using SmiServices.Common.Options;
 
 namespace SmiServices.Common.Messaging
@@ -8,7 +9,7 @@ namespace SmiServices.Common.Messaging
     /// <summary>
     /// Interface for an object which handles messages obtained by a MessageBroker.
     /// </summary>
-    public interface IConsumer
+    public interface IConsumer<T> where T : IMessage
     {
         /// <summary>
         /// Process a message received by the adapter.

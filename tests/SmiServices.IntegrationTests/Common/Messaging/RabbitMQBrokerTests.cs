@@ -190,7 +190,7 @@ namespace SmiServices.IntegrationTests.Common.Messaging
 
             var o = new GlobalOptionsFactory().Load(nameof(Test_Shutdown));
 
-            var consumer = (IConsumer?)Activator.CreateInstance(consumerType);
+            var consumer = (IConsumer<TestMessage>?)Activator.CreateInstance(consumerType);
 
             //connect to rabbit with a new consumer
             using var tester = new MicroserviceTester(o.RabbitOptions!, [_testConsumerOptions]) { CleanUpAfterTest = false };

@@ -1,4 +1,5 @@
 using RabbitMQ.Client;
+using SmiServices.Common.Messages;
 using SmiServices.Common.Messaging;
 using SmiServices.Common.Options;
 using System;
@@ -9,7 +10,7 @@ namespace SmiServices.Common
     {
         bool HasConsumers { get; }
 
-        Guid StartConsumer(ConsumerOptions consumerOptions, IConsumer consumer, bool isSolo);
+        Guid StartConsumer<T>(ConsumerOptions consumerOptions, IConsumer<T> consumer, bool isSolo) where T : IMessage;
 
         void StopConsumer(Guid taskId, TimeSpan timeout);
 

@@ -13,7 +13,7 @@ using System.Threading.Tasks;
 
 namespace SmiServices.Common.Messaging
 {
-    public abstract class Consumer<TMessage> : IConsumer where TMessage : IMessage
+    public abstract class Consumer<T> : IConsumer<T> where T : IMessage
     {
         /// <summary>
         /// Count of the messages Acknowledged by this Consumer, use <see cref="Ack(IMessageHeader, ulong)"/> to increment this
@@ -105,7 +105,7 @@ namespace SmiServices.Common.Messaging
 
             try
             {
-                if (!SafeDeserializeToMessage<TMessage>(header, deliverArgs, out TMessage? message))
+                if (!SafeDeserializeToMessage(header, deliverArgs, out T? message))
                     return;
                 ProcessMessageImpl(header, message, deliverArgs.DeliveryTag);
             }
@@ -129,7 +129,7 @@ namespace SmiServices.Common.Messaging
             }
         }
 
-        public void TestMessage(TMessage msg)
+        public void TestMessage(T msg)
         {
             try
             {
@@ -142,18 +142,17 @@ namespace SmiServices.Common.Messaging
         }
 
 
-        protected abstract void ProcessMessageImpl(IMessageHeader header, TMessage message, ulong tag);
+        protected abstract void ProcessMessageImpl(IMessageHeader header, T message, ulong tag);
 
         /// <summary>
         /// Safely deserialize a <see cref="BasicDeliverEventArgs"/> to an <see cref="IMessage"/>. Returns true if the deserialization
         /// was successful (message available from the out parameter), or false (out iMessage is null)
-        /// <typeparam name="T"></typeparam>
         /// <param name="header"></param>
         /// <param name="deliverArgs"></param>
         /// <param name="iMessage"></param>
         /// <returns></returns>
         /// </summary>
-        protected bool SafeDeserializeToMessage<T>(IMessageHeader header, BasicDeliverEventArgs deliverArgs, [NotNullWhen(true)] out T? iMessage) where T : IMessage
+        protected bool SafeDeserializeToMessage(IMessageHeader header, BasicDeliverEventArgs deliverArgs, [NotNullWhen(true)] out T? iMessage)
         {
             try
             {
@@ -165,7 +164,7 @@ namespace SmiServices.Common.Messaging
                 // Deserialization exception - Can never process this message
 
                 Logger.Debug("JsonSerializationException, doing ErrorAndNack for message (DeliveryTag " + deliverArgs.DeliveryTag + ")");
-                ErrorAndNack(header, deliverArgs.DeliveryTag, DeserializationMessage<T>(), e);
+                ErrorAndNack(header, deliverArgs.DeliveryTag, DeserializationMessage(), e);
 
                 iMessage = default;
                 return false;
@@ -242,7 +241,7 @@ namespace SmiServices.Common.Messaging
         }
 
 
-        private static string DeserializationMessage<T>()
+        private static string DeserializationMessage()
         {
             return "Could not deserialize message to " + typeof(T).Name + " object. Likely an issue with the message content";
         }

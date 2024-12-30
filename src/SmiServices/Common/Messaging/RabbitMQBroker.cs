@@ -3,6 +3,7 @@ using RabbitMQ.Client;
 using RabbitMQ.Client.Events;
 using RabbitMQ.Client.Exceptions;
 using SmiServices.Common.Events;
+using SmiServices.Common.Messages;
 using SmiServices.Common.Options;
 using System;
 using System.Collections.Generic;
@@ -87,13 +88,13 @@ namespace SmiServices.Common.Messaging
 
 
         /// <summary>
-        /// Setup a subscription to a queue which sends messages to the <see cref="IConsumer"/>.
+        /// Setup a subscription to a queue which sends messages to the <see cref="IConsumer{T}"/>.
         /// </summary>
         /// <param name="consumerOptions">The connection options.</param>
-        /// <param name="consumer">Consumer that will be sent any received messages.</param>
+        /// <param name="consumer{T}">Consumer that will be sent any received messages.</param>
         /// <param name="isSolo">If specified, will ensure that it is the only consumer on the provided queue</param>
         /// <returns>Identifier for the consumer task, can be used to stop the consumer without shutting down the whole adapter</returns>
-        public Guid StartConsumer(ConsumerOptions consumerOptions, IConsumer consumer, bool isSolo = false)
+        public Guid StartConsumer<T>(ConsumerOptions consumerOptions, IConsumer<T> consumer, bool isSolo = false) where T : IMessage
         {
             if (ShutdownCalled)
                 throw new ApplicationException("Adapter has been shut down");

@@ -4,7 +4,7 @@ using SmiServices.Microservices.MongoDBPopulator.Processing;
 
 namespace SmiServices.Microservices.MongoDBPopulator
 {
-    public interface IMongoDbPopulatorMessageConsumer : IConsumer
+    public interface IMongoDbPopulatorMessageConsumer
     {
         ConsumerOptions ConsumerOptions { get; }
 

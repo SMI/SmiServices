@@ -4,6 +4,7 @@ using FellowOakDicom;
 using MongoDB.Driver;
 using NLog;
 using NUnit.Framework;
+using Rdmp.Core.CommandExecution;
 using Rdmp.Core.Curation;
 using Rdmp.Core.Curation.Data;
 using Rdmp.Core.Curation.Data.DataLoad;
@@ -16,10 +17,9 @@ using Rdmp.Core.ReusableLibraryCode.Checks;
 using Rdmp.Dicom.PipelineComponents;
 using Rdmp.Dicom.PipelineComponents.DicomSources;
 using SmiServices.Applications.DicomDirectoryProcessor;
-using SmiServices.Common.Messages;
 using SmiServices.Common.Messages.Extraction;
-using SmiServices.Common.Messaging;
 using SmiServices.Common.Options;
+using SmiServices.IntegrationTests.Common;
 using SmiServices.Microservices.CohortExtractor;
 using SmiServices.Microservices.CohortExtractor.RequestFulfillers;
 using SmiServices.Microservices.DicomRelationalMapper;
@@ -29,19 +29,16 @@ using SmiServices.Microservices.IdentifierMapper;
 using SmiServices.Microservices.IdentifierMapper.Swappers;
 using SmiServices.Microservices.MongoDBPopulator;
 using SmiServices.UnitTests.Common;
+using SmiServices.UnitTests.Microservices.DicomRelationalMapper;
+using SmiServices.UnitTests.TestCommon;
 using System;
 using System.Data;
 using System.IO;
 using System.Linq;
 using System.Text.RegularExpressions;
 using System.Threading;
-using Rdmp.Core.CommandExecution;
 using Tests.Common;
 using DatabaseType = FAnsi.DatabaseType;
-using SmiServices.IntegrationTests.Common;
-using SmiServices.UnitTests.Microservices.DicomRelationalMapper;
-using SmiServices.UnitTests.TestCommon;
-using System.Diagnostics.CodeAnalysis;
 
 namespace SmiServices.IntegrationTests.Microservices.DicomRelationalMapper
 {
@@ -500,9 +497,8 @@ namespace SmiServices.IntegrationTests.Microservices.DicomRelationalMapper
                 relationalMapperHost.Start();
                 tester.StopOnDispose.Add(relationalMapperHost);
 
-                Assert.That(mongoDbPopulatorHost.Consumers, Has.Count.EqualTo(2));
-                TestTimelineAwaiter.Await(() => mongoDbPopulatorHost.Consumers[0].Processor.AckCount >= 1);
-                TestTimelineAwaiter.Await(() => mongoDbPopulatorHost.Consumers[1].Processor.AckCount >= 1);
+                TestTimelineAwaiter.Await(() => mongoDbPopulatorHost.SeriesConsumer.Processor.AckCount >= 1);
+                TestTimelineAwaiter.Await(() => mongoDbPopulatorHost.ImageConsumer.Processor.AckCount >= 1);
                 logger.Info("\n### MongoDbPopulator has processed its messages ###\n");
 
                 TestTimelineAwaiter.Await(() => identifierMapperHost.Consumer.AckCount >= 1);//number of series
@@ -512,8 +508,8 @@ namespace SmiServices.IntegrationTests.Microservices.DicomRelationalMapper
                 {
                     Assert.That(dicomTagReaderHost.AccessionDirectoryMessageConsumer.NackCount, Is.EqualTo(0));
                     Assert.That(identifierMapperHost.Consumer.NackCount, Is.EqualTo(0));
-                    Assert.That(((Consumer<SeriesMessage>)mongoDbPopulatorHost.Consumers[0]).NackCount, Is.EqualTo(0));
-                    Assert.That(((Consumer<DicomFileMessage>)mongoDbPopulatorHost.Consumers[1]).NackCount, Is.EqualTo(0));
+                    Assert.That(mongoDbPopulatorHost.SeriesConsumer.NackCount, Is.EqualTo(0));
+                    Assert.That(mongoDbPopulatorHost.ImageConsumer.NackCount, Is.EqualTo(0));
                 });
 
 

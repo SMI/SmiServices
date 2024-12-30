@@ -125,7 +125,7 @@ namespace SmiServices.Common.Execution
         }
 
         /// <summary>
-        /// Per-host implementation. <see cref="IConsumer"/> objects should not be started outside this method
+        /// Per-host implementation. <see cref="IConsumer{T}"/> objects should not be started outside this method
         /// </summary>
         public abstract void Start();
 
