@@ -160,6 +160,9 @@ namespace SmiServices.Common.Messaging
             if (consumerOptions.HoldUnprocessableMessages && !consumerOptions.AutoAck)
                 consumer.HoldUnprocessableMessages = true;
 
+            consumer.OnAck += (_, a) => { ebc.Model.BasicAck(a.DeliveryTag, a.Multiple); };
+            consumer.OnNack += (_, a) => { ebc.Model.BasicNack(a.DeliveryTag, a.Multiple, a.Requeue); };
+
             model.BasicConsume(ebc, consumerOptions.QueueName, consumerOptions.AutoAck);
             _logger.Debug($"Consumer task started [QueueName={consumerOptions?.QueueName}]");
             return taskId;

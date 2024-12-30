@@ -38,7 +38,8 @@ namespace SmiServices.Common.Messaging
         /// Event raised when Fatal method called
         /// </summary>
         public event ConsumerFatalHandler? OnFatal;
-
+        public event AckEventHandler? OnAck;
+        public event NackEventHandler? OnNack;
 
         protected readonly ILogger Logger;
 
@@ -191,29 +192,22 @@ namespace SmiServices.Common.Messaging
         /// Instructs RabbitMQ to discard a single message and not requeue it
         /// </summary>
         /// <param name="tag"></param>
-        protected void DiscardSingleMessage(ulong tag)
+        private void DiscardSingleMessage(ulong tag)
         {
-            Model!.BasicNack(tag, multiple: false, requeue: false);
+            OnNack?.Invoke(this, new BasicNackEventArgs { DeliveryTag = tag, Multiple = false, Requeue = false });
             NackCount++;
         }
 
         protected virtual void ErrorAndNack(IMessageHeader header, ulong tag, string message, Exception exception)
         {
-            header?.Log(Logger, LogLevel.Error, message, exception);
-
+            header.Log(Logger, LogLevel.Error, message, exception);
             DiscardSingleMessage(tag);
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="header"></param>
-        /// <param name="tag"></param>
-        protected void Ack(IMessageHeader header, ulong tag)
+        protected void Ack(IMessageHeader header, ulong deliveryTag)
         {
-            header?.Log(Logger, LogLevel.Trace, $"Acknowledged {header.MessageGuid}");
-
-            Model!.BasicAck(tag, false);
+            OnAck?.Invoke(this, new BasicAckEventArgs { DeliveryTag = deliveryTag, Multiple = false });
+            header.Log(Logger, LogLevel.Trace, $"Acknowledged {header.MessageGuid}");
             AckCount++;
         }
 
@@ -228,8 +222,9 @@ namespace SmiServices.Common.Messaging
             foreach (IMessageHeader header in batchHeaders)
                 header.Log(Logger, LogLevel.Trace, "Acknowledged");
 
-            Model!.BasicAck(latestDeliveryTag, true);
             AckCount += batchHeaders.Count;
+
+            OnAck?.Invoke(this, new BasicAckEventArgs { DeliveryTag = latestDeliveryTag, Multiple = true });
         }
 
         /// <summary>

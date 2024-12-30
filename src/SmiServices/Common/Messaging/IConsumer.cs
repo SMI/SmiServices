@@ -23,6 +23,16 @@ namespace SmiServices.Common.Messaging
         void ProcessMessage(BasicDeliverEventArgs basicDeliverEventArgs);
 
         /// <summary>
+        /// Callback raised when Ack-ing a message
+        /// </summary>
+        event AckEventHandler OnAck;
+
+        /// <summary>
+        /// Callback raised when Nack-ing a message
+        /// </summary>
+        event NackEventHandler OnNack;
+
+        /// <summary>
         /// 
         /// </summary>
         event ConsumerFatalHandler? OnFatal;
