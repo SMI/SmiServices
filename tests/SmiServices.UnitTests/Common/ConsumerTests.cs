@@ -7,13 +7,12 @@ using System.Threading;
 
 namespace SmiServices.UnitTests.Common
 {
-    [TestFixture]
     public class ConsumerTests
     {
         [Test]
         public void Consumer_UnhandledException_TriggersFatal()
         {
-            var consumer = new TestConsumer();
+            var consumer = new ThrowingConsumer();
 
             var fatalCalled = false;
             consumer.OnFatal += (sender, args) => fatalCalled = true;
@@ -24,27 +23,40 @@ namespace SmiServices.UnitTests.Common
             Assert.That(fatalCalled, Is.True);
         }
 
-    }
-
-    // Dummy IMessage for message testing purposes
-    public class TestMessage : IMessage
-    {
-
-    }
-
-    public class TestConsumer : Consumer<TestMessage>
-    {
-        protected override void ProcessMessageImpl(IMessageHeader header, TestMessage msg, ulong tag)
+        [Test]
+        public void MessageHolds()
         {
-            throw new Exception("Throwing to trigger Fatal");
+            // Arrange
+
+            var consumer = new ThrowingConsumer()
+            {
+                HoldUnprocessableMessages = true,
+                QoSPrefetchCount = 1,
+            };
+
+            // Act
+
+            consumer.ProcessMessage(new MessageHeader(), new TestMessage(), 1);
+
+            // Assert
+
+            Assert.Multiple(() =>
+            {
+                Assert.That(consumer.HeldMessages, Is.EqualTo(1));
+                Assert.That(consumer.AckCount, Is.EqualTo(0));
+            });
         }
     }
 
-    public class DoNothingConsumer : Consumer<TestMessage>
+    public class TestMessage : IMessage { }
+
+    public class ThrowingConsumer : Consumer<TestMessage>
     {
+        public int HeldMessages { get => _heldMessages; }
+
         protected override void ProcessMessageImpl(IMessageHeader header, TestMessage msg, ulong tag)
         {
-
+            throw new Exception("Throwing!");
         }
     }
 }
