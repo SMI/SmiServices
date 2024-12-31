@@ -1,234 +1,231 @@
 using Moq;
-using NLog;
-using NLog.Targets;
 using NUnit.Framework;
 using NUnit.Framework.Internal;
-using RabbitMQ.Client.Exceptions;
 using SmiServices.Common.Messages;
 using SmiServices.Common.Messaging;
 using SmiServices.Common.Options;
 using SmiServices.UnitTests.Common;
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading;
 
 namespace SmiServices.IntegrationTests.Common.Messaging
 {
-    [TestFixture, RequiresRabbit]
+    [RequiresRabbit]
     public class RabbitMQBrokerTests
     {
-        private ProducerOptions _testProducerOptions = null!;
-        private ConsumerOptions _testConsumerOptions = null!;
-
-        private MicroserviceTester _tester = null!;
-
-        private Consumer<IMessage> _mockConsumer = null!;
-        private GlobalOptions _testOptions = null!;
-
-        [SetUp]
-        public void OneTimeSetUp()
-        {
-            _testOptions = new GlobalOptionsFactory().Load(nameof(RabbitMQBrokerTests));
-
-            _testProducerOptions = new ProducerOptions
-            {
-                ExchangeName = "TEST.TestExchange"
-            };
-
-            _testConsumerOptions = new ConsumerOptions
+        private static ConsumerOptions TestConsumerOptions()
+            => new()
             {
                 QueueName = "TEST.TestQueue",
                 QoSPrefetchCount = 1,
                 AutoAck = false
             };
 
-            _mockConsumer = Mock.Of<Consumer<IMessage>>();
-            _tester = new MicroserviceTester(_testOptions.RabbitOptions!, _testConsumerOptions);
-        }
+        private static GlobalOptions GlobalOptionsFor(string testName)
+            => new GlobalOptionsFactory().Load(testName);
 
-        [TearDown]
-        public void TearDown()
+        [TestCase(null)]
+        [TestCase("  ")]
+        public void SetupProducer_InvalidExchangeName_Throws(string? exchangeName)
         {
-            _tester.Shutdown();
-            _tester.Dispose();
-        }
+            // Arrange
 
-        /// <summary>
-        /// Tests that we get an error if the exchange name provided is invalid or does not exist on the server
-        /// </summary>
-        [Test]
-        public void TestSetupProducerThrowsOnNonExistentExchange()
-        {
             var producerOptions = new ProducerOptions
             {
-                ExchangeName = null
+                ExchangeName = exchangeName
+            };
+            var globalOptions = GlobalOptionsFor(nameof(SetupProducer_InvalidExchangeName_Throws));
+            using var tester = new MicroserviceTester(globalOptions.RabbitOptions!, TestConsumerOptions());
+
+            // Act
+
+            void call() => tester.Broker.SetupProducer(producerOptions);
+
+            // Assert
+
+            var exc = Assert.Throws<ArgumentException>(call);
+            Assert.That(exc.Message, Is.EqualTo("The given producer options have invalid values"));
+        }
+
+        [Test]
+        public void SetupProducer_MissingExchange_Throws()
+        {
+            // Arrange
+
+            var producerOptions = new ProducerOptions
+            {
+                ExchangeName = "TEST.DoesNotExistExchange"
             };
 
-            Assert.Throws<ArgumentException>(() => _tester.Broker.SetupProducer(producerOptions));
+            var globalOptions = GlobalOptionsFor(nameof(SetupProducer_MissingExchange_Throws));
+            using var tester = new MicroserviceTester(globalOptions.RabbitOptions!, TestConsumerOptions());
 
-            producerOptions.ExchangeName = "TEST.DoesNotExistExchange";
-            Assert.Throws<ApplicationException>(() => _tester.Broker.SetupProducer(producerOptions));
-        }
+            // Act
 
-        /// <summary>
-        /// Checks that the queue exists and we get an exception if not
-        /// </summary>
-        [Test]
-        public void TestStartConsumerThrowsOnNonExistentQueue()
-        {
-            var oldq = _testConsumerOptions.QueueName;
-            _testConsumerOptions.QueueName = $"TEST.WrongQueue{new Random().NextInt64()}";
-            Assert.Throws<ApplicationException>(() => _tester.Broker.StartConsumer(_testConsumerOptions, _mockConsumer));
-            _testConsumerOptions.QueueName = oldq;
-        }
+            void call() => tester.Broker.SetupProducer(producerOptions);
 
-        /// <summary>
-        /// This shouldn't hang the test TaskRunner process if everything goes well
-        /// </summary>
-        [Test]
-        public void TestShutdownExitsProperly()
-        {
-            // Setup some consumers/producers so some channels are created
-            _tester.Broker.SetupProducer(_testProducerOptions);
-            _tester.Broker.StartConsumer(_testConsumerOptions, _mockConsumer);
-        }
+            // Assert
 
-        /// <summary>
-        /// Tests that we throw an exception if a task does not exit quickly after cancellation has been requested
-        /// </summary>
-        [Test]
-        public void TestShutdownThrowsOnTimeout()
-        {
-            var testAdapter = new RabbitMQBroker(_testOptions.RabbitOptions!, "RabbitMQBrokerTests");
-            testAdapter.StartConsumer(_testConsumerOptions, _mockConsumer);
-            Assert.Throws<ApplicationException>(() => testAdapter.Shutdown(TimeSpan.Zero));
-        }
-
-        /// <summary>
-        /// Tests that we can't open any new connections after we have called shutdown
-        /// </summary>
-        [Test]
-        public void TestNoNewConnectionsAfterShutdown()
-        {
-            var testAdapter = new RabbitMQBroker(_testOptions.RabbitOptions!, "RabbitMQBrokerTests");
-            Assert.That(testAdapter.ShutdownCalled, Is.False);
-
-            testAdapter.Shutdown(RabbitMQBroker.DefaultOperationTimeout);
-
-            Assert.That(testAdapter.ShutdownCalled, Is.True);
-            Assert.Throws<ApplicationException>(() => testAdapter.StartConsumer(_testConsumerOptions, _mockConsumer));
-            Assert.Throws<ApplicationException>(() => testAdapter.SetupProducer(_testProducerOptions));
+            var exc = Assert.Throws<ApplicationException>(call);
+            Assert.That(exc.Message, Is.EqualTo("Expected exchange \"TEST.DoesNotExistExchange\" to exist"));
         }
 
         [Test]
-        public void TestStopConsumer()
+        public void StartConsumer_SetsQoSPrefetchCount()
         {
-            var consumerId = _tester.Broker.StartConsumer(_testConsumerOptions, _mockConsumer);
-            Assert.DoesNotThrow(() => _tester.Broker.StopConsumer(consumerId, RabbitMQBroker.DefaultOperationTimeout));
-            Assert.Throws<ApplicationException>(() => _tester.Broker.StopConsumer(consumerId, RabbitMQBroker.DefaultOperationTimeout));
+            // Arrange
+
+            var globalOptions = GlobalOptionsFor(nameof(StartConsumer_MissingQueue_Throws));
+            var consumerOptions = TestConsumerOptions();
+            using var tester = new MicroserviceTester(globalOptions.RabbitOptions!, consumerOptions);
+            var mockConsumer = new Mock<IConsumer<IMessage>>(MockBehavior.Strict);
+            mockConsumer.SetupProperty(x => x.QoSPrefetchCount);
+            consumerOptions.QoSPrefetchCount = 123;
+
+            // Act
+
+            tester.Broker.StartConsumer(consumerOptions, mockConsumer.Object);
+
+            // Assert
+
+            Assert.That(mockConsumer.Object.QoSPrefetchCount, Is.EqualTo(123));
         }
 
         [Test]
-        public void TestGetRabbitServerVersion()
+        public void StartConsumer_MissingQueue_Throws()
         {
-            var connection = _testOptions.RabbitOptions?.Connection ?? throw new NUnitException();
-            // These are all the server properties we can check using the connection
-            PrintObjectDictionary(connection.ServerProperties);
+            // Arrange
 
-            Assert.That(connection.ServerProperties.ContainsKey("version"), Is.True);
+            var consumerOptions = TestConsumerOptions();
+            var queueName = $"TEST.WrongQueue{new Random().NextInt64()}";
+            consumerOptions.QueueName = queueName;
+
+            var globalOptions = GlobalOptionsFor(nameof(StartConsumer_MissingQueue_Throws));
+            using var tester = new MicroserviceTester(globalOptions.RabbitOptions!);
+
+            var mockConsumer = new Mock<IConsumer<IMessage>>(MockBehavior.Strict);
+            mockConsumer.SetupProperty(x => x.QoSPrefetchCount);
+
+            // Act
+
+            void call() => tester.Broker.StartConsumer(consumerOptions, mockConsumer.Object);
+
+            // Assert
+
+            var exc = Assert.Throws<ApplicationException>(call);
+            Assert.That(exc.Message, Is.EqualTo($"Expected queue \"{queueName}\" to exist"));
         }
 
         [Test]
-        public void TestMultipleConfirmsOk()
+        public void Shutdown_NoTimeout_Throws()
         {
-            var pm = _tester.Broker.SetupProducer(_testProducerOptions, true);
+            // Arrange
 
-            pm.SendMessage(new TestMessage(), isInResponseTo: null, routingKey: null);
+            var globalOptions = GlobalOptionsFor(nameof(Shutdown_NoTimeout_Throws));
+            using var tester = new MicroserviceTester(globalOptions.RabbitOptions!, TestConsumerOptions());
+            var broker = new RabbitMQBroker(globalOptions.RabbitOptions!, "RabbitMQBrokerTests");
+            var mockConsumer = new Mock<IConsumer<IMessage>>(MockBehavior.Strict);
+            mockConsumer.SetupProperty(x => x.QoSPrefetchCount);
+            broker.StartConsumer(TestConsumerOptions(), mockConsumer.Object);
 
-            for (var i = 0; i < 10; ++i)
-                pm.WaitForConfirms();
+            // Act
+
+            void call() => broker.Shutdown(TimeSpan.Zero);
+
+            // Assert
+
+            var exc = Assert.Throws<ApplicationException>(call);
+            Assert.That(exc.Message, Is.EqualTo("Invalid timeout value"));
         }
 
         [Test]
-        public void TestMultipleCloseOk()
+        public void SetupConsumer_AfterShutdown_Throws()
         {
-            var model = _testOptions.RabbitOptions?.Connection.CreateModel() ?? throw new NUnitException();
+            // Arrange
 
-            // Closing model twice is ok
-            model.Close(200, "bye");
-            model.Close(200, "bye");
+            var globalOptions = GlobalOptionsFor(nameof(SetupConsumer_AfterShutdown_Throws));
+            var broker = new RabbitMQBroker(globalOptions.RabbitOptions!, "RabbitMQBrokerTests");
+            var mockConsumer = new Mock<IConsumer<IMessage>>(MockBehavior.Strict);
+            mockConsumer.SetupProperty(x => x.QoSPrefetchCount);
 
-            Assert.That(model.IsOpen, Is.False);
+            // Act
+
+            broker.Shutdown(RabbitMQBroker.DefaultOperationTimeout);
+
+            // Assert
+
+            Assert.That(broker.ShutdownCalled, Is.EqualTo(true));
+            var exc = Assert.Throws<ApplicationException>(() => broker.StartConsumer(TestConsumerOptions(), mockConsumer.Object));
+            Assert.That(exc.Message, Is.EqualTo("Adapter has been shut down"));
         }
 
         [Test]
-        public void TestWaitAfterChannelClosed()
+        public void SetupProducer_AfterShutdown_Throws()
         {
-            var testAdapter = new RabbitMQBroker(_testOptions.RabbitOptions!, "RabbitMqAdapterTests");
-            var model = testAdapter.GetModel("TestConnection");
-            model.ConfirmSelect();
+            // Arrange
 
-            testAdapter.Shutdown(RabbitMQBroker.DefaultOperationTimeout);
+            var globalOptions = GlobalOptionsFor(nameof(SetupProducer_AfterShutdown_Throws));
+            var broker = new RabbitMQBroker(globalOptions.RabbitOptions!, "RabbitMQBrokerTests");
 
-            Assert.That(model.IsClosed, Is.True);
-            Assert.Throws<AlreadyClosedException>(() => model.WaitForConfirms());
+            // Act
+
+            broker.Shutdown(RabbitMQBroker.DefaultOperationTimeout);
+
+            // Assert
+
+            Assert.That(broker.ShutdownCalled, Is.EqualTo(true));
+            var exc = Assert.Throws<ApplicationException>(() => broker.SetupProducer(new ProducerOptions()));
+            Assert.That(exc.Message, Is.EqualTo("Adapter has been shut down"));
         }
 
-        public void Test_Shutdown()
+        [Test]
+        public void StopConsumer_CalledTwice_Throws()
         {
-            MemoryTarget target = new()
+            // Arrange
+
+            var consumerOptions = TestConsumerOptions();
+            var globalOptions = GlobalOptionsFor(nameof(StopConsumer_CalledTwice_Throws));
+            using var tester = new MicroserviceTester(globalOptions.RabbitOptions!, consumerOptions);
+            var mockConsumer = new Mock<IConsumer<IMessage>>(MockBehavior.Strict);
+            mockConsumer.SetupProperty(x => x.QoSPrefetchCount);
+            var consumerId = tester.Broker.StartConsumer(consumerOptions, mockConsumer.Object);
+
+            // Act
+
+            tester.Broker.StopConsumer(consumerId, RabbitMQBroker.DefaultOperationTimeout);
+
+            // Assert
+
+            var exc = Assert.Throws<ApplicationException>(() => tester.Broker.StopConsumer(consumerId, RabbitMQBroker.DefaultOperationTimeout));
+            Assert.That(exc.Message, Is.EqualTo("Guid was not found in the task register"));
+        }
+
+        [Test]
+        public void WaitForConfirms_Repeated_IsOk()
+        {
+            // Arrange
+
+            var globalOptions = GlobalOptionsFor(nameof(WaitForConfirms_Repeated_IsOk));
+            using var tester = new MicroserviceTester(globalOptions.RabbitOptions!, TestConsumerOptions());
+
+            var producerOptions = new ProducerOptions
             {
-                Layout = "${message}"
+                ExchangeName = "TEST.TestExchange"
             };
+            var producerModel = tester.Broker.SetupProducer(producerOptions, true);
 
-            LogManager.Setup().LoadConfiguration(x => x.ForLogger(LogLevel.Debug).WriteTo(target));
+            producerModel.SendMessage(new TestMessage(), isInResponseTo: null, routingKey: null);
 
-            var o = new GlobalOptionsFactory().Load(nameof(Test_Shutdown));
+            // Act
 
-            var consumer = new DoNothingConsumer();
-
-            //connect to rabbit with a new consumer
-            using var tester = new MicroserviceTester(o.RabbitOptions!, [_testConsumerOptions]) { CleanUpAfterTest = false };
-            tester.Broker.StartConsumer(_testConsumerOptions, consumer!, true);
-
-            //send a message to trigger consumer behaviour
-            tester.SendMessage(_testConsumerOptions, new TestMessage());
-
-            //give the message time to get picked up
-            Thread.Sleep(3000);
-
-            //now attempt to shut down adapter
-            tester.Broker.Shutdown(RabbitMQBroker.DefaultOperationTimeout);
-
-            var expectedErrorMessage = "exiting (shutdown was called)";
-            Assert.That(target.Logs.Any(s => s.Contains(expectedErrorMessage)), Is.True, $"Expected message {expectedErrorMessage} was not found, messages were:" + string.Join(Environment.NewLine, target.Logs));
-        }
-
-        [Test]
-        public void MessageHolds()
-        {
-            var consumerOptions = new ConsumerOptions
+            void call()
             {
-                QueueName = "TEST.TestQueue",
-                QoSPrefetchCount = 1,
-                AutoAck = false,
-                HoldUnprocessableMessages = true,
-            };
-            var consumer = new ThrowingConsumer();
+                producerModel.WaitForConfirms();
+                producerModel.WaitForConfirms();
+            }
 
-            using var tester = new MicroserviceTester(_testOptions.RabbitOptions!, [consumerOptions]);
-            tester.Broker.StartConsumer(consumerOptions, consumer!, true);
+            // Assert
 
-            tester.SendMessage(consumerOptions, new TestMessage());
-            Thread.Sleep(500);
-
-            Assert.Multiple(() =>
-            {
-                Assert.That(consumer.HeldMessages, Is.EqualTo(1));
-                Assert.That(consumer.AckCount, Is.EqualTo(0));
-            });
+            Assert.DoesNotThrow(call);
         }
 
         [Test]
@@ -236,8 +233,10 @@ namespace SmiServices.IntegrationTests.Common.Messaging
         {
             // Arrange
 
+            var globalOptions = GlobalOptionsFor(nameof(SetupProducer_NullBackoffProvider_DoesNotThrow));
+            using var tester = new MicroserviceTester(globalOptions.RabbitOptions!, TestConsumerOptions());
             var exchangeName = $"TEST.{nameof(SetupProducer_NullBackoffProvider_DoesNotThrow)}Exchange";
-            _tester.CreateExchange(exchangeName);
+            tester.CreateExchange(exchangeName);
 
             var producerOptions = new ProducerOptions
             {
@@ -245,11 +244,15 @@ namespace SmiServices.IntegrationTests.Common.Messaging
                 BackoffProviderType = null,
             };
 
-            var broker = new RabbitMQBroker(_testOptions.RabbitOptions!, "RabbitMqAdapterTests");
+            var broker = new RabbitMQBroker(globalOptions.RabbitOptions!, "RabbitMqAdapterTests");
 
             // Act
+
+            void call() => broker.SetupProducer(producerOptions);
+
             // Assert
-            Assert.DoesNotThrow(() => broker.SetupProducer(producerOptions));
+
+            Assert.DoesNotThrow(call);
         }
 
         [Test]
@@ -257,8 +260,10 @@ namespace SmiServices.IntegrationTests.Common.Messaging
         {
             // Arrange
 
+            var globalOptions = GlobalOptionsFor(nameof(SetupProducer_InvalidBackoffProvider_Throws));
+            using var tester = new MicroserviceTester(globalOptions.RabbitOptions!, TestConsumerOptions());
             var exchangeName = $"TEST.{nameof(SetupProducer_InvalidBackoffProvider_Throws)}Exchange";
-            _tester.CreateExchange(exchangeName);
+            tester.CreateExchange(exchangeName);
 
             var producerOptions = new ProducerOptions
             {
@@ -266,21 +271,27 @@ namespace SmiServices.IntegrationTests.Common.Messaging
                 BackoffProviderType = "Foo",
             };
 
-            var broker = new RabbitMQBroker(_testOptions.RabbitOptions!, "RabbitMqAdapterTests");
+            var broker = new RabbitMQBroker(globalOptions.RabbitOptions!, "RabbitMqAdapterTests");
 
             // Act
+
+            void call() => broker.SetupProducer(producerOptions);
+
             // Assert
-            var exc = Assert.Throws<ArgumentException>(() => broker.SetupProducer(producerOptions));
-            Assert.That(exc?.Message, Is.EqualTo("Could not parse 'Foo' to a valid BackoffProviderType"));
+
+            var exc = Assert.Throws<ArgumentException>(call);
+            Assert.That(exc.Message, Is.EqualTo("Could not parse 'Foo' to a valid BackoffProviderType"));
         }
 
         [Test]
-        public void SetupProducer_ValidBackoffProvider()
+        public void SetupProducer_ValidBackoffProvider_IsOk()
         {
             // Arrange
 
+            var globalOptions = GlobalOptionsFor(nameof(SetupProducer_ValidBackoffProvider_IsOk));
+            using var tester = new MicroserviceTester(globalOptions.RabbitOptions!, TestConsumerOptions());
             var exchangeName = $"TEST.{nameof(SetupProducer_InvalidBackoffProvider_Throws)}Exchange";
-            _tester.CreateExchange(exchangeName);
+            tester.CreateExchange(exchangeName);
 
             var producerOptions = new ProducerOptions
             {
@@ -288,44 +299,17 @@ namespace SmiServices.IntegrationTests.Common.Messaging
                 BackoffProviderType = "StaticBackoffProvider",
             };
 
-            var broker = new RabbitMQBroker(_testOptions.RabbitOptions!, "RabbitMqAdapterTests");
+            var broker = new RabbitMQBroker(globalOptions.RabbitOptions!, "RabbitMqAdapterTests");
 
             // Act
+
+            void call() => broker.SetupProducer(producerOptions);
+
             // Assert
-            Assert.DoesNotThrow(() => broker.SetupProducer(producerOptions));
-        }
 
-        private class ThrowingConsumer : Consumer<TestMessage>
-        {
-            public int HeldMessages { get => _heldMessages; }
-
-            protected override void ProcessMessageImpl(IMessageHeader header, TestMessage msg, ulong tag)
-            {
-                throw new Exception("Throwing!");
-            }
+            Assert.DoesNotThrow(call);
         }
 
         private class TestMessage : IMessage { }
-
-
-        private static void PrintObjectDictionary(IDictionary<string, object> dictionary)
-        {
-            foreach (var prop in dictionary)
-            {
-                if (prop.Value is byte[] bytes)
-                {
-                    Console.WriteLine($"{prop.Key}:\t{Encoding.UTF8.GetString(bytes)}");
-                }
-                else if (prop.Value is IDictionary<string, object> value)
-                {
-                    Console.WriteLine($"{prop.Key}:");
-                    PrintObjectDictionary(value);
-                }
-                else
-                {
-                    Console.WriteLine($"{prop.Key}:\t{prop.Value}");
-                }
-            }
-        }
     }
 }
