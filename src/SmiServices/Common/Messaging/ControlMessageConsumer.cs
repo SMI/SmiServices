@@ -1,13 +1,10 @@
-
 using NLog;
 using RabbitMQ.Client;
-using RabbitMQ.Client.Events;
 using RabbitMQ.Client.Exceptions;
 using SmiServices.Common.Events;
 using SmiServices.Common.Options;
 using System;
 using System.Linq;
-using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 
@@ -60,18 +57,16 @@ namespace SmiServices.Common.Messaging
         /// Recreate ProcessMessage to specifically handle control messages which won't have headers,
         /// and shouldn't be included in any Ack/Nack counts
         /// </summary>
-        /// <param name="e"></param>
-        public void ProcessMessage(BasicDeliverEventArgs e)
+        public void ProcessMessage(string body, string routingKey)
         {
             try
             {
                 // For now we only deal with the simple case of "smi.control.<who>.<what>". Can expand later on depending on our needs
                 // Queues will be deleted when the connection is closed so don't need to worry about messages being leftover
 
-                _logger.Info("Control message received with routing key: " + e.RoutingKey);
+                _logger.Info("Control message received with routing key: " + routingKey);
 
-                string[] split = e.RoutingKey.ToLower().Split('.');
-                string? body = GetBodyFromArgs(e);
+                string[] split = routingKey.ToLower().Split('.');
 
                 if (split.Length < 4)
                 {
@@ -131,7 +126,7 @@ namespace SmiServices.Common.Messaging
                 }
 
                 // Else we should ignore it?
-                _logger.Warn("Unhandled control message with routing key: " + e.RoutingKey);
+                _logger.Warn("Unhandled control message with routing key: " + routingKey);
             }
             catch (Exception exception)
             {
@@ -183,30 +178,6 @@ namespace SmiServices.Common.Messaging
 
             _logger.Debug($"Creating binding {controlExchangeName}->{ControlConsumerOptions.QueueName} with key {bindingKey}");
             model.QueueBind(ControlConsumerOptions.QueueName, controlExchangeName, bindingKey);
-        }
-
-        private static string? GetBodyFromArgs(BasicDeliverEventArgs e)
-        {
-            if (e.Body.Length == 0)
-                return null;
-
-            Encoding? enc = null;
-
-            if (!string.IsNullOrWhiteSpace(e.BasicProperties.ContentEncoding))
-            {
-                try
-                {
-                    enc = Encoding.GetEncoding(e.BasicProperties.ContentEncoding);
-                }
-                catch (ArgumentException)
-                {
-                    /* Ignored */
-                }
-            }
-
-            enc ??= Encoding.UTF8;
-
-            return enc.GetString(e.Body.Span);
         }
     }
 }
