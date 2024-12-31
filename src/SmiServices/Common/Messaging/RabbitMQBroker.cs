@@ -222,7 +222,7 @@ namespace SmiServices.Common.Messaging
             model.BasicQos(0, consumerOptions.QoSPrefetchCount, false);
 
             EventingBasicConsumer ebc = new(model);
-            ebc.Received += (o, a) => { controlMessageConsumer.ProcessMessage(a); };
+            ebc.Received += (o, a) => HandleControlMessage(o, a, controlMessageConsumer);
 
             void shutdown(object? o, ShutdownEventArgs a)
             {
@@ -242,6 +242,31 @@ namespace SmiServices.Common.Messaging
 
             model.BasicConsume(ebc, consumerOptions.QueueName, consumerOptions.AutoAck);
             _logger.Debug($"Consumer task started [QueueName={consumerOptions?.QueueName}]");
+        }
+
+        private void HandleControlMessage(object? _, BasicDeliverEventArgs deliverArgs, ControlMessageConsumer controlMessageConsumer)
+        {
+            if (deliverArgs.Body.Length == 0)
+                return;
+
+            Encoding? enc = null;
+
+            if (!string.IsNullOrWhiteSpace(deliverArgs.BasicProperties.ContentEncoding))
+            {
+                try
+                {
+                    enc = Encoding.GetEncoding(deliverArgs.BasicProperties.ContentEncoding);
+                }
+                catch (ArgumentException)
+                {
+                    /* Ignored */
+                }
+            }
+
+            enc ??= Encoding.UTF8;
+            var body = enc.GetString(deliverArgs.Body.Span);
+
+            controlMessageConsumer.ProcessMessage(body, deliverArgs.RoutingKey);
         }
 
         /// <summary>
