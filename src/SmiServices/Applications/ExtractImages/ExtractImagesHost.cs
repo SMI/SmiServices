@@ -35,9 +35,7 @@ namespace SmiServices.Applications.ExtractImages
         )
         : base(
             globals,
-            messageBroker,
-            threaded
-        )
+            messageBroker)
         {
             ExtractImagesOptions? options = Globals.ExtractImagesOptions ?? throw new ArgumentException(nameof(Globals.ExtractImagesOptions));
             _allowedKeys = options.AllowedExtractionKeys;

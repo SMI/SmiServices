@@ -59,19 +59,8 @@ namespace SmiServices.Common.Messaging
         /// <param name="rabbitOptions"></param>
         /// <param name="hostId">Identifier for this host instance</param>
         /// <param name="hostFatalHandler"></param>
-        /// <param name="threaded"></param>
-        public RabbitMQBroker(RabbitOptions rabbitOptions, string hostId, HostFatalHandler? hostFatalHandler = null, bool threaded = false)
+        public RabbitMQBroker(RabbitOptions rabbitOptions, string hostId, HostFatalHandler? hostFatalHandler = null)
         {
-            if (threaded)
-            {
-                ThreadPool.GetMinThreads(out var minWorker, out var minIOC);
-                var workers = Math.Max(50, minWorker);
-                if (ThreadPool.SetMaxThreads(workers, 50))
-                    _logger.Info($"Set Rabbit event concurrency to ({workers:n},50)");
-                else
-                    _logger.Warn($"Failed to set Rabbit event concurrency to ({workers:n},50)");
-            }
-
             if (string.IsNullOrWhiteSpace(hostId))
                 throw new ArgumentException("RabbitMQ host ID required", nameof(hostId));
 

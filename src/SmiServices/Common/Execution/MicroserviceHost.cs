@@ -40,11 +40,9 @@ namespace SmiServices.Common.Execution
         /// </summary>
         /// <param name="globals">Settings for the microservice (location of rabbit, queue names etc)</param>
         /// <param name="messageBroker"></param>
-        /// <param name="threaded"></param>
         protected MicroserviceHost(
             GlobalOptions globals,
-            IMessageBroker? messageBroker = null,
-            bool threaded = false)
+            IMessageBroker? messageBroker = null)
         {
             if (globals == null || globals.FileSystemOptions == null || globals.RabbitOptions == null || globals.LoggingOptions == null)
                 throw new ArgumentException("All or part of the global options are null");
@@ -81,7 +79,7 @@ namespace SmiServices.Common.Execution
 
             if (messageBroker == null)
             {
-                messageBroker = new RabbitMQBroker(globals.RabbitOptions, HostProcessName + HostProcessID, OnFatal, threaded);
+                messageBroker = new RabbitMQBroker(globals.RabbitOptions, HostProcessName + HostProcessID, OnFatal);
                 var controlExchangeName = globals.RabbitOptions.RabbitMqControlExchangeName ?? throw new ArgumentNullException(nameof(globals));
                 _controlMessageConsumer = new ControlMessageConsumer(globals.RabbitOptions, HostProcessName, HostProcessID, controlExchangeName, Stop);
             }

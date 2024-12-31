@@ -9,8 +9,8 @@ namespace SmiServices.Microservices.UpdateValues
     {
         public UpdateValuesQueueConsumer? Consumer { get; set; }
 
-        public UpdateValuesHost(GlobalOptions globals, IMessageBroker? messageBroker = null, bool threaded = false)
-        : base(globals, messageBroker, threaded)
+        public UpdateValuesHost(GlobalOptions globals, IMessageBroker? messageBroker = null)
+        : base(globals, messageBroker)
         {
             FansiImplementations.Load();
         }
