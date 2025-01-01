@@ -90,7 +90,7 @@ namespace SmiServices.Common.Messaging
                 throw new ApplicationException("Adapter has been shut down");
 
             if (!consumerOptions.VerifyPopulated())
-                throw new ArgumentException("The given ConsumerOptions has invalid values");
+                throw new ArgumentException($"The given {nameof(consumerOptions)} has invalid values");
 
             var model = _connection.CreateModel();
             model.BasicQos(0, consumerOptions.QoSPrefetchCount, false);
@@ -199,13 +199,15 @@ namespace SmiServices.Common.Messaging
             consumer.ProcessMessage(header, message, deliverArgs.DeliveryTag);
         }
 
-        public void StartControlConsumer(ConsumerOptions consumerOptions, ControlMessageConsumer controlMessageConsumer)
+        public void StartControlConsumer(IControlMessageConsumer controlMessageConsumer)
         {
+            var consumerOptions = controlMessageConsumer.ControlConsumerOptions;
+
             if (ShutdownCalled)
                 throw new ApplicationException("Adapter has been shut down");
 
             if (!consumerOptions.VerifyPopulated())
-                throw new ArgumentException("The given ConsumerOptions has invalid values");
+                throw new ArgumentException($"The given {nameof(controlMessageConsumer)} has invalid values");
 
             var model = _connection.CreateModel();
             model.BasicQos(0, consumerOptions.QoSPrefetchCount, false);
@@ -233,7 +235,7 @@ namespace SmiServices.Common.Messaging
             _logger.Debug($"Consumer task started [QueueName={consumerOptions?.QueueName}]");
         }
 
-        private void HandleControlMessage(object? _, BasicDeliverEventArgs deliverArgs, ControlMessageConsumer controlMessageConsumer)
+        private static void HandleControlMessage(object? _, BasicDeliverEventArgs deliverArgs, IControlMessageConsumer controlMessageConsumer)
         {
             if (deliverArgs.Body.Length == 0)
                 return;
@@ -495,5 +497,4 @@ namespace SmiServices.Common.Messaging
             }
         }
     }
-
 }

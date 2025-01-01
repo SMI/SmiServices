@@ -118,7 +118,7 @@ namespace SmiServices.Common.Execution
                     throw new ApplicationException("Rabbit adapter has consumers before aux. connections created");
 
                 _fatalLoggingProducer = MessageBroker.SetupProducer(_fatalLoggingProducerOptions, isBatch: false);
-                MessageBroker.StartControlConsumer(_controlMessageConsumer.ControlConsumerOptions, _controlMessageConsumer);
+                MessageBroker.StartControlConsumer(_controlMessageConsumer);
             }
         }
 
