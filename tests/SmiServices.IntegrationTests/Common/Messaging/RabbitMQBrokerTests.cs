@@ -182,7 +182,7 @@ namespace SmiServices.IntegrationTests.Common.Messaging
             // Assert
 
             var exc = Assert.Throws<ArgumentException>(call);
-            Assert.That(exc.Message, Is.EqualTo("The given ConsumerOptions has invalid values"));
+            Assert.That(exc.Message, Is.EqualTo("The given consumerOptions has invalid values"));
         }
 
         [Test]
@@ -218,6 +218,7 @@ namespace SmiServices.IntegrationTests.Common.Messaging
             var consumerOptions = TestConsumerOptions();
             using var tester = new MicroserviceTester(globalOptions.RabbitOptions!, consumerOptions);
             using var model = tester.Broker.GetModel(TestContext.CurrentContext.Test.Name);
+            model.ConfirmSelect();
             var properties = model.CreateBasicProperties();
 
             var mockConsumer = new Mock<IConsumer<IMessage>>(MockBehavior.Strict);
@@ -231,6 +232,7 @@ namespace SmiServices.IntegrationTests.Common.Messaging
             // Act
 
             model.BasicPublish("TEST.TestExchange", "", mandatory: true, properties, Array.Empty<byte>());
+            model.WaitForConfirms();
             TestTimelineAwaiter.Await(() => model.MessageCount(consumerOptions.QueueName) == 0);
 
             // Assert
@@ -247,6 +249,7 @@ namespace SmiServices.IntegrationTests.Common.Messaging
             var consumerOptions = TestConsumerOptions();
             using var tester = new MicroserviceTester(globalOptions.RabbitOptions!, consumerOptions);
             using var model = tester.Broker.GetModel(TestContext.CurrentContext.Test.Name);
+            model.ConfirmSelect();
             var properties = model.CreateBasicProperties();
             properties.Headers = new Dictionary<string, object>();
             var header = new MessageHeader();
@@ -263,6 +266,7 @@ namespace SmiServices.IntegrationTests.Common.Messaging
             // Act
 
             model.BasicPublish("TEST.TestExchange", "", mandatory: true, properties, Encoding.UTF8.GetBytes("Hello"));
+            model.WaitForConfirms();
             TestTimelineAwaiter.Await(() => model.MessageCount(consumerOptions.QueueName) == 0);
 
             // Assert
@@ -271,19 +275,171 @@ namespace SmiServices.IntegrationTests.Common.Messaging
         }
 
         [Test]
-        public void StartControlConsumer_HappyPath()
+        public void HandleControlMessage_HappyPath_IsOk()
         {
             // Arrange
 
             var globalOptions = GlobalOptionsForTest();
-            var consumerOptions = TestConsumerOptions();
-            using var tester = new MicroserviceTester(globalOptions.RabbitOptions!, consumerOptions);
 
-            var controlConsumer = new ControlMessageConsumer(globalOptions.RabbitOptions!, "test", 123, globalOptions.RabbitOptions!.RabbitMqControlExchangeName!, (_) => { });
+            var mockControlConsumer = new Mock<IControlMessageConsumer>(MockBehavior.Strict);
+            var consumerOptions = new ConsumerOptions
+            {
+                QueueName = $"Control.{TestContext.CurrentContext.Test.Name}",
+                AutoAck = true,
+            };
+            mockControlConsumer.Setup(x => x.ControlConsumerOptions).Returns(consumerOptions);
+            var called = false;
+            mockControlConsumer.Setup(x => x.ProcessMessage("hello", "")).Callback(() => called = true);
+
+            using var tester = new MicroserviceTester(globalOptions.RabbitOptions!);
+            using var model = tester.Broker.GetModel(TestContext.CurrentContext.Test.Name);
+            model.ConfirmSelect();
+            model.QueueDeclare(consumerOptions.QueueName, false, true, true, null);
+            model.QueueBind(consumerOptions.QueueName, globalOptions.RabbitOptions!.RabbitMqControlExchangeName, "", null);
+
+            var properties = model.CreateBasicProperties();
+            var body = Encoding.UTF8.GetBytes("hello");
+
+            var broker = new RabbitMQBroker(globalOptions.RabbitOptions!, "RabbitMQBrokerTests");
+            broker.StartControlConsumer(mockControlConsumer.Object);
 
             // Act
 
-            void call() => tester.Broker.StartControlConsumer(consumerOptions, controlConsumer);
+            model.BasicPublish(globalOptions.RabbitOptions!.RabbitMqControlExchangeName!, "", mandatory: true, properties, body);
+            model.WaitForConfirms();
+
+            // Assert
+
+            TestTimelineAwaiter.Await(() => called == true);
+        }
+
+        [Test]
+        public void HandleControlMessage_HappyPathWithValidContentEncoding_IsOk()
+        {
+            // Arrange
+
+            var globalOptions = GlobalOptionsForTest();
+
+            var mockControlConsumer = new Mock<IControlMessageConsumer>(MockBehavior.Strict);
+            var consumerOptions = new ConsumerOptions
+            {
+                QueueName = $"Control.{TestContext.CurrentContext.Test.Name}",
+                AutoAck = true,
+            };
+            mockControlConsumer.Setup(x => x.ControlConsumerOptions).Returns(consumerOptions);
+            var called = false;
+            mockControlConsumer.Setup(x => x.ProcessMessage("hello", "")).Callback(() => called = true);
+
+            using var tester = new MicroserviceTester(globalOptions.RabbitOptions!);
+            using var model = tester.Broker.GetModel(TestContext.CurrentContext.Test.Name);
+            model.ConfirmSelect();
+            model.QueueDeclare(consumerOptions.QueueName, false, true, true, null);
+            model.QueueBind(consumerOptions.QueueName, globalOptions.RabbitOptions!.RabbitMqControlExchangeName, "", null);
+
+            var properties = model.CreateBasicProperties();
+            properties.ContentEncoding = "UTF-8";
+            var body = Encoding.UTF8.GetBytes("hello");
+
+            var broker = new RabbitMQBroker(globalOptions.RabbitOptions!, "RabbitMQBrokerTests");
+            broker.StartControlConsumer(mockControlConsumer.Object);
+
+            // Act
+
+            model.BasicPublish(globalOptions.RabbitOptions!.RabbitMqControlExchangeName!, "", mandatory: true, properties, body);
+            model.WaitForConfirms();
+
+            // Assert
+
+            TestTimelineAwaiter.Await(() => called == true);
+        }
+
+        [Test]
+        public void HandleControlMessage_HappyPathWithInalidContentEncoding_IsIgnored()
+        {
+            // Arrange
+
+            var globalOptions = GlobalOptionsForTest();
+
+            var mockControlConsumer = new Mock<IControlMessageConsumer>(MockBehavior.Strict);
+            var consumerOptions = new ConsumerOptions
+            {
+                QueueName = $"Control.{TestContext.CurrentContext.Test.Name}",
+                AutoAck = true,
+            };
+            mockControlConsumer.Setup(x => x.ControlConsumerOptions).Returns(consumerOptions);
+            var called = false;
+            mockControlConsumer.Setup(x => x.ProcessMessage("hello", "")).Callback(() => called = true);
+
+            using var tester = new MicroserviceTester(globalOptions.RabbitOptions!);
+            using var model = tester.Broker.GetModel(TestContext.CurrentContext.Test.Name);
+            model.ConfirmSelect();
+            model.QueueDeclare(consumerOptions.QueueName, false, true, true, null);
+            model.QueueBind(consumerOptions.QueueName, globalOptions.RabbitOptions!.RabbitMqControlExchangeName, "", null);
+
+            var properties = model.CreateBasicProperties();
+            properties.ContentEncoding = "invalid";
+            var body = Encoding.UTF8.GetBytes("hello");
+
+            var broker = new RabbitMQBroker(globalOptions.RabbitOptions!, "RabbitMQBrokerTests");
+            broker.StartControlConsumer(mockControlConsumer.Object);
+
+            // Act
+
+            model.BasicPublish(globalOptions.RabbitOptions!.RabbitMqControlExchangeName!, "", mandatory: true, properties, body);
+            model.WaitForConfirms();
+
+            // Assert
+
+            TestTimelineAwaiter.Await(() => called == true);
+        }
+
+        [Test]
+        public void HandleControlMessage_EmptyBody_IsDiscarded()
+        {
+            // Arrange
+
+            var globalOptions = GlobalOptionsForTest();
+
+            var mockControlConsumer = new Mock<IControlMessageConsumer>(MockBehavior.Strict);
+            var consumerOptions = new ConsumerOptions
+            {
+                QueueName = "Control.Test123"
+            };
+            mockControlConsumer.Setup(x => x.ControlConsumerOptions).Returns(consumerOptions);
+
+            using var tester = new MicroserviceTester(globalOptions.RabbitOptions!);
+            using var model = tester.Broker.GetModel(TestContext.CurrentContext.Test.Name);
+            model.ConfirmSelect();
+            model.QueueDeclare(consumerOptions.QueueName, false, true, true, null);
+            model.QueueBind(consumerOptions.QueueName, globalOptions.RabbitOptions!.RabbitMqControlExchangeName, "", null);
+            var properties = model.CreateBasicProperties();
+
+            var broker = new RabbitMQBroker(globalOptions.RabbitOptions!, "RabbitMQBrokerTests");
+            broker.StartControlConsumer(mockControlConsumer.Object);
+
+            // Act
+
+            model.BasicPublish(globalOptions.RabbitOptions!.RabbitMqControlExchangeName!, "", mandatory: true, properties, Array.Empty<byte>());
+            model.WaitForConfirms();
+
+            // Assert
+
+            TestTimelineAwaiter.Await(() => model.MessageCount(mockControlConsumer.Object.ControlConsumerOptions.QueueName) == 0);
+        }
+
+        [Test]
+        public void StartControlConsumer_HappyPath_IsOk()
+        {
+            // Arrange
+
+            var globalOptions = GlobalOptionsForTest();
+
+            var controlConsumer = new ControlMessageConsumer(globalOptions.RabbitOptions!, TestContext.CurrentContext.Test.Name, 123, globalOptions.RabbitOptions!.RabbitMqControlExchangeName!, (_) => { });
+            var broker = new RabbitMQBroker(globalOptions.RabbitOptions!, "RabbitMQBrokerTests");
+
+            // Act
+
+            void call() => broker.StartControlConsumer(controlConsumer);
 
             // Assert
 

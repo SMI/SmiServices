@@ -10,11 +10,13 @@ using System.Threading.Tasks;
 
 namespace SmiServices.Common.Messaging
 {
-    public class ControlMessageConsumer
+    public class ControlMessageConsumer : IControlMessageConsumer
     {
         private readonly ILogger _logger = LogManager.GetCurrentClassLogger();
 
-        public readonly ConsumerOptions ControlConsumerOptions = new()
+        public ConsumerOptions ControlConsumerOptions { get => _controlConsumerOptions; }
+
+        private readonly ConsumerOptions _controlConsumerOptions = new()
         {
             QoSPrefetchCount = 1,
             AutoAck = true
@@ -46,7 +48,7 @@ namespace SmiServices.Common.Messaging
             _processName = processName.ToLower();
             _processId = processId.ToString();
 
-            ControlConsumerOptions.QueueName = $"Control.{_processName}{_processId}";
+            _controlConsumerOptions.QueueName = $"Control.{_processName}{_processId}";
 
             SetupControlQueueForHost(controlExchangeName);
 
@@ -140,8 +142,8 @@ namespace SmiServices.Common.Messaging
         public void Shutdown()
         {
             using var model = _connection.CreateModel();
-            _logger.Debug($"Deleting control queue: {ControlConsumerOptions.QueueName}");
-            model.QueueDelete(ControlConsumerOptions.QueueName);
+            _logger.Debug($"Deleting control queue: {_controlConsumerOptions.QueueName}");
+            model.QueueDelete(_controlConsumerOptions.QueueName);
         }
 
         /// <summary>
@@ -161,23 +163,23 @@ namespace SmiServices.Common.Messaging
                 throw new ApplicationException($"The given control exchange was not found on the server: \"{controlExchangeName}\"", e);
             }
 
-            _logger.Debug($"Creating control queue {ControlConsumerOptions.QueueName}");
+            _logger.Debug($"Creating control queue {_controlConsumerOptions.QueueName}");
 
             // Declare our queue with:
             // durable = false (queue will not persist over restarts of the RabbitMq server)
             // exclusive = false (queue won't be deleted when THIS connection closes)
             // autoDelete = true (queue will be deleted after a consumer connects and then disconnects)
-            model.QueueDeclare(ControlConsumerOptions.QueueName, durable: false, exclusive: false, autoDelete: true);
+            model.QueueDeclare(_controlConsumerOptions.QueueName, durable: false, exclusive: false, autoDelete: true);
 
             // Binding for any control requests, i.e. "stop"
-            _logger.Debug($"Creating binding {controlExchangeName}->{ControlConsumerOptions.QueueName} with key {ControlQueueBindingKey}");
-            model.QueueBind(ControlConsumerOptions.QueueName, controlExchangeName, ControlQueueBindingKey);
+            _logger.Debug($"Creating binding {controlExchangeName}->{_controlConsumerOptions.QueueName} with key {ControlQueueBindingKey}");
+            model.QueueBind(_controlConsumerOptions.QueueName, controlExchangeName, ControlQueueBindingKey);
 
             // Specific microservice binding key, ignoring the id at the end of the process name
             string bindingKey = $"smi.control.{_processName}.*";
 
-            _logger.Debug($"Creating binding {controlExchangeName}->{ControlConsumerOptions.QueueName} with key {bindingKey}");
-            model.QueueBind(ControlConsumerOptions.QueueName, controlExchangeName, bindingKey);
+            _logger.Debug($"Creating binding {controlExchangeName}->{_controlConsumerOptions.QueueName} with key {bindingKey}");
+            model.QueueBind(_controlConsumerOptions.QueueName, controlExchangeName, bindingKey);
         }
     }
 }
