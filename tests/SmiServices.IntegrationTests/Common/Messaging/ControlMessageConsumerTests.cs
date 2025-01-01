@@ -4,6 +4,7 @@ using SmiServices.Common.Options;
 
 namespace SmiServices.IntegrationTests.Common.Messaging;
 
+[RequiresRabbit]
 internal class ControlMessageConsumerTests
 {
     private static GlobalOptions GlobalOptionsForTest()
