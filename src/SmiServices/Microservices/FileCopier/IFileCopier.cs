@@ -2,10 +2,9 @@ using SmiServices.Common.Messages;
 using SmiServices.Common.Messages.Extraction;
 
 
-namespace SmiServices.Microservices.FileCopier
+namespace SmiServices.Microservices.FileCopier;
+
+public interface IFileCopier
 {
-    public interface IFileCopier
-    {
-        void ProcessMessage(ExtractFileMessage message, IMessageHeader header);
-    }
+    void ProcessMessage(ExtractFileMessage message, IMessageHeader header);
 }

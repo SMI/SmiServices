@@ -5,68 +5,67 @@ using SmiServices.Microservices.MongoDBPopulator;
 using SmiServices.UnitTests.Microservices.MongoDbPopulator;
 using System.Collections.Generic;
 
-namespace SmiServices.IntegrationTests.Microservices.MongoDBPopulator
+namespace SmiServices.IntegrationTests.Microservices.MongoDBPopulator;
+
+[TestFixture, RequiresMongoDb]
+public class MongoDbAdapterTests
 {
-    [TestFixture, RequiresMongoDb]
-    public class MongoDbAdapterTests
+    private MongoDbPopulatorTestHelper _helper = null!;
+
+    [OneTimeSetUp]
+    public void OneTimeSetUp()
     {
-        private MongoDbPopulatorTestHelper _helper = null!;
+        _helper = new MongoDbPopulatorTestHelper();
+        _helper.SetupSuite();
+    }
 
-        [OneTimeSetUp]
-        public void OneTimeSetUp()
+    [OneTimeTearDown]
+    public void OneTimeTearDown()
+    {
+        _helper.Dispose();
+    }
+
+    /// <summary>
+    /// Test basic write operation of the adapter
+    /// </summary>
+    [Test]
+    public void TestBasicWrite()
+    {
+        string collectionName = MongoDbPopulatorTestHelper.GetCollectionNameForTest("TestBasicWrite");
+        var adapter = new MongoDbAdapter("TestApplication", _helper.Globals.MongoDatabases!.DicomStoreOptions!,
+            collectionName);
+
+        var testDoc = new BsonDocument
         {
-            _helper = new MongoDbPopulatorTestHelper();
-            _helper.SetupSuite();
-        }
+            {"hello", "world"}
+        };
 
-        [OneTimeTearDown]
-        public void OneTimeTearDown()
+        WriteResult result = adapter.WriteMany([testDoc]);
+
+        Assert.Multiple(() =>
         {
-            _helper.Dispose();
-        }
+            Assert.That(result, Is.EqualTo(WriteResult.Success));
+            Assert.That(_helper.TestDatabase.GetCollection<BsonDocument>(collectionName)
+                            .CountDocuments(new BsonDocument()), Is.EqualTo(1));
+        });
 
-        /// <summary>
-        /// Test basic write operation of the adapter
-        /// </summary>
-        [Test]
-        public void TestBasicWrite()
+        BsonDocument doc =
+            _helper.TestDatabase.GetCollection<BsonDocument>(collectionName).Find(_ => true).ToList()[0];
+
+        Assert.That(doc, Is.EqualTo(testDoc));
+
+        var toWrite = new List<BsonDocument>();
+
+        for (var i = 0; i < 99; i++)
+            toWrite.Add(new BsonDocument { { "hello", i } });
+
+        result = adapter.WriteMany(toWrite);
+
+        Assert.Multiple(() =>
         {
-            string collectionName = MongoDbPopulatorTestHelper.GetCollectionNameForTest("TestBasicWrite");
-            var adapter = new MongoDbAdapter("TestApplication", _helper.Globals.MongoDatabases!.DicomStoreOptions!,
-                collectionName);
-
-            var testDoc = new BsonDocument
-            {
-                {"hello", "world"}
-            };
-
-            WriteResult result = adapter.WriteMany([testDoc]);
-
-            Assert.Multiple(() =>
-            {
-                Assert.That(result, Is.EqualTo(WriteResult.Success));
-                Assert.That(_helper.TestDatabase.GetCollection<BsonDocument>(collectionName)
-                                .CountDocuments(new BsonDocument()), Is.EqualTo(1));
-            });
-
-            BsonDocument doc =
-                _helper.TestDatabase.GetCollection<BsonDocument>(collectionName).Find(_ => true).ToList()[0];
-
-            Assert.That(doc, Is.EqualTo(testDoc));
-
-            var toWrite = new List<BsonDocument>();
-
-            for (var i = 0; i < 99; i++)
-                toWrite.Add(new BsonDocument { { "hello", i } });
-
-            result = adapter.WriteMany(toWrite);
-
-            Assert.Multiple(() =>
-            {
-                Assert.That(result, Is.EqualTo(WriteResult.Success));
-                Assert.That(_helper.TestDatabase.GetCollection<BsonDocument>(collectionName)
-                                .CountDocuments(new BsonDocument()), Is.EqualTo(100));
-            });
-        }
+            Assert.That(result, Is.EqualTo(WriteResult.Success));
+            Assert.That(_helper.TestDatabase.GetCollection<BsonDocument>(collectionName)
+                            .CountDocuments(new BsonDocument()), Is.EqualTo(100));
+        });
     }
 }

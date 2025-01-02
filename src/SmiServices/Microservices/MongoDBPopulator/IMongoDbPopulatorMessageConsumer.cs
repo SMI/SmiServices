@@ -2,12 +2,11 @@ using SmiServices.Common.Messaging;
 using SmiServices.Common.Options;
 using SmiServices.Microservices.MongoDBPopulator.Processing;
 
-namespace SmiServices.Microservices.MongoDBPopulator
-{
-    public interface IMongoDbPopulatorMessageConsumer
-    {
-        ConsumerOptions ConsumerOptions { get; }
+namespace SmiServices.Microservices.MongoDBPopulator;
 
-        IMessageProcessor Processor { get; }
-    }
+public interface IMongoDbPopulatorMessageConsumer
+{
+    ConsumerOptions ConsumerOptions { get; }
+
+    IMessageProcessor Processor { get; }
 }

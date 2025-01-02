@@ -19,141 +19,141 @@ using System;
 using System.IO;
 using System.Linq;
 
-namespace SmiServices.UnitTests.Microservices.DicomRelationalMapper
+namespace SmiServices.UnitTests.Microservices.DicomRelationalMapper;
+
+public class DicomRelationalMapperTestHelper
 {
-    public class DicomRelationalMapperTestHelper
+    public LoadMetadata? LoadMetadata { get; private set; }
+    public DiscoveredTable? ImageTable { get; private set; }
+    public DiscoveredTable? SeriesTable { get; private set; }
+    public DiscoveredTable? StudyTable { get; private set; }
+
+    public TableInfo? ImageTableInfo { get; private set; }
+    public TableInfo? SeriesTableInfo { get; private set; }
+    public TableInfo? StudyTableInfo { get; private set; }
+
+    public PipelineComponent? DicomSourcePipelineComponent { get; private set; }
+
+    public void SetupSuite(DiscoveredDatabase databaseToCreateInto, IRDMPPlatformRepositoryServiceLocator repositoryLocator, GlobalOptions globalOptions, Type pipelineDicomSourceType, string? root = null, ImageTableTemplateCollection? template = null, bool persistentRaw = false, string? modalityPrefix = null)
     {
-        public LoadMetadata? LoadMetadata { get; private set; }
-        public DiscoveredTable? ImageTable { get; private set; }
-        public DiscoveredTable? SeriesTable { get; private set; }
-        public DiscoveredTable? StudyTable { get; private set; }
+        ImageTable = databaseToCreateInto.ExpectTable($"{modalityPrefix}ImageTable");
+        SeriesTable = databaseToCreateInto.ExpectTable($"{modalityPrefix}SeriesTable");
+        StudyTable = databaseToCreateInto.ExpectTable($"{modalityPrefix}StudyTable");
 
-        public TableInfo? ImageTableInfo { get; private set; }
-        public TableInfo? SeriesTableInfo { get; private set; }
-        public TableInfo? StudyTableInfo { get; private set; }
-
-        public PipelineComponent? DicomSourcePipelineComponent { get; private set; }
-
-        public void SetupSuite(DiscoveredDatabase databaseToCreateInto, IRDMPPlatformRepositoryServiceLocator repositoryLocator, GlobalOptions globalOptions, Type pipelineDicomSourceType, string? root = null, ImageTableTemplateCollection? template = null, bool persistentRaw = false, string? modalityPrefix = null)
+        try
         {
-            ImageTable = databaseToCreateInto.ExpectTable($"{modalityPrefix}ImageTable");
-            SeriesTable = databaseToCreateInto.ExpectTable($"{modalityPrefix}SeriesTable");
-            StudyTable = databaseToCreateInto.ExpectTable($"{modalityPrefix}StudyTable");
+            var dest = Path.Combine(TestContext.CurrentContext.TestDirectory, "Rdmp.Dicom.dll");
+            if (!File.Exists(dest))
+                File.Copy(typeof(InvalidDataHandling).Assembly.Location, dest, false);
+        }
+        catch (IOException)
+        {
+            //never mind, it's probably locked
+        }
 
-            try
+        var catalogueRepository = repositoryLocator.CatalogueRepository;
+        var dataExportRepository = repositoryLocator.DataExportRepository;
+
+        foreach (var t in new[] { ImageTable, SeriesTable, StudyTable })
+            if (t.Exists())
+                t.Drop();
+
+        // delete any remnants
+        foreach (var p in catalogueRepository.GetAllObjects<Pipeline>())
+        {
+            if (p.Name.Contains("(Image Loading Pipe)"))
             {
-                var dest = Path.Combine(TestContext.CurrentContext.TestDirectory, "Rdmp.Dicom.dll");
-                if (!File.Exists(dest))
-                    File.Copy(typeof(InvalidDataHandling).Assembly.Location, dest, false);
+                p.DeleteInDatabase();
             }
-            catch (IOException)
-            {
-                //never mind, it's probably locked
-            }
-
-            var catalogueRepository = repositoryLocator.CatalogueRepository;
-            var dataExportRepository = repositoryLocator.DataExportRepository;
-
-            foreach (var t in new[] { ImageTable, SeriesTable, StudyTable })
-                if (t.Exists())
-                    t.Drop();
-
-            // delete any remnants
-            foreach (var p in catalogueRepository.GetAllObjects<Pipeline>())
-            {
-                if (p.Name.Contains("(Image Loading Pipe)"))
-                {
-                    p.DeleteInDatabase();
-                }
-            }
-
-            var suite = new ExecuteCommandCreateNewImagingDatasetSuite(repositoryLocator, databaseToCreateInto, new DirectoryInfo(TestContext.CurrentContext.TestDirectory))
-            {
-                Template = template ?? GetDefaultTemplate(databaseToCreateInto.Server.DatabaseType),
-
-                PersistentRaw = persistentRaw,
-                TablePrefix = modalityPrefix,
-
-                DicomSourceType = pipelineDicomSourceType,
-                CreateCoalescer = true
-            };
-
-            suite.Execute();
-            DicomSourcePipelineComponent = suite.DicomSourcePipelineComponent; //store the component created so we can inject/adjust the arguments e.g. adding ElevationRequests to it
-
-            LoadMetadata = suite.NewLoadMetadata;
-
-
-            var tableInfos = LoadMetadata.GetAllCatalogues().SelectMany(c => c.GetTableInfoList(false)).Distinct().ToArray();
-
-            ImageTableInfo = (TableInfo)tableInfos.Single(t => t.GetRuntimeName()?.Equals(ImageTable.GetRuntimeName()) == true);
-            SeriesTableInfo = (TableInfo)tableInfos.Single(t => t.GetRuntimeName()?.Equals(SeriesTable.GetRuntimeName()) == true);
-            StudyTableInfo = (TableInfo)tableInfos.Single(t => t.GetRuntimeName()?.Equals(StudyTable.GetRuntimeName()) == true);
-
-            // Override the options with stuff coming from Core RDMP DatabaseTests (TestDatabases.txt)
-            globalOptions.FileSystemOptions!.FileSystemRoot = root ?? TestContext.CurrentContext.TestDirectory;
-
-            globalOptions.RDMPOptions!.CatalogueConnectionString = (catalogueRepository as TableRepository)?.DiscoveredServer.Builder.ConnectionString;
-            globalOptions.RDMPOptions.DataExportConnectionString = (dataExportRepository as TableRepository)?.DiscoveredServer.Builder.ConnectionString;
-
-            globalOptions.DicomRelationalMapperOptions!.LoadMetadataId = LoadMetadata.ID;
-            globalOptions.DicomRelationalMapperOptions.MinimumBatchSize = 1;
-            globalOptions.DicomRelationalMapperOptions.UseInsertIntoForRAWMigration = true;
-
-            //Image table now needs all the UIDs in order to be extractable
-            var adder = new TagColumnAdder("StudyInstanceUID", "varchar(100)", ImageTableInfo, new AcceptAllCheckNotifier());
-            adder.Execute();
         }
 
-        private static ImageTableTemplateCollection GetDefaultTemplate(FAnsi.DatabaseType databaseType)
+        var suite = new ExecuteCommandCreateNewImagingDatasetSuite(repositoryLocator, databaseToCreateInto, new DirectoryInfo(TestContext.CurrentContext.TestDirectory))
         {
-            var collection = ImageTableTemplateCollection.LoadFrom(DefaultTemplateYaml);
-            collection.DatabaseType = databaseType;
-            return collection;
-        }
+            Template = template ?? GetDefaultTemplate(databaseToCreateInto.Server.DatabaseType),
 
-        public void TruncateTablesIfExists()
+            PersistentRaw = persistentRaw,
+            TablePrefix = modalityPrefix,
+
+            DicomSourceType = pipelineDicomSourceType,
+            CreateCoalescer = true
+        };
+
+        suite.Execute();
+        DicomSourcePipelineComponent = suite.DicomSourcePipelineComponent; //store the component created so we can inject/adjust the arguments e.g. adding ElevationRequests to it
+
+        LoadMetadata = suite.NewLoadMetadata;
+
+
+        var tableInfos = LoadMetadata.GetAllCatalogues().SelectMany(c => c.GetTableInfoList(false)).Distinct().ToArray();
+
+        ImageTableInfo = (TableInfo)tableInfos.Single(t => t.GetRuntimeName()?.Equals(ImageTable.GetRuntimeName()) == true);
+        SeriesTableInfo = (TableInfo)tableInfos.Single(t => t.GetRuntimeName()?.Equals(SeriesTable.GetRuntimeName()) == true);
+        StudyTableInfo = (TableInfo)tableInfos.Single(t => t.GetRuntimeName()?.Equals(StudyTable.GetRuntimeName()) == true);
+
+        // Override the options with stuff coming from Core RDMP DatabaseTests (TestDatabases.txt)
+        globalOptions.FileSystemOptions!.FileSystemRoot = root ?? TestContext.CurrentContext.TestDirectory;
+
+        globalOptions.RDMPOptions!.CatalogueConnectionString = (catalogueRepository as TableRepository)?.DiscoveredServer.Builder.ConnectionString;
+        globalOptions.RDMPOptions.DataExportConnectionString = (dataExportRepository as TableRepository)?.DiscoveredServer.Builder.ConnectionString;
+
+        globalOptions.DicomRelationalMapperOptions!.LoadMetadataId = LoadMetadata.ID;
+        globalOptions.DicomRelationalMapperOptions.MinimumBatchSize = 1;
+        globalOptions.DicomRelationalMapperOptions.UseInsertIntoForRAWMigration = true;
+
+        //Image table now needs all the UIDs in order to be extractable
+        var adder = new TagColumnAdder("StudyInstanceUID", "varchar(100)", ImageTableInfo, new AcceptAllCheckNotifier());
+        adder.Execute();
+    }
+
+    private static ImageTableTemplateCollection GetDefaultTemplate(FAnsi.DatabaseType databaseType)
+    {
+        var collection = ImageTableTemplateCollection.LoadFrom(DefaultTemplateYaml);
+        collection.DatabaseType = databaseType;
+        return collection;
+    }
+
+    public void TruncateTablesIfExists()
+    {
+        foreach (var t in new[] { ImageTable, SeriesTable, StudyTable })
+            if (t != null && t.Exists())
+                t.Truncate();
+    }
+
+    public static DicomFileMessage GetDicomFileMessage(string fileSystemRoot, FileInfo fi)
+    {
+        var toReturn = new DicomFileMessage(fileSystemRoot, fi)
         {
-            foreach (var t in new[] { ImageTable, SeriesTable, StudyTable })
-                if (t != null && t.Exists())
-                    t.Truncate();
-        }
+            StudyInstanceUID = "999",
+            SeriesInstanceUID = "999",
+            SOPInstanceUID = "999",
+            DicomFileSize = fi.Length
+        };
 
-        public static DicomFileMessage GetDicomFileMessage(string fileSystemRoot, FileInfo fi)
+        var ds = DicomFile.Open(fi.FullName).Dataset;
+        ds.Remove(DicomTag.PixelData);
+
+        toReturn.DicomDataset = DicomTypeTranslater.SerializeDatasetToJson(ds);
+
+        return toReturn;
+    }
+    public static DicomFileMessage GetDicomFileMessage(DicomDataset ds, string fileSystemRoot, string file)
+    {
+        var toReturn = new DicomFileMessage(fileSystemRoot, file)
         {
-            var toReturn = new DicomFileMessage(fileSystemRoot, fi)
-            {
-                StudyInstanceUID = "999",
-                SeriesInstanceUID = "999",
-                SOPInstanceUID = "999",
-                DicomFileSize = fi.Length
-            };
+            StudyInstanceUID = "999",
+            SeriesInstanceUID = "999",
+            SOPInstanceUID = "999"
+        };
 
-            var ds = DicomFile.Open(fi.FullName).Dataset;
-            ds.Remove(DicomTag.PixelData);
+        ds.Remove(DicomTag.PixelData);
 
-            toReturn.DicomDataset = DicomTypeTranslater.SerializeDatasetToJson(ds);
+        toReturn.DicomDataset = DicomTypeTranslater.SerializeDatasetToJson(ds);
 
-            return toReturn;
-        }
-        public static DicomFileMessage GetDicomFileMessage(DicomDataset ds, string fileSystemRoot, string file)
-        {
-            var toReturn = new DicomFileMessage(fileSystemRoot, file)
-            {
-                StudyInstanceUID = "999",
-                SeriesInstanceUID = "999",
-                SOPInstanceUID = "999"
-            };
+        return toReturn;
+    }
 
-            ds.Remove(DicomTag.PixelData);
-
-            toReturn.DicomDataset = DicomTypeTranslater.SerializeDatasetToJson(ds);
-
-            return toReturn;
-        }
-
-        const string DefaultTemplateYaml =
-            @"Tables:
+    const string DefaultTemplateYaml =
+        @"Tables:
 - TableName: StudyTable
   Columns:
   - ColumnName: PatientID
@@ -280,5 +280,4 @@ namespace SmiServices.UnitTests.Microservices.DicomRelationalMapper
     Type:
       CSharpType: System.Int64
 ";
-    }
 }

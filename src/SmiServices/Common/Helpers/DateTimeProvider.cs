@@ -1,10 +1,9 @@
 using System;
 
 
-namespace SmiServices.Common.Helpers
+namespace SmiServices.Common.Helpers;
+
+public class DateTimeProvider
 {
-    public class DateTimeProvider
-    {
-        public virtual DateTime UtcNow() => DateTime.UtcNow;
-    }
+    public virtual DateTime UtcNow() => DateTime.UtcNow;
 }

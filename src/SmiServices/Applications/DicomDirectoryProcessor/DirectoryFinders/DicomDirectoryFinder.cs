@@ -10,135 +10,134 @@ using System.Linq;
 using System.Text;
 using System.Threading;
 
-namespace SmiServices.Applications.DicomDirectoryProcessor.DirectoryFinders
+namespace SmiServices.Applications.DicomDirectoryProcessor.DirectoryFinders;
+
+/// <summary>
+/// Finds directories that contain DICOM files and outputs one AccessionDirectoryMessage for each directory it finds
+/// that contains a *.dcm file (or <see cref="SearchPattern"/>). It will search into subdirectories but will not search
+/// into subdirectories below any directory that does contain a *.dcm file (or <see cref="SearchPattern"/>).
+/// </summary>
+public abstract class DicomDirectoryFinder : IDicomDirectoryFinder
 {
+    protected readonly ILogger Logger;
+
+    protected readonly string FileSystemRoot;
+    protected readonly IFileSystem FileSystem;
+
+    private readonly IProducerModel _directoriesProducerModel;
+    protected int TotalSent;
+
+    protected bool IsProcessing;
+    protected readonly CancellationTokenSource TokenSource = new();
+
+    protected readonly Stopwatch Stopwatch = new();
+    protected StringBuilder? StringBuilder;
+    protected List<List<long>>? Times;
+
     /// <summary>
-    /// Finds directories that contain DICOM files and outputs one AccessionDirectoryMessage for each directory it finds
-    /// that contains a *.dcm file (or <see cref="SearchPattern"/>). It will search into subdirectories but will not search
-    /// into subdirectories below any directory that does contain a *.dcm file (or <see cref="SearchPattern"/>).
+    /// The filenames to look for in directories.  Defaults to *.dcm
     /// </summary>
-    public abstract class DicomDirectoryFinder : IDicomDirectoryFinder
+    protected readonly string SearchPattern;
+
+    protected enum TimeLabel
     {
-        protected readonly ILogger Logger;
+        NewDirInfo,
+        EnumFiles,
+        FirstOrDef,
+        FoundNewDir,
+        EnumDirs,
+        PushDirs
+    }
 
-        protected readonly string FileSystemRoot;
-        protected readonly IFileSystem FileSystem;
 
-        private readonly IProducerModel _directoriesProducerModel;
-        protected int TotalSent;
+    protected DicomDirectoryFinder(
+        string fileSystemRoot,
+        IFileSystem fileSystem,
+        string dicomSearchPattern,
+        IProducerModel directoriesProducerModel
+    )
+    {
+        FileSystemRoot = fileSystemRoot;
+        FileSystem = fileSystem;
+        SearchPattern = dicomSearchPattern;
+        _directoriesProducerModel = directoriesProducerModel;
+        Logger = LogManager.GetLogger(GetType().Name);
+    }
 
-        protected bool IsProcessing;
-        protected readonly CancellationTokenSource TokenSource = new();
+    public abstract void SearchForDicomDirectories(string rootDir);
 
-        protected readonly Stopwatch Stopwatch = new();
-        protected StringBuilder? StringBuilder;
-        protected List<List<long>>? Times;
+    public void Stop()
+    {
+        if (!IsProcessing)
+            return;
 
-        /// <summary>
-        /// The filenames to look for in directories.  Defaults to *.dcm
-        /// </summary>
-        protected readonly string SearchPattern;
+        Logger.Info("Stop requested while still processing, attempting to kill");
+        TokenSource.Cancel();
 
-        protected enum TimeLabel
+        var timeout = 5000;
+        const int delta = 500;
+        while (IsProcessing && timeout > 0)
         {
-            NewDirInfo,
-            EnumFiles,
-            FirstOrDef,
-            FoundNewDir,
-            EnumDirs,
-            PushDirs
+            Thread.Sleep(delta);
+            timeout -= delta;
         }
 
+        if (timeout <= 0)
+            throw new ApplicationException("SearchForDicomDirectories did not exit in time");
 
-        protected DicomDirectoryFinder(
-            string fileSystemRoot,
-            IFileSystem fileSystem,
-            string dicomSearchPattern,
-            IProducerModel directoriesProducerModel
-        )
+        Logger.Info("Directory scan aborted, exiting");
+    }
+
+    /// <summary>
+    /// Handled when a new DICOM directory is found. Writes an AccessionDirectoryMessage to the message exchange
+    /// </summary>
+    /// <param name="dir">Full path to a directory that has been found to contain a DICOM file</param>
+    protected void FoundNewDicomDirectory(string dir)
+    {
+        Logger.Debug("DicomDirectoryFinder: Found " + dir);
+
+        string dirPath = Path.GetFullPath(dir).TrimEnd(Path.DirectorySeparatorChar);
+
+        if (dirPath.StartsWith(FileSystemRoot))
+            dirPath = dirPath.Remove(0, FileSystemRoot.Length);
+
+        dirPath = dirPath.TrimStart(Path.DirectorySeparatorChar);
+
+        var message = new AccessionDirectoryMessage
         {
-            FileSystemRoot = fileSystemRoot;
-            FileSystem = fileSystem;
-            SearchPattern = dicomSearchPattern;
-            _directoriesProducerModel = directoriesProducerModel;
-            Logger = LogManager.GetLogger(GetType().Name);
+            DirectoryPath = dirPath,
+        };
+
+        _directoriesProducerModel.SendMessage(message, isInResponseTo: null, routingKey: null);
+        ++TotalSent;
+    }
+
+    protected void LogTime(TimeLabel tl)
+    {
+        long elapsed = Stopwatch.ElapsedMilliseconds;
+        StringBuilder!.Append(tl + "=" + elapsed + "ms ");
+        Times![(int)tl].Add(elapsed);
+        Stopwatch.Restart();
+    }
+
+    protected string CalcAverages()
+    {
+        var sb = new StringBuilder();
+        sb.AppendLine("Averages:");
+
+        foreach (TimeLabel label in (TimeLabel[])Enum.GetValues(typeof(TimeLabel)))
+        {
+            int count = Times![(int)label].Count;
+            long average = count == 0 ? 0 : Times[(int)label].Sum() / count;
+
+            sb.AppendLine(label + ":\t" + average + "ms");
         }
 
-        public abstract void SearchForDicomDirectories(string rootDir);
+        return sb.ToString();
+    }
 
-        public void Stop()
-        {
-            if (!IsProcessing)
-                return;
-
-            Logger.Info("Stop requested while still processing, attempting to kill");
-            TokenSource.Cancel();
-
-            var timeout = 5000;
-            const int delta = 500;
-            while (IsProcessing && timeout > 0)
-            {
-                Thread.Sleep(delta);
-                timeout -= delta;
-            }
-
-            if (timeout <= 0)
-                throw new ApplicationException("SearchForDicomDirectories did not exit in time");
-
-            Logger.Info("Directory scan aborted, exiting");
-        }
-
-        /// <summary>
-        /// Handled when a new DICOM directory is found. Writes an AccessionDirectoryMessage to the message exchange
-        /// </summary>
-        /// <param name="dir">Full path to a directory that has been found to contain a DICOM file</param>
-        protected void FoundNewDicomDirectory(string dir)
-        {
-            Logger.Debug("DicomDirectoryFinder: Found " + dir);
-
-            string dirPath = Path.GetFullPath(dir).TrimEnd(Path.DirectorySeparatorChar);
-
-            if (dirPath.StartsWith(FileSystemRoot))
-                dirPath = dirPath.Remove(0, FileSystemRoot.Length);
-
-            dirPath = dirPath.TrimStart(Path.DirectorySeparatorChar);
-
-            var message = new AccessionDirectoryMessage
-            {
-                DirectoryPath = dirPath,
-            };
-
-            _directoriesProducerModel.SendMessage(message, isInResponseTo: null, routingKey: null);
-            ++TotalSent;
-        }
-
-        protected void LogTime(TimeLabel tl)
-        {
-            long elapsed = Stopwatch.ElapsedMilliseconds;
-            StringBuilder!.Append(tl + "=" + elapsed + "ms ");
-            Times![(int)tl].Add(elapsed);
-            Stopwatch.Restart();
-        }
-
-        protected string CalcAverages()
-        {
-            var sb = new StringBuilder();
-            sb.AppendLine("Averages:");
-
-            foreach (TimeLabel label in (TimeLabel[])Enum.GetValues(typeof(TimeLabel)))
-            {
-                int count = Times![(int)label].Count;
-                long average = count == 0 ? 0 : Times[(int)label].Sum() / count;
-
-                sb.AppendLine(label + ":\t" + average + "ms");
-            }
-
-            return sb.ToString();
-        }
-
-        protected virtual IEnumerable<IFileInfo> GetEnumerator(IDirectoryInfo dirInfo)
-        {
-            return dirInfo.EnumerateFiles(SearchPattern);
-        }
+    protected virtual IEnumerable<IFileInfo> GetEnumerator(IDirectoryInfo dirInfo)
+    {
+        return dirInfo.EnumerateFiles(SearchPattern);
     }
 }

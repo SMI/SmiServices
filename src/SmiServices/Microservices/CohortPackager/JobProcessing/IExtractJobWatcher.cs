@@ -1,9 +1,8 @@
 using System;
 
-namespace SmiServices.Microservices.CohortPackager.JobProcessing
+namespace SmiServices.Microservices.CohortPackager.JobProcessing;
+
+public interface IExtractJobWatcher
 {
-    public interface IExtractJobWatcher
-    {
-        void ProcessJobs(Guid specificJob = new Guid());
-    }
+    void ProcessJobs(Guid specificJob = new Guid());
 }

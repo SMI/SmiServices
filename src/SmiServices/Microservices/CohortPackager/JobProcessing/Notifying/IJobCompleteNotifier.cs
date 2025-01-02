@@ -1,10 +1,9 @@
 using SmiServices.Microservices.CohortPackager.ExtractJobStorage;
 
 
-namespace SmiServices.Microservices.CohortPackager.JobProcessing.Notifying
+namespace SmiServices.Microservices.CohortPackager.JobProcessing.Notifying;
+
+public interface IJobCompleteNotifier
 {
-    public interface IJobCompleteNotifier
-    {
-        void NotifyJobCompleted(ExtractJobInfo jobInfo);
-    }
+    void NotifyJobCompleted(ExtractJobInfo jobInfo);
 }

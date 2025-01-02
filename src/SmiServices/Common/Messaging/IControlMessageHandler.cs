@@ -1,7 +1,6 @@
-namespace SmiServices.Common.Messaging
+namespace SmiServices.Common.Messaging;
+
+public interface IControlMessageHandler
 {
-    public interface IControlMessageHandler
-    {
-        void ControlMessageHandler(string action, string? message);
-    }
+    void ControlMessageHandler(string action, string? message);
 }

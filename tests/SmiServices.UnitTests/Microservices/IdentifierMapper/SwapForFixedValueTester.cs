@@ -6,38 +6,37 @@ using SmiServices.Microservices.IdentifierMapper.Swappers;
 using System.Threading;
 
 
-namespace SmiServices.UnitTests.Microservices.IdentifierMapper
+namespace SmiServices.UnitTests.Microservices.IdentifierMapper;
+
+public class SwapForFixedValueTester : SwapIdentifiers
 {
-    public class SwapForFixedValueTester : SwapIdentifiers
+    private readonly string? _swapForString;
+
+
+    public SwapForFixedValueTester(string? swapForString)
     {
-        private readonly string? _swapForString;
+        _swapForString = swapForString;
+    }
 
 
-        public SwapForFixedValueTester(string? swapForString)
-        {
-            _swapForString = swapForString;
-        }
+    public override void Setup(IMappingTableOptions mappingTableOptions) { }
 
+    public override string? GetSubstitutionFor(string toSwap, out string? reason)
+    {
+        reason = null;
+        Success++;
+        CacheHit++;
 
-        public override void Setup(IMappingTableOptions mappingTableOptions) { }
+        using (new TimeTracker(DatabaseStopwatch))
+            Thread.Sleep(500);
 
-        public override string? GetSubstitutionFor(string toSwap, out string? reason)
-        {
-            reason = null;
-            Success++;
-            CacheHit++;
+        return _swapForString;
+    }
 
-            using (new TimeTracker(DatabaseStopwatch))
-                Thread.Sleep(500);
+    public override void ClearCache() { }
 
-            return _swapForString;
-        }
-
-        public override void ClearCache() { }
-
-        public override DiscoveredTable? GetGuidTableIfAny(IMappingTableOptions options)
-        {
-            return null;
-        }
+    public override DiscoveredTable? GetGuidTableIfAny(IMappingTableOptions options)
+    {
+        return null;
     }
 }

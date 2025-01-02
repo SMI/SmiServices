@@ -1,12 +1,11 @@
 using System;
 
-namespace SmiServices.Common.Helpers
+namespace SmiServices.Common.Helpers;
+
+/// <summary>
+/// Returns the next line from the console
+/// </summary>
+public class RealConsoleInput : IConsoleInput
 {
-    /// <summary>
-    /// Returns the next line from the console
-    /// </summary>
-    public class RealConsoleInput : IConsoleInput
-    {
-        public string? GetNextLine() => Console.ReadLine()?.Trim();
-    }
+    public string? GetNextLine() => Console.ReadLine()?.Trim();
 }

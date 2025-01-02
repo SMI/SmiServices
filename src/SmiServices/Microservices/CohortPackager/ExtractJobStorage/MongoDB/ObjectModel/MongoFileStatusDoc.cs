@@ -7,86 +7,85 @@ using System.Collections.Generic;
 using System.ComponentModel;
 
 
-namespace SmiServices.Microservices.CohortPackager.ExtractJobStorage.MongoDB.ObjectModel
+namespace SmiServices.Microservices.CohortPackager.ExtractJobStorage.MongoDB.ObjectModel;
+
+[BsonIgnoreExtraElements] // NOTE(rkm 2020-08-28) Required for classes which don't contain a field marked with BsonId
+public class MongoFileStatusDoc : MemberwiseEquatable<MongoFileStatusDoc>, ISupportInitialize
 {
-    [BsonIgnoreExtraElements] // NOTE(rkm 2020-08-28) Required for classes which don't contain a field marked with BsonId
-    public class MongoFileStatusDoc : MemberwiseEquatable<MongoFileStatusDoc>, ISupportInitialize
+    [BsonElement("header")]
+    public MongoExtractionMessageHeaderDoc Header { get; set; }
+
+    [BsonElement("dicomFilePath")]
+    public string DicomFilePath { get; set; }
+
+    [BsonElement("outputFileName")]
+    public string? OutputFileName { get; set; }
+
+    [BsonElement("extractedFileStatus")]
+    [BsonRepresentation(BsonType.String)]
+    public ExtractedFileStatus ExtractedFileStatus { get; set; }
+
+    [BsonElement("verifiedFileStatus")]
+    [BsonRepresentation(BsonType.String)]
+    public VerifiedFileStatus VerifiedFileStatus { get; set; }
+
+    /// <summary>
+    /// Should only be null for identifiable extractions where the file was successfully copied. Otherwise will be the failure reason from CTP or the report content from the IsIdentifiable verification
+    /// </summary>
+    [BsonElement("statusMessage")]
+    public string? StatusMessage { get; set; }
+
+    /// <summary>
+    /// Used only to handle old-format documents when deserializing
+    /// </summary>
+    [BsonExtraElements]
+    public IDictionary<string, object>? ExtraElements { get; set; }
+
+
+    public MongoFileStatusDoc(
+        MongoExtractionMessageHeaderDoc header,
+        string dicomFilePath,
+        string? outputFileName,
+        ExtractedFileStatus extractedFileStatus,
+        VerifiedFileStatus verifiedFileStatus,
+        string? statusMessage
+    )
     {
-        [BsonElement("header")]
-        public MongoExtractionMessageHeaderDoc Header { get; set; }
+        Header = header ?? throw new ArgumentNullException(nameof(header));
+        DicomFilePath = dicomFilePath ?? throw new ArgumentNullException(nameof(dicomFilePath));
+        OutputFileName = outputFileName;
+        ExtractedFileStatus = extractedFileStatus != ExtractedFileStatus.None ? extractedFileStatus : throw new ArgumentException("Cannot be None", nameof(extractedFileStatus));
+        VerifiedFileStatus = verifiedFileStatus != VerifiedFileStatus.None ? verifiedFileStatus : throw new ArgumentException("Cannot be None", nameof(verifiedFileStatus));
 
-        [BsonElement("dicomFilePath")]
-        public string DicomFilePath { get; set; }
+        StatusMessage = statusMessage;
+        if (string.IsNullOrWhiteSpace(StatusMessage) && ExtractedFileStatus != ExtractedFileStatus.Copied)
+            throw new ArgumentException("Cannot be null or whitespace except for successful file copies", nameof(statusMessage));
+    }
 
-        [BsonElement("outputFileName")]
-        public string? OutputFileName { get; set; }
+    // ^ISupportInitialize
+    public void BeginInit() { }
 
-        [BsonElement("extractedFileStatus")]
-        [BsonRepresentation(BsonType.String)]
-        public ExtractedFileStatus ExtractedFileStatus { get; set; }
+    // ^ISupportInitialize
+    public void EndInit()
+    {
+        if (ExtraElements == null)
+            return;
 
-        [BsonElement("verifiedFileStatus")]
-        [BsonRepresentation(BsonType.String)]
-        public VerifiedFileStatus VerifiedFileStatus { get; set; }
-
-        /// <summary>
-        /// Should only be null for identifiable extractions where the file was successfully copied. Otherwise will be the failure reason from CTP or the report content from the IsIdentifiable verification
-        /// </summary>
-        [BsonElement("statusMessage")]
-        public string? StatusMessage { get; set; }
-
-        /// <summary>
-        /// Used only to handle old-format documents when deserializing
-        /// </summary>
-        [BsonExtraElements]
-        public IDictionary<string, object>? ExtraElements { get; set; }
-
-
-        public MongoFileStatusDoc(
-            MongoExtractionMessageHeaderDoc header,
-            string dicomFilePath,
-            string? outputFileName,
-            ExtractedFileStatus extractedFileStatus,
-            VerifiedFileStatus verifiedFileStatus,
-            string? statusMessage
-        )
+        // NOTE(rkm 2022-07-28) Removed after v1.11.1
+        if (ExtraElements.TryGetValue("anonymisedFileName", out object? anonFileNameValue))
         {
-            Header = header ?? throw new ArgumentNullException(nameof(header));
-            DicomFilePath = dicomFilePath ?? throw new ArgumentNullException(nameof(dicomFilePath));
-            OutputFileName = outputFileName;
-            ExtractedFileStatus = extractedFileStatus != ExtractedFileStatus.None ? extractedFileStatus : throw new ArgumentException("Cannot be None", nameof(extractedFileStatus));
-            VerifiedFileStatus = verifiedFileStatus != VerifiedFileStatus.None ? verifiedFileStatus : throw new ArgumentException("Cannot be None", nameof(verifiedFileStatus));
-
-            StatusMessage = statusMessage;
-            if (string.IsNullOrWhiteSpace(StatusMessage) && ExtractedFileStatus != ExtractedFileStatus.Copied)
-                throw new ArgumentException("Cannot be null or whitespace except for successful file copies", nameof(statusMessage));
+            OutputFileName = (string)anonFileNameValue;
+            DicomFilePath = "<unknown>";
+            ExtractedFileStatus = OutputFileName == null ? ExtractedFileStatus.ErrorWontRetry : ExtractedFileStatus.Anonymised;
         }
 
-        // ^ISupportInitialize
-        public void BeginInit() { }
-
-        // ^ISupportInitialize
-        public void EndInit()
+        // NOTE(rkm 2022-07-28) Removed after v5.1.3
+        if (ExtraElements.TryGetValue("isIdentifiable", out object? isIdentifiableValue))
         {
-            if (ExtraElements == null)
-                return;
-
-            // NOTE(rkm 2022-07-28) Removed after v1.11.1
-            if (ExtraElements.TryGetValue("anonymisedFileName", out object? anonFileNameValue))
-            {
-                OutputFileName = (string)anonFileNameValue;
-                DicomFilePath = "<unknown>";
-                ExtractedFileStatus = OutputFileName == null ? ExtractedFileStatus.ErrorWontRetry : ExtractedFileStatus.Anonymised;
-            }
-
-            // NOTE(rkm 2022-07-28) Removed after v5.1.3
-            if (ExtraElements.TryGetValue("isIdentifiable", out object? isIdentifiableValue))
-            {
-                if (OutputFileName == null)
-                    VerifiedFileStatus = VerifiedFileStatus.NotVerified;
-                else
-                    VerifiedFileStatus = (bool)isIdentifiableValue ? VerifiedFileStatus.IsIdentifiable : VerifiedFileStatus.NotIdentifiable;
-            }
+            if (OutputFileName == null)
+                VerifiedFileStatus = VerifiedFileStatus.NotVerified;
+            else
+                VerifiedFileStatus = (bool)isIdentifiableValue ? VerifiedFileStatus.IsIdentifiable : VerifiedFileStatus.NotIdentifiable;
         }
     }
 }

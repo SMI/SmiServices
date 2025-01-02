@@ -3,25 +3,24 @@ using SmiServices.Common.Messaging;
 using SmiServices.Common.Options;
 using System;
 
-namespace SmiServices.IntegrationTests.Microservices.DicomRelationalMapper.RunMeFirstTests
+namespace SmiServices.IntegrationTests.Microservices.DicomRelationalMapper.RunMeFirstTests;
+
+[Category("RunMeFirst")]
+public class RunMeFirstMongoServers
 {
-    [Category("RunMeFirst")]
-    public class RunMeFirstMongoServers
+    [Test, RequiresMongoDb]
+    public void TestMongoAvailable()
     {
-        [Test, RequiresMongoDb]
-        public void TestMongoAvailable()
-        {
-            Assert.Pass();
-        }
+        Assert.Pass();
+    }
 
 
-        [Test, RequiresRabbit]
-        public void RabbitAvailable()
-        {
-            var options = new GlobalOptionsFactory().Load(nameof(RabbitAvailable));
-            var rabbitOptions = options.RabbitOptions!;
+    [Test, RequiresRabbit]
+    public void RabbitAvailable()
+    {
+        var options = new GlobalOptionsFactory().Load(nameof(RabbitAvailable));
+        var rabbitOptions = options.RabbitOptions!;
 
-            Assert.DoesNotThrow(() => _ = new RabbitMQBroker(rabbitOptions, nameof(RabbitAvailable)), $"Rabbit failed with the following configuration:{Environment.NewLine}{rabbitOptions}");
-        }
+        Assert.DoesNotThrow(() => _ = new RabbitMQBroker(rabbitOptions, nameof(RabbitAvailable)), $"Rabbit failed with the following configuration:{Environment.NewLine}{rabbitOptions}");
     }
 }

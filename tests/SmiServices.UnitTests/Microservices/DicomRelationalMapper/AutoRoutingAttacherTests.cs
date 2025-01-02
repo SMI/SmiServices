@@ -8,42 +8,41 @@ using Rdmp.Dicom.PipelineComponents.DicomSources;
 using SmiServices.Microservices.DicomRelationalMapper;
 using System.IO;
 
-namespace SmiServices.UnitTests.Microservices.DicomRelationalMapper
+namespace SmiServices.UnitTests.Microservices.DicomRelationalMapper;
+
+public class AutoRoutingAttacherTests
 {
-    public class AutoRoutingAttacherTests
+
+    [Test]
+    public void TestPatientAgeTag()
     {
+        string filename = Path.Combine(TestContext.CurrentContext.TestDirectory, "test.dcm");
 
-        [Test]
-        public void TestPatientAgeTag()
+        var dataset = new DicomDataset
         {
-            string filename = Path.Combine(TestContext.CurrentContext.TestDirectory, "test.dcm");
+            { DicomTag.SOPInstanceUID, "123.123.123" },
+            { DicomTag.SOPClassUID, "123.123.123" },
+            new DicomAgeString(DicomTag.PatientAge, "009Y")
+        };
 
-            var dataset = new DicomDataset
-            {
-                { DicomTag.SOPInstanceUID, "123.123.123" },
-                { DicomTag.SOPClassUID, "123.123.123" },
-                new DicomAgeString(DicomTag.PatientAge, "009Y")
-            };
+        var cSharpValue = DicomTypeTranslaterReader.GetCSharpValue(dataset, DicomTag.PatientAge);
 
-            var cSharpValue = DicomTypeTranslaterReader.GetCSharpValue(dataset, DicomTag.PatientAge);
-
-            Assert.That(cSharpValue, Is.EqualTo("009Y"));
+        Assert.That(cSharpValue, Is.EqualTo("009Y"));
 
 
-            var file = new DicomFile(dataset);
-            file.Save(filename);
+        var file = new DicomFile(dataset);
+        file.Save(filename);
 
 
-            var source = new DicomFileCollectionSource
-            {
-                FilenameField = "Path"
-            };
-            source.PreInitialize(new ExplicitListDicomFileWorklist([filename]), ThrowImmediatelyDataLoadEventListener.Quiet);
+        var source = new DicomFileCollectionSource
+        {
+            FilenameField = "Path"
+        };
+        source.PreInitialize(new ExplicitListDicomFileWorklist([filename]), ThrowImmediatelyDataLoadEventListener.Quiet);
 
 
-            var chunk = source.GetChunk(ThrowImmediatelyDataLoadEventListener.Quiet, new GracefulCancellationToken());
+        var chunk = source.GetChunk(ThrowImmediatelyDataLoadEventListener.Quiet, new GracefulCancellationToken());
 
-            Assert.That(chunk.Rows[0]["PatientAge"], Is.EqualTo("009Y"));
-        }
+        Assert.That(chunk.Rows[0]["PatientAge"], Is.EqualTo("009Y"));
     }
 }

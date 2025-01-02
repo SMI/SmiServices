@@ -12,488 +12,487 @@ using System.Linq;
 using System.Text;
 using System.Threading;
 
-namespace SmiServices.Common.Messaging
+namespace SmiServices.Common.Messaging;
+
+/// <summary>
+/// Adapter for the RabbitMQ API.
+/// </summary>
+public class RabbitMQBroker : IMessageBroker
 {
     /// <summary>
-    /// Adapter for the RabbitMQ API.
+    /// Used to ensure we can't create any new connections after we have called Shutdown()
     /// </summary>
-    public class RabbitMQBroker : IMessageBroker
+    public bool ShutdownCalled { get; private set; }
+
+    public bool HasConsumers
     {
-        /// <summary>
-        /// Used to ensure we can't create any new connections after we have called Shutdown()
-        /// </summary>
-        public bool ShutdownCalled { get; private set; }
-
-        public bool HasConsumers
+        get
         {
-            get
-            {
-                lock (_oResourceLock)
-                {
-                    return _rabbitResources.Any(x => x.Value is ConsumerResources);
-                }
-            }
-        }
-
-        public const string RabbitMqRoutingKey_MatchAnything = "#";
-        public const string RabbitMqRoutingKey_MatchOneWord = "*";
-
-        public static readonly TimeSpan DefaultOperationTimeout = TimeSpan.FromSeconds(5);
-
-        private readonly ILogger _logger = LogManager.GetCurrentClassLogger();
-
-        private readonly HostFatalHandler? _hostFatalHandler;
-
-        private readonly IConnection _connection;
-        private readonly Dictionary<Guid, RabbitResources> _rabbitResources = [];
-        private readonly object _oResourceLock = new();
-        private readonly object _exitLock = new();
-
-        private const int MinRabbitServerVersionMajor = 3;
-        private const int MinRabbitServerVersionMinor = 7;
-        private const int MinRabbitServerVersionPatch = 0;
-
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="rabbitOptions"></param>
-        /// <param name="hostId">Identifier for this host instance</param>
-        /// <param name="hostFatalHandler"></param>
-        public RabbitMQBroker(RabbitOptions rabbitOptions, string hostId, HostFatalHandler? hostFatalHandler = null)
-        {
-            if (string.IsNullOrWhiteSpace(hostId))
-                throw new ArgumentException("RabbitMQ host ID required", nameof(hostId));
-
-            _connection = rabbitOptions.Connection;
-            _connection.ConnectionBlocked += (s, a) => _logger.Warn($"ConnectionBlocked (Reason: {a.Reason})");
-            _connection.ConnectionUnblocked += (s, a) => _logger.Warn("ConnectionUnblocked");
-
-            if (hostFatalHandler == null)
-                _logger.Warn("No handler given for fatal events");
-
-            _hostFatalHandler = hostFatalHandler;
-
-            CheckValidServerSettings();
-        }
-
-
-        /// <summary>
-        /// Setup a subscription to a queue which sends messages to the <see cref="IConsumer{T}"/>.
-        /// </summary>
-        /// <param name="consumerOptions">The connection options.</param>
-        /// <param name="consumer{T}">Consumer that will be sent any received messages.</param>
-        /// <param name="isSolo">If specified, will ensure that it is the only consumer on the provided queue</param>
-        /// <returns>Identifier for the consumer task, can be used to stop the consumer without shutting down the whole adapter</returns>
-        public Guid StartConsumer<T>(ConsumerOptions consumerOptions, IConsumer<T> consumer, bool isSolo = false) where T : IMessage
-        {
-            if (ShutdownCalled)
-                throw new ApplicationException("Adapter has been shut down");
-
-            if (!consumerOptions.VerifyPopulated())
-                throw new ArgumentException($"The given {nameof(consumerOptions)} has invalid values");
-
-            var model = _connection.CreateModel();
-            model.BasicQos(0, consumerOptions.QoSPrefetchCount, false);
-            consumer.QoSPrefetchCount = consumerOptions.QoSPrefetchCount;
-
-            // Check queue exists
-            try
-            {
-                // Passively declare the queue (equivalent to checking the queue exists)
-                model.QueueDeclarePassive(consumerOptions.QueueName);
-            }
-            catch (OperationInterruptedException e)
-            {
-                model.Close(200, "StartConsumer - Queue missing");
-                throw new ApplicationException($"Expected queue \"{consumerOptions.QueueName}\" to exist", e);
-            }
-
-            if (isSolo && model.ConsumerCount(consumerOptions.QueueName) > 0)
-            {
-                model.Close(200, "StartConsumer - Already a consumer on the queue");
-                throw new ApplicationException($"Already a consumer on queue {consumerOptions.QueueName} and solo consumer was specified");
-            }
-
-            EventingBasicConsumer ebc = new(model);
-            ebc.Received += (o, a) => HandleMessage(o, a, consumer);
-
-            void shutdown(object? o, ShutdownEventArgs a)
-            {
-                var reason = "cancellation was requested";
-                if (ebc.Model.IsClosed)
-                    reason = "channel is closed";
-                if (ShutdownCalled)
-                    reason = "shutdown was called";
-                _logger.Debug($"Consumer for {consumerOptions.QueueName} exiting ({reason})");
-            }
-            model.ModelShutdown += shutdown;
-            ebc.Shutdown += shutdown;
-
-            var resources = new ConsumerResources(ebc, consumerOptions.QueueName!, model);
-            Guid taskId = Guid.NewGuid();
-
             lock (_oResourceLock)
             {
-                _rabbitResources.Add(taskId, resources);
+                return _rabbitResources.Any(x => x.Value is ConsumerResources);
             }
+        }
+    }
 
-            consumer.OnFatal += (s, e) =>
-            {
-                resources.Dispose();
-                _hostFatalHandler?.Invoke(s, e);
-            };
+    public const string RabbitMqRoutingKey_MatchAnything = "#";
+    public const string RabbitMqRoutingKey_MatchOneWord = "*";
 
-            if (consumerOptions.HoldUnprocessableMessages && !consumerOptions.AutoAck)
-                consumer.HoldUnprocessableMessages = true;
+    public static readonly TimeSpan DefaultOperationTimeout = TimeSpan.FromSeconds(5);
 
-            consumer.OnAck += (_, a) => { ebc.Model.BasicAck(a.DeliveryTag, a.Multiple); };
-            consumer.OnNack += (_, a) => { ebc.Model.BasicNack(a.DeliveryTag, a.Multiple, a.Requeue); };
+    private readonly ILogger _logger = LogManager.GetCurrentClassLogger();
 
-            model.BasicConsume(ebc, consumerOptions.QueueName, consumerOptions.AutoAck);
-            _logger.Debug($"Consumer task started [QueueName={consumerOptions?.QueueName}]");
-            return taskId;
+    private readonly HostFatalHandler? _hostFatalHandler;
+
+    private readonly IConnection _connection;
+    private readonly Dictionary<Guid, RabbitResources> _rabbitResources = [];
+    private readonly object _oResourceLock = new();
+    private readonly object _exitLock = new();
+
+    private const int MinRabbitServerVersionMajor = 3;
+    private const int MinRabbitServerVersionMinor = 7;
+    private const int MinRabbitServerVersionPatch = 0;
+
+    /// <summary>
+    /// 
+    /// </summary>
+    /// <param name="rabbitOptions"></param>
+    /// <param name="hostId">Identifier for this host instance</param>
+    /// <param name="hostFatalHandler"></param>
+    public RabbitMQBroker(RabbitOptions rabbitOptions, string hostId, HostFatalHandler? hostFatalHandler = null)
+    {
+        if (string.IsNullOrWhiteSpace(hostId))
+            throw new ArgumentException("RabbitMQ host ID required", nameof(hostId));
+
+        _connection = rabbitOptions.Connection;
+        _connection.ConnectionBlocked += (s, a) => _logger.Warn($"ConnectionBlocked (Reason: {a.Reason})");
+        _connection.ConnectionUnblocked += (s, a) => _logger.Warn("ConnectionUnblocked");
+
+        if (hostFatalHandler == null)
+            _logger.Warn("No handler given for fatal events");
+
+        _hostFatalHandler = hostFatalHandler;
+
+        CheckValidServerSettings();
+    }
+
+
+    /// <summary>
+    /// Setup a subscription to a queue which sends messages to the <see cref="IConsumer{T}"/>.
+    /// </summary>
+    /// <param name="consumerOptions">The connection options.</param>
+    /// <param name="consumer{T}">Consumer that will be sent any received messages.</param>
+    /// <param name="isSolo">If specified, will ensure that it is the only consumer on the provided queue</param>
+    /// <returns>Identifier for the consumer task, can be used to stop the consumer without shutting down the whole adapter</returns>
+    public Guid StartConsumer<T>(ConsumerOptions consumerOptions, IConsumer<T> consumer, bool isSolo = false) where T : IMessage
+    {
+        if (ShutdownCalled)
+            throw new ApplicationException("Adapter has been shut down");
+
+        if (!consumerOptions.VerifyPopulated())
+            throw new ArgumentException($"The given {nameof(consumerOptions)} has invalid values");
+
+        var model = _connection.CreateModel();
+        model.BasicQos(0, consumerOptions.QoSPrefetchCount, false);
+        consumer.QoSPrefetchCount = consumerOptions.QoSPrefetchCount;
+
+        // Check queue exists
+        try
+        {
+            // Passively declare the queue (equivalent to checking the queue exists)
+            model.QueueDeclarePassive(consumerOptions.QueueName);
+        }
+        catch (OperationInterruptedException e)
+        {
+            model.Close(200, "StartConsumer - Queue missing");
+            throw new ApplicationException($"Expected queue \"{consumerOptions.QueueName}\" to exist", e);
         }
 
-        private void HandleMessage<T>(object? sender, BasicDeliverEventArgs deliverArgs, IConsumer<T> consumer) where T : IMessage
+        if (isSolo && model.ConsumerCount(consumerOptions.QueueName) > 0)
         {
-            var model = ((EventingBasicConsumer)sender!).Model;
-
-            Encoding enc = Encoding.UTF8;
-            MessageHeader header;
-
-            try
-            {
-                if (deliverArgs.BasicProperties?.ContentEncoding != null)
-                    enc = Encoding.GetEncoding(deliverArgs.BasicProperties.ContentEncoding);
-
-                var headers = deliverArgs.BasicProperties?.Headers
-                    ?? throw new ArgumentNullException(nameof(deliverArgs), "A part of deliverArgs.BasicProperties.Headers was null");
-
-                header = MessageHeader.FromDict(headers, enc);
-                header.Log(_logger, LogLevel.Trace, "Received");
-            }
-            catch (Exception e)
-            {
-                _logger.Error("Message header content was null, or could not be parsed into a MessageHeader object: " + e);
-                model.BasicNack(deliverArgs.DeliveryTag, multiple: false, requeue: false);
-                return;
-            }
-
-            T message;
-
-            try
-            {
-                message = JsonConvert.DeserializeObject<T>(deliverArgs);
-            }
-            catch (Newtonsoft.Json.JsonSerializationException e)
-            {
-                // Deserialization exception - Can never process this message
-
-                _logger.Debug($"JsonSerializationException, doing ErrorAndNack for message (DeliveryTag {deliverArgs.DeliveryTag})");
-                var errorMessage = $"Could not deserialize message to {typeof(T).Name} object. Likely an issue with the message content";
-                header.Log(_logger, LogLevel.Error, errorMessage, e);
-                model.BasicNack(deliverArgs.DeliveryTag, multiple: false, requeue: false);
-                return;
-            }
-
-            consumer.ProcessMessage(header, message, deliverArgs.DeliveryTag);
+            model.Close(200, "StartConsumer - Already a consumer on the queue");
+            throw new ApplicationException($"Already a consumer on queue {consumerOptions.QueueName} and solo consumer was specified");
         }
 
-        public void StartControlConsumer(IControlMessageConsumer controlMessageConsumer)
-        {
-            var consumerOptions = controlMessageConsumer.ControlConsumerOptions;
+        EventingBasicConsumer ebc = new(model);
+        ebc.Received += (o, a) => HandleMessage(o, a, consumer);
 
+        void shutdown(object? o, ShutdownEventArgs a)
+        {
+            var reason = "cancellation was requested";
+            if (ebc.Model.IsClosed)
+                reason = "channel is closed";
             if (ShutdownCalled)
-                throw new ApplicationException("Adapter has been shut down");
+                reason = "shutdown was called";
+            _logger.Debug($"Consumer for {consumerOptions.QueueName} exiting ({reason})");
+        }
+        model.ModelShutdown += shutdown;
+        ebc.Shutdown += shutdown;
 
-            if (!consumerOptions.VerifyPopulated())
-                throw new ArgumentException($"The given {nameof(controlMessageConsumer)} has invalid values");
+        var resources = new ConsumerResources(ebc, consumerOptions.QueueName!, model);
+        Guid taskId = Guid.NewGuid();
 
-            var model = _connection.CreateModel();
-            model.BasicQos(0, consumerOptions.QoSPrefetchCount, false);
-
-            EventingBasicConsumer ebc = new(model);
-            ebc.Received += (o, a) => HandleControlMessage(o, a, controlMessageConsumer);
-
-            void shutdown(object? o, ShutdownEventArgs a)
-            {
-                var reason = "cancellation was requested";
-                if (ebc.Model.IsClosed)
-                    reason = "channel is closed";
-                if (ShutdownCalled)
-                    reason = "shutdown was called";
-                _logger.Debug($"Consumer for {consumerOptions.QueueName} exiting ({reason})");
-            }
-            model.ModelShutdown += shutdown;
-            ebc.Shutdown += shutdown;
-
-            var resources = new ConsumerResources(ebc, consumerOptions.QueueName!, model);
-            lock (_oResourceLock)
-                _rabbitResources.Add(Guid.NewGuid(), resources);
-
-            model.BasicConsume(ebc, consumerOptions.QueueName, consumerOptions.AutoAck);
-            _logger.Debug($"Consumer task started [QueueName={consumerOptions?.QueueName}]");
+        lock (_oResourceLock)
+        {
+            _rabbitResources.Add(taskId, resources);
         }
 
-        private static void HandleControlMessage(object? _, BasicDeliverEventArgs deliverArgs, IControlMessageConsumer controlMessageConsumer)
+        consumer.OnFatal += (s, e) =>
         {
-            if (deliverArgs.Body.Length == 0)
-                return;
+            resources.Dispose();
+            _hostFatalHandler?.Invoke(s, e);
+        };
 
-            Encoding? enc = null;
+        if (consumerOptions.HoldUnprocessableMessages && !consumerOptions.AutoAck)
+            consumer.HoldUnprocessableMessages = true;
 
-            if (!string.IsNullOrWhiteSpace(deliverArgs.BasicProperties.ContentEncoding))
-            {
-                try
-                {
-                    enc = Encoding.GetEncoding(deliverArgs.BasicProperties.ContentEncoding);
-                }
-                catch (ArgumentException)
-                {
-                    /* Ignored */
-                }
-            }
+        consumer.OnAck += (_, a) => { ebc.Model.BasicAck(a.DeliveryTag, a.Multiple); };
+        consumer.OnNack += (_, a) => { ebc.Model.BasicNack(a.DeliveryTag, a.Multiple, a.Requeue); };
 
-            enc ??= Encoding.UTF8;
-            var body = enc.GetString(deliverArgs.Body.Span);
+        model.BasicConsume(ebc, consumerOptions.QueueName, consumerOptions.AutoAck);
+        _logger.Debug($"Consumer task started [QueueName={consumerOptions?.QueueName}]");
+        return taskId;
+    }
 
-            controlMessageConsumer.ProcessMessage(body, deliverArgs.RoutingKey);
+    private void HandleMessage<T>(object? sender, BasicDeliverEventArgs deliverArgs, IConsumer<T> consumer) where T : IMessage
+    {
+        var model = ((EventingBasicConsumer)sender!).Model;
+
+        Encoding enc = Encoding.UTF8;
+        MessageHeader header;
+
+        try
+        {
+            if (deliverArgs.BasicProperties?.ContentEncoding != null)
+                enc = Encoding.GetEncoding(deliverArgs.BasicProperties.ContentEncoding);
+
+            var headers = deliverArgs.BasicProperties?.Headers
+                ?? throw new ArgumentNullException(nameof(deliverArgs), "A part of deliverArgs.BasicProperties.Headers was null");
+
+            header = MessageHeader.FromDict(headers, enc);
+            header.Log(_logger, LogLevel.Trace, "Received");
+        }
+        catch (Exception e)
+        {
+            _logger.Error("Message header content was null, or could not be parsed into a MessageHeader object: " + e);
+            model.BasicNack(deliverArgs.DeliveryTag, multiple: false, requeue: false);
+            return;
         }
 
-        /// <summary>
-        ///
-        /// </summary>
-        /// <param name="taskId"></param>
-        /// <param name="timeout"></param>
-        public void StopConsumer(Guid taskId, TimeSpan timeout)
+        T message;
+
+        try
         {
+            message = JsonConvert.DeserializeObject<T>(deliverArgs);
+        }
+        catch (Newtonsoft.Json.JsonSerializationException e)
+        {
+            // Deserialization exception - Can never process this message
+
+            _logger.Debug($"JsonSerializationException, doing ErrorAndNack for message (DeliveryTag {deliverArgs.DeliveryTag})");
+            var errorMessage = $"Could not deserialize message to {typeof(T).Name} object. Likely an issue with the message content";
+            header.Log(_logger, LogLevel.Error, errorMessage, e);
+            model.BasicNack(deliverArgs.DeliveryTag, multiple: false, requeue: false);
+            return;
+        }
+
+        consumer.ProcessMessage(header, message, deliverArgs.DeliveryTag);
+    }
+
+    public void StartControlConsumer(IControlMessageConsumer controlMessageConsumer)
+    {
+        var consumerOptions = controlMessageConsumer.ControlConsumerOptions;
+
+        if (ShutdownCalled)
+            throw new ApplicationException("Adapter has been shut down");
+
+        if (!consumerOptions.VerifyPopulated())
+            throw new ArgumentException($"The given {nameof(controlMessageConsumer)} has invalid values");
+
+        var model = _connection.CreateModel();
+        model.BasicQos(0, consumerOptions.QoSPrefetchCount, false);
+
+        EventingBasicConsumer ebc = new(model);
+        ebc.Received += (o, a) => HandleControlMessage(o, a, controlMessageConsumer);
+
+        void shutdown(object? o, ShutdownEventArgs a)
+        {
+            var reason = "cancellation was requested";
+            if (ebc.Model.IsClosed)
+                reason = "channel is closed";
             if (ShutdownCalled)
-                return;
-
-            lock (_oResourceLock)
-            {
-                if (!_rabbitResources.TryGetValue(taskId, out RabbitResources? value))
-                    throw new ApplicationException("Guid was not found in the task register");
-                value.Dispose();
-                _rabbitResources.Remove(taskId);
-            }
+                reason = "shutdown was called";
+            _logger.Debug($"Consumer for {consumerOptions.QueueName} exiting ({reason})");
         }
+        model.ModelShutdown += shutdown;
+        ebc.Shutdown += shutdown;
 
-        /// <summary>
-        /// Setup a <see cref="IProducerModel"/> to send messages with.
-        /// </summary>
-        /// <param name="producerOptions">The producer options class to setup which must include the exchange name.</param>
-        /// <param name="isBatch"></param>
-        /// <returns>Object which can send messages to a RabbitMQ exchange.</returns>
-        public IProducerModel SetupProducer(ProducerOptions producerOptions, bool isBatch = false)
+        var resources = new ConsumerResources(ebc, consumerOptions.QueueName!, model);
+        lock (_oResourceLock)
+            _rabbitResources.Add(Guid.NewGuid(), resources);
+
+        model.BasicConsume(ebc, consumerOptions.QueueName, consumerOptions.AutoAck);
+        _logger.Debug($"Consumer task started [QueueName={consumerOptions?.QueueName}]");
+    }
+
+    private static void HandleControlMessage(object? _, BasicDeliverEventArgs deliverArgs, IControlMessageConsumer controlMessageConsumer)
+    {
+        if (deliverArgs.Body.Length == 0)
+            return;
+
+        Encoding? enc = null;
+
+        if (!string.IsNullOrWhiteSpace(deliverArgs.BasicProperties.ContentEncoding))
         {
-            if (ShutdownCalled)
-                throw new ApplicationException("Adapter has been shut down");
-
-            if (!producerOptions.VerifyPopulated())
-                throw new ArgumentException("The given producer options have invalid values");
-
-            //NOTE: IModel objects are /not/ thread safe
-            var model = _connection.CreateModel();
-            model.ConfirmSelect();
-
             try
             {
-                // Passively declare the exchange (equivalent to checking the exchange exists)
-                model.ExchangeDeclarePassive(producerOptions.ExchangeName);
+                enc = Encoding.GetEncoding(deliverArgs.BasicProperties.ContentEncoding);
             }
-            catch (OperationInterruptedException e)
+            catch (ArgumentException)
             {
-                model.Close(200, "SetupProducer - Exchange missing");
-                throw new ApplicationException($"Expected exchange \"{producerOptions.ExchangeName}\" to exist", e);
+                /* Ignored */
             }
+        }
 
-            var props = model.CreateBasicProperties();
-            props.ContentEncoding = "UTF-8";
-            props.ContentType = "application/json";
-            props.Persistent = true;
+        enc ??= Encoding.UTF8;
+        var body = enc.GetString(deliverArgs.Body.Span);
 
-            IBackoffProvider? backoffProvider = null;
-            if (producerOptions.BackoffProviderType != null)
-            {
-                try
-                {
-                    backoffProvider = BackoffProviderFactory.Create(producerOptions.BackoffProviderType);
-                }
-                catch (Exception)
-                {
-                    model.Close(200, "SetupProducer - Couldn't create BackoffProvider");
-                    throw;
-                }
-            }
+        controlMessageConsumer.ProcessMessage(body, deliverArgs.RoutingKey);
+    }
 
-            IProducerModel producerModel;
+    /// <summary>
+    ///
+    /// </summary>
+    /// <param name="taskId"></param>
+    /// <param name="timeout"></param>
+    public void StopConsumer(Guid taskId, TimeSpan timeout)
+    {
+        if (ShutdownCalled)
+            return;
+
+        lock (_oResourceLock)
+        {
+            if (!_rabbitResources.TryGetValue(taskId, out RabbitResources? value))
+                throw new ApplicationException("Guid was not found in the task register");
+            value.Dispose();
+            _rabbitResources.Remove(taskId);
+        }
+    }
+
+    /// <summary>
+    /// Setup a <see cref="IProducerModel"/> to send messages with.
+    /// </summary>
+    /// <param name="producerOptions">The producer options class to setup which must include the exchange name.</param>
+    /// <param name="isBatch"></param>
+    /// <returns>Object which can send messages to a RabbitMQ exchange.</returns>
+    public IProducerModel SetupProducer(ProducerOptions producerOptions, bool isBatch = false)
+    {
+        if (ShutdownCalled)
+            throw new ApplicationException("Adapter has been shut down");
+
+        if (!producerOptions.VerifyPopulated())
+            throw new ArgumentException("The given producer options have invalid values");
+
+        //NOTE: IModel objects are /not/ thread safe
+        var model = _connection.CreateModel();
+        model.ConfirmSelect();
+
+        try
+        {
+            // Passively declare the exchange (equivalent to checking the exchange exists)
+            model.ExchangeDeclarePassive(producerOptions.ExchangeName);
+        }
+        catch (OperationInterruptedException e)
+        {
+            model.Close(200, "SetupProducer - Exchange missing");
+            throw new ApplicationException($"Expected exchange \"{producerOptions.ExchangeName}\" to exist", e);
+        }
+
+        var props = model.CreateBasicProperties();
+        props.ContentEncoding = "UTF-8";
+        props.ContentType = "application/json";
+        props.Persistent = true;
+
+        IBackoffProvider? backoffProvider = null;
+        if (producerOptions.BackoffProviderType != null)
+        {
             try
             {
-                producerModel = isBatch ?
-                    new BatchProducerModel(producerOptions.ExchangeName!, model, props, producerOptions.MaxConfirmAttempts, backoffProvider, producerOptions.ProbeQueueName, producerOptions.ProbeQueueLimit, producerOptions.ProbeTimeout) :
-                    new ProducerModel(producerOptions.ExchangeName!, model, props, producerOptions.MaxConfirmAttempts, backoffProvider, producerOptions.ProbeQueueName, producerOptions.ProbeQueueLimit, producerOptions.ProbeTimeout);
+                backoffProvider = BackoffProviderFactory.Create(producerOptions.BackoffProviderType);
             }
             catch (Exception)
             {
-                model.Close(200, "SetupProducer - Couldn't create ProducerModel");
+                model.Close(200, "SetupProducer - Couldn't create BackoffProvider");
                 throw;
             }
-
-            var resources = new ProducerResources(model, producerModel);
-            lock (_oResourceLock)
-            {
-                _rabbitResources.Add(Guid.NewGuid(), resources);
-            }
-
-            producerModel.OnFatal += (s, ra) =>
-            {
-                resources.Dispose();
-                _hostFatalHandler?.Invoke(s, new FatalErrorEventArgs(ra));
-            };
-
-            return producerModel;
         }
 
-        /// <summary>
-        /// Get a blank model with no options set
-        /// </summary>
-        /// <param name="connectionName"></param>
-        /// <returns></returns>
-        public IModel GetModel(string connectionName)
+        IProducerModel producerModel;
+        try
         {
-            //TODO This method has no callback available for fatal errors
-
-            if (ShutdownCalled)
-                throw new ApplicationException("Adapter has been shut down");
-
-            var model = _connection.CreateModel();
-
-            lock (_oResourceLock)
-            {
-                _rabbitResources.Add(Guid.NewGuid(), new RabbitResources(model));
-            }
-
-            return model;
+            producerModel = isBatch ?
+                new BatchProducerModel(producerOptions.ExchangeName!, model, props, producerOptions.MaxConfirmAttempts, backoffProvider, producerOptions.ProbeQueueName, producerOptions.ProbeQueueLimit, producerOptions.ProbeTimeout) :
+                new ProducerModel(producerOptions.ExchangeName!, model, props, producerOptions.MaxConfirmAttempts, backoffProvider, producerOptions.ProbeQueueName, producerOptions.ProbeQueueLimit, producerOptions.ProbeTimeout);
+        }
+        catch (Exception)
+        {
+            model.Close(200, "SetupProducer - Couldn't create ProducerModel");
+            throw;
         }
 
-        /// <summary>
-        /// Close all open connections and stop any consumers
-        /// </summary>
-        /// <param name="timeout">Max time given for each consumer to exit</param>
-        public void Shutdown(TimeSpan timeout)
+        var resources = new ProducerResources(model, producerModel);
+        lock (_oResourceLock)
         {
-            if (ShutdownCalled)
-                return;
-            if (timeout.Equals(TimeSpan.Zero))
-                throw new ApplicationException($"Invalid {nameof(timeout)} value");
-
-            ShutdownCalled = true;
-
-            lock (_oResourceLock)
-            {
-                foreach (var res in _rabbitResources.Values)
-                {
-                    res.Dispose();
-                }
-                _rabbitResources.Clear();
-            }
-            lock (_exitLock)
-                Monitor.PulseAll(_exitLock);
+            _rabbitResources.Add(Guid.NewGuid(), resources);
         }
 
-        /// <summary>
-        /// Checks that the minimum RabbitMQ server version is met
-        /// </summary>
-        private void CheckValidServerSettings()
+        producerModel.OnFatal += (s, ra) =>
         {
-            if (!_connection.ServerProperties.TryGetValue("version", out object? value))
-                throw new ApplicationException("Could not get RabbitMQ server version");
+            resources.Dispose();
+            _hostFatalHandler?.Invoke(s, new FatalErrorEventArgs(ra));
+        };
 
-            var version = Encoding.UTF8.GetString((byte[])value);
-            var split = version.Split('.');
+        return producerModel;
+    }
 
-            if (int.Parse(split[0]) < MinRabbitServerVersionMajor ||
-                (int.Parse(split[0]) == MinRabbitServerVersionMajor &&
-                 int.Parse(split[1]) < MinRabbitServerVersionMinor) ||
-                (int.Parse(split[0]) == MinRabbitServerVersionMajor &&
-                 int.Parse(split[1]) == MinRabbitServerVersionMinor &&
-                 int.Parse(split[2]) < MinRabbitServerVersionPatch))
-            {
-                throw new ApplicationException(
-                    $"Connected to RabbitMQ server version {version}, but minimum required is {MinRabbitServerVersionMajor}.{MinRabbitServerVersionMinor}.{MinRabbitServerVersionPatch}");
-            }
+    /// <summary>
+    /// Get a blank model with no options set
+    /// </summary>
+    /// <param name="connectionName"></param>
+    /// <returns></returns>
+    public IModel GetModel(string connectionName)
+    {
+        //TODO This method has no callback available for fatal errors
 
-            _logger.Debug($"Connected to RabbitMQ server version {version}");
+        if (ShutdownCalled)
+            throw new ApplicationException("Adapter has been shut down");
+
+        var model = _connection.CreateModel();
+
+        lock (_oResourceLock)
+        {
+            _rabbitResources.Add(Guid.NewGuid(), new RabbitResources(model));
         }
 
-        #region Resource Classes
+        return model;
+    }
 
-        private class RabbitResources : IDisposable
+    /// <summary>
+    /// Close all open connections and stop any consumers
+    /// </summary>
+    /// <param name="timeout">Max time given for each consumer to exit</param>
+    public void Shutdown(TimeSpan timeout)
+    {
+        if (ShutdownCalled)
+            return;
+        if (timeout.Equals(TimeSpan.Zero))
+            throw new ApplicationException($"Invalid {nameof(timeout)} value");
+
+        ShutdownCalled = true;
+
+        lock (_oResourceLock)
         {
-            public IModel Model { get; }
-
-            protected readonly object OResourceLock = new();
-
-            protected readonly ILogger Logger;
-
-            public RabbitResources(IModel model)
+            foreach (var res in _rabbitResources.Values)
             {
-                Logger = LogManager.GetLogger(GetType().Name);
-                Model = model;
+                res.Dispose();
             }
+            _rabbitResources.Clear();
+        }
+        lock (_exitLock)
+            Monitor.PulseAll(_exitLock);
+    }
 
-            public virtual void Dispose()
-            {
-                if (Model.IsOpen)
-                    Model.Close();
-            }
+    /// <summary>
+    /// Checks that the minimum RabbitMQ server version is met
+    /// </summary>
+    private void CheckValidServerSettings()
+    {
+        if (!_connection.ServerProperties.TryGetValue("version", out object? value))
+            throw new ApplicationException("Could not get RabbitMQ server version");
+
+        var version = Encoding.UTF8.GetString((byte[])value);
+        var split = version.Split('.');
+
+        if (int.Parse(split[0]) < MinRabbitServerVersionMajor ||
+            (int.Parse(split[0]) == MinRabbitServerVersionMajor &&
+             int.Parse(split[1]) < MinRabbitServerVersionMinor) ||
+            (int.Parse(split[0]) == MinRabbitServerVersionMajor &&
+             int.Parse(split[1]) == MinRabbitServerVersionMinor &&
+             int.Parse(split[2]) < MinRabbitServerVersionPatch))
+        {
+            throw new ApplicationException(
+                $"Connected to RabbitMQ server version {version}, but minimum required is {MinRabbitServerVersionMajor}.{MinRabbitServerVersionMinor}.{MinRabbitServerVersionPatch}");
         }
 
-        private class ProducerResources : RabbitResources
-        {
-            public IProducerModel? ProducerModel { get; set; }
+        _logger.Debug($"Connected to RabbitMQ server version {version}");
+    }
 
-            public ProducerResources(IModel model, IProducerModel ipm) : base(model)
-            {
-                ProducerModel = ipm;
-            }
+    #region Resource Classes
+
+    private class RabbitResources : IDisposable
+    {
+        public IModel Model { get; }
+
+        protected readonly object OResourceLock = new();
+
+        protected readonly ILogger Logger;
+
+        public RabbitResources(IModel model)
+        {
+            Logger = LogManager.GetLogger(GetType().Name);
+            Model = model;
         }
 
-        private class ConsumerResources : RabbitResources
+        public virtual void Dispose()
         {
-            internal readonly EventingBasicConsumer ebc;
-            internal readonly string QueueName;
-
-            public override void Dispose()
-            {
-                foreach (var tag in ebc.ConsumerTags)
-                {
-                    Model.BasicCancel(tag);
-                }
-                if (!Model.IsOpen)
-                    return;
+            if (Model.IsOpen)
                 Model.Close();
-                Model.Dispose();
-            }
+        }
+    }
 
-            internal ConsumerResources(EventingBasicConsumer ebc, string q, IModel model) : base(model)
+    private class ProducerResources : RabbitResources
+    {
+        public IProducerModel? ProducerModel { get; set; }
+
+        public ProducerResources(IModel model, IProducerModel ipm) : base(model)
+        {
+            ProducerModel = ipm;
+        }
+    }
+
+    private class ConsumerResources : RabbitResources
+    {
+        internal readonly EventingBasicConsumer ebc;
+        internal readonly string QueueName;
+
+        public override void Dispose()
+        {
+            foreach (var tag in ebc.ConsumerTags)
             {
-                this.ebc = ebc;
-                this.QueueName = q;
+                Model.BasicCancel(tag);
             }
+            if (!Model.IsOpen)
+                return;
+            Model.Close();
+            Model.Dispose();
         }
 
-        #endregion
-
-        public void Wait()
+        internal ConsumerResources(EventingBasicConsumer ebc, string q, IModel model) : base(model)
         {
-            lock (_exitLock)
+            this.ebc = ebc;
+            this.QueueName = q;
+        }
+    }
+
+    #endregion
+
+    public void Wait()
+    {
+        lock (_exitLock)
+        {
+            while (!ShutdownCalled)
             {
-                while (!ShutdownCalled)
-                {
-                    Monitor.Wait(_exitLock);
-                }
+                Monitor.Wait(_exitLock);
             }
         }
     }

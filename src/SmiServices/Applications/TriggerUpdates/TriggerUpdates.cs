@@ -5,38 +5,37 @@ using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 
 
-namespace SmiServices.Applications.TriggerUpdates
+namespace SmiServices.Applications.TriggerUpdates;
+
+public static class TriggerUpdates
 {
-    public static class TriggerUpdates
+    [ExcludeFromCodeCoverage]
+    public static int Main(IEnumerable<string> args)
     {
-        [ExcludeFromCodeCoverage]
-        public static int Main(IEnumerable<string> args)
+        int ret = SmiCliInit
+            .ParseAndRun(
+                args,
+                nameof(TriggerUpdates),
+                [
+                    typeof(TriggerUpdatesFromMapperOptions),
+                ],
+                OnParse
+            );
+        return ret;
+    }
+
+    private static int OnParse(GlobalOptions globals, object opts)
+    {
+        var parsedOptions = SmiCliInit.Verify<TriggerUpdatesCliOptions>(opts);
+
+        ITriggerUpdatesSource source = parsedOptions switch
         {
-            int ret = SmiCliInit
-                .ParseAndRun(
-                    args,
-                    nameof(TriggerUpdates),
-                    [
-                        typeof(TriggerUpdatesFromMapperOptions),
-                    ],
-                    OnParse
-                );
-            return ret;
-        }
+            TriggerUpdatesFromMapperOptions o => new MapperSource(globals, o),
+            _ => throw new NotImplementedException($"No case for '{parsedOptions.GetType()}'")
+        };
 
-        private static int OnParse(GlobalOptions globals, object opts)
-        {
-            var parsedOptions = SmiCliInit.Verify<TriggerUpdatesCliOptions>(opts);
-
-            ITriggerUpdatesSource source = parsedOptions switch
-            {
-                TriggerUpdatesFromMapperOptions o => new MapperSource(globals, o),
-                _ => throw new NotImplementedException($"No case for '{parsedOptions.GetType()}'")
-            };
-
-            var bootstrapper = new MicroserviceHostBootstrapper(() => new TriggerUpdatesHost(globals, source));
-            int ret = bootstrapper.Main();
-            return ret;
-        }
+        var bootstrapper = new MicroserviceHostBootstrapper(() => new TriggerUpdatesHost(globals, source));
+        int ret = bootstrapper.Main();
+        return ret;
     }
 }

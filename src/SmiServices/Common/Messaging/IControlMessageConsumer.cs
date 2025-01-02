@@ -1,11 +1,10 @@
 using SmiServices.Common.Options;
 
-namespace SmiServices.Common.Messaging
-{
-    public interface IControlMessageConsumer
-    {
-        ConsumerOptions ControlConsumerOptions { get; }
+namespace SmiServices.Common.Messaging;
 
-        void ProcessMessage(string body, string routingKey);
-    }
+public interface IControlMessageConsumer
+{
+    ConsumerOptions ControlConsumerOptions { get; }
+
+    void ProcessMessage(string body, string routingKey);
 }

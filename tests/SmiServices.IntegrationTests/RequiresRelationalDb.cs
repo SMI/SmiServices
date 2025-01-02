@@ -6,68 +6,67 @@ using System;
 using System.IO;
 using YamlDotNet.Serialization;
 
-namespace SmiServices.IntegrationTests
+namespace SmiServices.IntegrationTests;
+
+[AttributeUsage(AttributeTargets.Method | AttributeTargets.Class | AttributeTargets.Interface |
+                AttributeTargets.Assembly, AllowMultiple = true)]
+public class RequiresRelationalDb : RequiresExternalService
 {
-    [AttributeUsage(AttributeTargets.Method | AttributeTargets.Class | AttributeTargets.Interface |
-                    AttributeTargets.Assembly, AllowMultiple = true)]
-    public class RequiresRelationalDb : RequiresExternalService
+    private readonly DatabaseType _type;
+    private const string Filename = "RelationalDatabases.yaml";
+
+    public RequiresRelationalDb(DatabaseType type)
     {
-        private readonly DatabaseType _type;
-        private const string Filename = "RelationalDatabases.yaml";
+        _type = type;
+    }
 
-        public RequiresRelationalDb(DatabaseType type)
+    protected override string? ApplyToContextImpl()
+    {
+        FansiImplementations.Load();
+
+        var connectionStrings = GetRelationalDatabaseConnectionStrings();
+        var server = connectionStrings.GetServer(_type);
+
+        return server.Exists()
+            ? null
+            : $"Could not connect to {_type} at '{server.Name}' with the provided connection options";
+    }
+
+    public static ConStrs GetRelationalDatabaseConnectionStrings()
+    {
+        IDeserializer deserializer = new DeserializerBuilder()
+            .IgnoreUnmatchedProperties()
+            .Build();
+
+        return deserializer.Deserialize<ConStrs>(new StreamReader(Path.Combine(TestContext.CurrentContext.TestDirectory, Filename)));
+    }
+
+    public class ConStrs
+    {
+        private string? _MySql;
+        public string? MySql
         {
-            _type = type;
+            get => _MySql;
+            set => _MySql = value?.Replace("ssl-mode", "sslmode", StringComparison.OrdinalIgnoreCase);
         }
 
-        protected override string? ApplyToContextImpl()
+        public string? SqlServer { get; set; }
+        public string? PostgreSql { get; set; }
+
+        public DiscoveredServer GetServer(DatabaseType dbType)
         {
-            FansiImplementations.Load();
-
-            var connectionStrings = GetRelationalDatabaseConnectionStrings();
-            var server = connectionStrings.GetServer(_type);
-
-            return server.Exists()
-                ? null
-                : $"Could not connect to {_type} at '{server.Name}' with the provided connection options";
-        }
-
-        public static ConStrs GetRelationalDatabaseConnectionStrings()
-        {
-            IDeserializer deserializer = new DeserializerBuilder()
-                .IgnoreUnmatchedProperties()
-                .Build();
-
-            return deserializer.Deserialize<ConStrs>(new StreamReader(Path.Combine(TestContext.CurrentContext.TestDirectory, Filename)));
-        }
-
-        public class ConStrs
-        {
-            private string? _MySql;
-            public string? MySql
+            string? str = dbType switch
             {
-                get => _MySql;
-                set => _MySql = value?.Replace("ssl-mode", "sslmode", StringComparison.OrdinalIgnoreCase);
-            }
+                DatabaseType.MicrosoftSQLServer => SqlServer,
+                DatabaseType.MySql => MySql,
+                DatabaseType.PostgreSql => PostgreSql,
+                _ => throw new ArgumentOutOfRangeException(nameof(dbType))
+            };
 
-            public string? SqlServer { get; set; }
-            public string? PostgreSql { get; set; }
+            if (string.IsNullOrEmpty(str))
+                Assert.Ignore($"No connection string configured in {Filename} for DatabaseType {dbType}");
 
-            public DiscoveredServer GetServer(DatabaseType dbType)
-            {
-                string? str = dbType switch
-                {
-                    DatabaseType.MicrosoftSQLServer => SqlServer,
-                    DatabaseType.MySql => MySql,
-                    DatabaseType.PostgreSql => PostgreSql,
-                    _ => throw new ArgumentOutOfRangeException(nameof(dbType))
-                };
-
-                if (string.IsNullOrEmpty(str))
-                    Assert.Ignore($"No connection string configured in {Filename} for DatabaseType {dbType}");
-
-                return new DiscoveredServer(str, dbType);
-            }
+            return new DiscoveredServer(str, dbType);
         }
     }
 }

@@ -10,77 +10,76 @@ using System.IO.Abstractions.TestingHelpers;
 using System.Text;
 
 
-namespace SmiServices.UnitTests.Applications.DicomDirectoryProcessor
+namespace SmiServices.UnitTests.Applications.DicomDirectoryProcessor;
+
+/// <summary>
+/// Unit tests for AccessionDirectoryLister
+/// </summary>
+[TestFixture]
+public class AccessionDirectoryListerTest
 {
-    /// <summary>
-    /// Unit tests for AccessionDirectoryLister
-    /// </summary>
-    [TestFixture]
-    public class AccessionDirectoryListerTest
+    [OneTimeSetUp]
+    public void OneTimeSetUp()
     {
-        [OneTimeSetUp]
-        public void OneTimeSetUp()
-        {
-        }
+    }
 
-        private static string GetListContent()
-        {
-            StringBuilder accessionList = new();
+    private static string GetListContent()
+    {
+        StringBuilder accessionList = new();
 
-            accessionList.AppendLine("/PACS/2018/01/01/AAA,");           // exists and has dicom files - fail (requires indication that is dir) 
-            accessionList.AppendLine("/PACS/2018/01/01/AAA/,");          // exists and has dicom files - pass
-            accessionList.AppendLine("/PACS/2018/01/01/E-123/,");        // exists and has dicom files - pass
-            accessionList.AppendLine("/PACS/2018/01/01/01.01.2018/,");   // exists and has dicom files - pass
-            accessionList.AppendLine("/PACS/2018/01/01/BBB/,");          // does exist but has no dicom files - fail
-            accessionList.AppendLine("/PACS/2018/01/01/CCC/,");          // does not exist - fail
-            accessionList.AppendLine("/PACS/2018/01/01/,");              // not pointing to accession directory - fail
-            accessionList.AppendLine("/PACS/2018/01/01/testDicom.dcm,"); // not pointing to accession directory - fail
-            accessionList.AppendLine("                 ");               // not pointing to accession directory - fail
-            accessionList.AppendLine("NULL");                            // not pointing to accession directory - fail
-            accessionList.AppendLine(",,,,");                            // not pointing to accession directory - fail
+        accessionList.AppendLine("/PACS/2018/01/01/AAA,");           // exists and has dicom files - fail (requires indication that is dir) 
+        accessionList.AppendLine("/PACS/2018/01/01/AAA/,");          // exists and has dicom files - pass
+        accessionList.AppendLine("/PACS/2018/01/01/E-123/,");        // exists and has dicom files - pass
+        accessionList.AppendLine("/PACS/2018/01/01/01.01.2018/,");   // exists and has dicom files - pass
+        accessionList.AppendLine("/PACS/2018/01/01/BBB/,");          // does exist but has no dicom files - fail
+        accessionList.AppendLine("/PACS/2018/01/01/CCC/,");          // does not exist - fail
+        accessionList.AppendLine("/PACS/2018/01/01/,");              // not pointing to accession directory - fail
+        accessionList.AppendLine("/PACS/2018/01/01/testDicom.dcm,"); // not pointing to accession directory - fail
+        accessionList.AppendLine("                 ");               // not pointing to accession directory - fail
+        accessionList.AppendLine("NULL");                            // not pointing to accession directory - fail
+        accessionList.AppendLine(",,,,");                            // not pointing to accession directory - fail
 
-            return accessionList.ToString();
-        }
+        return accessionList.ToString();
+    }
 
-        [Test]
-        public void TestAccessionDirectoryLister()
-        {
-            // Mock file system referenced in accession list
-            MockFileSystem mockFilesystem = new(null, Environment.CurrentDirectory);
-            string rootDir = Path.Combine(Path.GetPathRoot(Environment.CurrentDirectory)!, "PACS");
+    [Test]
+    public void TestAccessionDirectoryLister()
+    {
+        // Mock file system referenced in accession list
+        MockFileSystem mockFilesystem = new(null, Environment.CurrentDirectory);
+        string rootDir = Path.Combine(Path.GetPathRoot(Environment.CurrentDirectory)!, "PACS");
 
-            string testDicom = Path.GetFullPath(Path.Combine(rootDir, "2018/01/01/AAA/test.dcm"));
-            mockFilesystem.AddFile(testDicom, null);
+        string testDicom = Path.GetFullPath(Path.Combine(rootDir, "2018/01/01/AAA/test.dcm"));
+        mockFilesystem.AddFile(testDicom, null);
 
-            string specialCase1 = Path.GetFullPath(Path.Combine(rootDir, "2018/01/01/E-123/test.dcm"));
-            mockFilesystem.AddFile(specialCase1, null);
+        string specialCase1 = Path.GetFullPath(Path.Combine(rootDir, "2018/01/01/E-123/test.dcm"));
+        mockFilesystem.AddFile(specialCase1, null);
 
-            string specialCase2 = Path.GetFullPath(Path.Combine(rootDir, "2018/01/01/01.01.2018/test.dcm"));
-            mockFilesystem.AddFile(specialCase2, null);
+        string specialCase2 = Path.GetFullPath(Path.Combine(rootDir, "2018/01/01/01.01.2018/test.dcm"));
+        mockFilesystem.AddFile(specialCase2, null);
 
-            string testBad = Path.GetFullPath(Path.Combine(rootDir, "2018/01/01/BBB/test.txt"));
-            mockFilesystem.AddFile(testBad, null);
+        string testBad = Path.GetFullPath(Path.Combine(rootDir, "2018/01/01/BBB/test.txt"));
+        mockFilesystem.AddFile(testBad, null);
 
-            // Mock input file 
-            string accessionList = Path.GetFullPath(Path.Combine(rootDir, "accessions.csv"));
-            var mockInputFile = new MockFileData(GetListContent());
-            mockFilesystem.AddFile(accessionList, mockInputFile);
+        // Mock input file 
+        string accessionList = Path.GetFullPath(Path.Combine(rootDir, "accessions.csv"));
+        var mockInputFile = new MockFileData(GetListContent());
+        mockFilesystem.AddFile(accessionList, mockInputFile);
 
-            // Mock producer
-            var totalSent = 0;
+        // Mock producer
+        var totalSent = 0;
 
-            Mock<IProducerModel> mockProducerModel = new();
-            mockProducerModel
-                .Setup(x => x.SendMessage(It.IsAny<IMessage>(),
-                                            null,
-                                            null))
-                .Callback(() => ++totalSent);
+        Mock<IProducerModel> mockProducerModel = new();
+        mockProducerModel
+            .Setup(x => x.SendMessage(It.IsAny<IMessage>(),
+                                        null,
+                                        null))
+            .Callback(() => ++totalSent);
 
-            AccessionDirectoryLister accessionLister = new(rootDir, mockFilesystem, "*.dcm", mockProducerModel.Object);
+        AccessionDirectoryLister accessionLister = new(rootDir, mockFilesystem, "*.dcm", mockProducerModel.Object);
 
-            accessionLister.SearchForDicomDirectories(accessionList);
+        accessionLister.SearchForDicomDirectories(accessionList);
 
-            Assert.That(totalSent, Is.EqualTo(3));
-        }
+        Assert.That(totalSent, Is.EqualTo(3));
     }
 }

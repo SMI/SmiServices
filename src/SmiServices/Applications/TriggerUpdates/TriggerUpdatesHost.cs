@@ -4,28 +4,27 @@ using SmiServices.Common.Messaging;
 using SmiServices.Common.Options;
 
 
-namespace SmiServices.Applications.TriggerUpdates
+namespace SmiServices.Applications.TriggerUpdates;
+
+public class TriggerUpdatesHost : MicroserviceHost
 {
-    public class TriggerUpdatesHost : MicroserviceHost
+    private readonly ITriggerUpdatesSource _source;
+    private readonly IProducerModel _producer;
+
+    public TriggerUpdatesHost(GlobalOptions options, ITriggerUpdatesSource source, IMessageBroker? messageBroker = null)
+        : base(options, messageBroker)
     {
-        private readonly ITriggerUpdatesSource _source;
-        private readonly IProducerModel _producer;
+        _source = source;
+        _producer = MessageBroker.SetupProducer(options.TriggerUpdatesOptions!, isBatch: false);
+    }
 
-        public TriggerUpdatesHost(GlobalOptions options, ITriggerUpdatesSource source, IMessageBroker? messageBroker = null)
-            : base(options, messageBroker)
+    public override void Start()
+    {
+        foreach (var upd in _source.GetUpdates())
         {
-            _source = source;
-            _producer = MessageBroker.SetupProducer(options.TriggerUpdatesOptions!, isBatch: false);
+            _producer.SendMessage(upd, isInResponseTo: null, routingKey: null);
         }
 
-        public override void Start()
-        {
-            foreach (var upd in _source.GetUpdates())
-            {
-                _producer.SendMessage(upd, isInResponseTo: null, routingKey: null);
-            }
-
-            Stop("Update detection process finished");
-        }
+        Stop("Update detection process finished");
     }
 }

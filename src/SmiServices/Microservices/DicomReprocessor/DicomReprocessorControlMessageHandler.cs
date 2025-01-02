@@ -5,43 +5,42 @@ using SmiServices.Common.Options;
 using System;
 
 
-namespace SmiServices.Microservices.DicomReprocessor
+namespace SmiServices.Microservices.DicomReprocessor;
+
+public class DicomReprocessorControlMessageHandler : IControlMessageHandler
 {
-    public class DicomReprocessorControlMessageHandler : IControlMessageHandler
+    private readonly ILogger _logger = LogManager.GetCurrentClassLogger();
+
+    private readonly DicomReprocessorOptions _options;
+
+    private const string Key = "set-sleep-time-ms";
+
+
+    public DicomReprocessorControlMessageHandler(DicomReprocessorOptions options)
     {
-        private readonly ILogger _logger = LogManager.GetCurrentClassLogger();
-
-        private readonly DicomReprocessorOptions _options;
-
-        private const string Key = "set-sleep-time-ms";
+        _options = options;
+    }
 
 
-        public DicomReprocessorControlMessageHandler(DicomReprocessorOptions options)
+    public void ControlMessageHandler(string action, string? message = null)
+    {
+        _logger.Info($"Received control event with action \"{action}\" and message \"{message}\"");
+
+        if (!action.StartsWith(Key))
         {
-            _options = options;
+            _logger.Info("Ignoring unknown action");
+            return;
         }
 
-
-        public void ControlMessageHandler(string action, string? message = null)
+        if (!int.TryParse(message, out int intTimeMs))
         {
-            _logger.Info($"Received control event with action \"{action}\" and message \"{message}\"");
-
-            if (!action.StartsWith(Key))
-            {
-                _logger.Info("Ignoring unknown action");
-                return;
-            }
-
-            if (!int.TryParse(message, out int intTimeMs))
-            {
-                _logger.Error($"Couldn't parse a valid int from \"{message}\"");
-                return;
-            }
-
-            TimeSpan newTime = TimeSpan.FromMilliseconds(intTimeMs);
-
-            _logger.Info($"Setting batch sleep time to {newTime.TotalMilliseconds}ms");
-            _options.SleepTime = newTime;
+            _logger.Error($"Couldn't parse a valid int from \"{message}\"");
+            return;
         }
+
+        TimeSpan newTime = TimeSpan.FromMilliseconds(intTimeMs);
+
+        _logger.Info($"Setting batch sleep time to {newTime.TotalMilliseconds}ms");
+        _options.SleepTime = newTime;
     }
 }

@@ -2,10 +2,9 @@ using SmiServices.Common.Messages.Extraction;
 using System.Collections.Generic;
 
 
-namespace SmiServices.Applications.ExtractImages
+namespace SmiServices.Applications.ExtractImages;
+
+public interface IExtractionMessageSender
 {
-    public interface IExtractionMessageSender
-    {
-        void SendMessages(ExtractionKey extractionKey, List<string> idList);
-    }
+    void SendMessages(ExtractionKey extractionKey, List<string> idList);
 }

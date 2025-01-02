@@ -1,4 +1,3 @@
-namespace SmiServices.Common.Events
-{
-    public delegate void StopEventHandler();
-}
+namespace SmiServices.Common.Events;
+
+public delegate void StopEventHandler();
