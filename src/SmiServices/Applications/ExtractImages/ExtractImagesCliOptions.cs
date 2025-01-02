@@ -6,76 +6,75 @@ using System.Diagnostics.CodeAnalysis;
 using System.Text;
 
 
-namespace SmiServices.Applications.ExtractImages
+namespace SmiServices.Applications.ExtractImages;
+
+public class ExtractImagesCliOptions : CliOptions
 {
-    public class ExtractImagesCliOptions : CliOptions
+    // Required
+
+    [Option(shortName: 'p', longName: "project-id", Required = true, HelpText = "The project identifier")]
+    public string ProjectId { get; set; } = null!;
+
+    [Option(shortName: 'c', longName: "cohort-csv-file", Required = true,
+        HelpText = "The CSV file containing IDs of the cohort for extraction")]
+    public string CohortCsvFile { get; set; } = null!;
+
+    [Option(shortName: 'm', longName: "modality", Required = true,
+        HelpText = "The modality to extract. Any non-matching IDs from the input list are ignored")]
+    public string Modality { get; set; } = null!;
+
+    // Optional
+
+    [Option(shortName: 'i', longName: "identifiable-extraction", Required = false,
+        HelpText = "Extract without performing anonymisation")]
+    public bool IsIdentifiableExtraction { get; set; }
+
+    [Option(shortName: 'f', longName: "no-filters", Required = false,
+        HelpText = "Extract without applying any rejection filters")]
+    public bool IsNoFiltersExtraction { get; set; }
+
+    [Option(shortName: 'n', longName: "non-interactive", Required = false,
+        HelpText = "Don't pause for manual confirmation before sending messages")]
+    public bool NonInteractive { get; set; }
+
+    [Option(shortName: 'u', longName: "pooled-extraction", Required = false, Default = false,
+        HelpText = "True to use the global file pool for this extraction")]
+    public bool IsPooledExtraction { get; set; }
+
+
+    [Usage]
+    [ExcludeFromCodeCoverage]
+    public static IEnumerable<Example> Examples
     {
-        // Required
-
-        [Option(shortName: 'p', longName: "project-id", Required = true, HelpText = "The project identifier")]
-        public string ProjectId { get; set; } = null!;
-
-        [Option(shortName: 'c', longName: "cohort-csv-file", Required = true,
-            HelpText = "The CSV file containing IDs of the cohort for extraction")]
-        public string CohortCsvFile { get; set; } = null!;
-
-        [Option(shortName: 'm', longName: "modality", Required = true,
-            HelpText = "The modality to extract. Any non-matching IDs from the input list are ignored")]
-        public string Modality { get; set; } = null!;
-
-        // Optional
-
-        [Option(shortName: 'i', longName: "identifiable-extraction", Required = false,
-            HelpText = "Extract without performing anonymisation")]
-        public bool IsIdentifiableExtraction { get; set; }
-
-        [Option(shortName: 'f', longName: "no-filters", Required = false,
-            HelpText = "Extract without applying any rejection filters")]
-        public bool IsNoFiltersExtraction { get; set; }
-
-        [Option(shortName: 'n', longName: "non-interactive", Required = false,
-            HelpText = "Don't pause for manual confirmation before sending messages")]
-        public bool NonInteractive { get; set; }
-
-        [Option(shortName: 'u', longName: "pooled-extraction", Required = false, Default = false,
-            HelpText = "True to use the global file pool for this extraction")]
-        public bool IsPooledExtraction { get; set; }
-
-
-        [Usage]
-        [ExcludeFromCodeCoverage]
-        public static IEnumerable<Example> Examples
+        get
         {
-            get
-            {
-                yield return new Example(helpText: "Normal Scenario",
-                    new ExtractImagesCliOptions { CohortCsvFile = "my.csv", ProjectId = "1234-5678" });
-                yield return new Example(helpText: "Extract CTs without anonymisation",
-                    new ExtractImagesCliOptions
-                    {
-                        CohortCsvFile = "my.csv",
-                        ProjectId = "1234-5678",
-                        Modality = "CT",
-                        IsIdentifiableExtraction = true
-                    });
-                yield return new Example(helpText: "Extract without applying any rejection filters",
-                    new ExtractImagesCliOptions
-                    { CohortCsvFile = "my.csv", ProjectId = "1234-5678", IsNoFiltersExtraction = true });
-            }
+            yield return new Example(helpText: "Normal Scenario",
+                new ExtractImagesCliOptions { CohortCsvFile = "my.csv", ProjectId = "1234-5678" });
+            yield return new Example(helpText: "Extract CTs without anonymisation",
+                new ExtractImagesCliOptions
+                {
+                    CohortCsvFile = "my.csv",
+                    ProjectId = "1234-5678",
+                    Modality = "CT",
+                    IsIdentifiableExtraction = true
+                });
+            yield return new Example(helpText: "Extract without applying any rejection filters",
+                new ExtractImagesCliOptions
+                { CohortCsvFile = "my.csv", ProjectId = "1234-5678", IsNoFiltersExtraction = true });
         }
+    }
 
-        [ExcludeFromCodeCoverage]
-        public override string ToString()
-        {
-            var sb = new StringBuilder();
-            sb.Append(base.ToString());
-            sb.Append($"ProjectId={ProjectId},");
-            sb.Append($"CohortCsvFile={CohortCsvFile},");
-            sb.Append($"Modality={Modality},");
-            sb.Append($"IdentifiableExtraction={IsIdentifiableExtraction},");
-            sb.Append($"NoFiltersExtraction={IsNoFiltersExtraction},");
-            sb.Append($"NonInteractive={NonInteractive},");
-            return sb.ToString();
-        }
+    [ExcludeFromCodeCoverage]
+    public override string ToString()
+    {
+        var sb = new StringBuilder();
+        sb.Append(base.ToString());
+        sb.Append($"ProjectId={ProjectId},");
+        sb.Append($"CohortCsvFile={CohortCsvFile},");
+        sb.Append($"Modality={Modality},");
+        sb.Append($"IdentifiableExtraction={IsIdentifiableExtraction},");
+        sb.Append($"NoFiltersExtraction={IsNoFiltersExtraction},");
+        sb.Append($"NonInteractive={NonInteractive},");
+        return sb.ToString();
     }
 }

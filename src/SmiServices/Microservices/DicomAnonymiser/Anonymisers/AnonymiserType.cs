@@ -1,11 +1,10 @@
-namespace SmiServices.Microservices.DicomAnonymiser.Anonymisers
+namespace SmiServices.Microservices.DicomAnonymiser.Anonymisers;
+
+public enum AnonymiserType
 {
-    public enum AnonymiserType
-    {
-        /// <summary>
-        /// Unused placeholder value
-        /// </summary>
-        None = 0,
-        DefaultAnonymiser = 1,
-    }
+    /// <summary>
+    /// Unused placeholder value
+    /// </summary>
+    None = 0,
+    DefaultAnonymiser = 1,
 }

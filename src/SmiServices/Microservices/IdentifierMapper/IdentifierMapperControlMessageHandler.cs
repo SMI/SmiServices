@@ -2,33 +2,32 @@ using NLog;
 using SmiServices.Common.Messaging;
 using SmiServices.Microservices.IdentifierMapper.Swappers;
 
-namespace SmiServices.Microservices.IdentifierMapper
+namespace SmiServices.Microservices.IdentifierMapper;
+
+public class IdentifierMapperControlMessageHandler : IControlMessageHandler
 {
-    public class IdentifierMapperControlMessageHandler : IControlMessageHandler
+    private readonly ILogger _logger;
+
+    private readonly ISwapIdentifiers _swapper;
+
+
+    public IdentifierMapperControlMessageHandler(ISwapIdentifiers swapper)
     {
-        private readonly ILogger _logger;
+        _swapper = swapper;
+        _logger = LogManager.GetCurrentClassLogger();
+    }
 
-        private readonly ISwapIdentifiers _swapper;
+    public void ControlMessageHandler(string action, string? message = null)
+    {
+        _logger.Info("Received control event with action " + action);
 
+        // Only 1 event to handle - cache refresh
 
-        public IdentifierMapperControlMessageHandler(ISwapIdentifiers swapper)
-        {
-            _swapper = swapper;
-            _logger = LogManager.GetCurrentClassLogger();
-        }
+        if (action != "refresh")
+            return;
 
-        public void ControlMessageHandler(string action, string? message = null)
-        {
-            _logger.Info("Received control event with action " + action);
+        _logger.Info("Refreshing cached swapper dictionary");
 
-            // Only 1 event to handle - cache refresh
-
-            if (action != "refresh")
-                return;
-
-            _logger.Info("Refreshing cached swapper dictionary");
-
-            _swapper.ClearCache();
-        }
+        _swapper.ClearCache();
     }
 }

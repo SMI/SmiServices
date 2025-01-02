@@ -5,60 +5,59 @@ using System;
 using System.Collections.Generic;
 using System.Data.Common;
 
-namespace SmiServices.UnitTests.Microservices.CohortExtractor
+namespace SmiServices.UnitTests.Microservices.CohortExtractor;
+
+public class ColumnValuesRejectorTests
 {
-    public class ColumnValuesRejectorTests
+    private const string PatColName = "PatientID";
+
+    [Test]
+    public void Test_ColumnValuesRejector_MissingColumn_Throws()
     {
-        private const string PatColName = "PatientID";
+        var rejector = new ColumnValuesRejector("fff", ["dave", "frank"]);
 
-        [Test]
-        public void Test_ColumnValuesRejector_MissingColumn_Throws()
+        var moqDave = new Mock<DbDataReader>();
+        moqDave
+            .Setup(x => x["fff"])
+            .Throws<IndexOutOfRangeException>();
+
+        var exc = Assert.Throws<IndexOutOfRangeException>(() => rejector.Reject(moqDave.Object, out var _));
+        Assert.That(exc!.Message, Does.Contain($"Expected a column called fff"));
+    }
+
+    [Test]
+    public void Test_ColumnValuesRejectorTests()
+    {
+        var rejector = new ColumnValuesRejector(PatColName, new HashSet<string>(["Frank", "Peter", "David"], StringComparer.CurrentCultureIgnoreCase));
+
+        var moqDave = new Mock<DbDataReader>();
+        moqDave.Setup(x => x[PatColName])
+            .Returns("Dave");
+
+        Assert.Multiple(() =>
         {
-            var rejector = new ColumnValuesRejector("fff", ["dave", "frank"]);
+            Assert.That(rejector.Reject(moqDave.Object, out string? reason), Is.False);
+            Assert.That(reason, Is.Null);
+        });
 
-            var moqDave = new Mock<DbDataReader>();
-            moqDave
-                .Setup(x => x["fff"])
-                .Throws<IndexOutOfRangeException>();
+        var moqFrank = new Mock<DbDataReader>();
+        moqFrank.Setup(x => x[PatColName])
+            .Returns("Frank");
 
-            var exc = Assert.Throws<IndexOutOfRangeException>(() => rejector.Reject(moqDave.Object, out var _));
-            Assert.That(exc!.Message, Does.Contain($"Expected a column called fff"));
-        }
-
-        [Test]
-        public void Test_ColumnValuesRejectorTests()
+        Assert.Multiple(() =>
         {
-            var rejector = new ColumnValuesRejector(PatColName, new HashSet<string>(["Frank", "Peter", "David"], StringComparer.CurrentCultureIgnoreCase));
+            Assert.That(rejector.Reject(moqFrank.Object, out var reason), Is.True);
+            Assert.That(reason, Is.EqualTo("Patient or Identifier was in reject list"));
+        });
 
-            var moqDave = new Mock<DbDataReader>();
-            moqDave.Setup(x => x[PatColName])
-                .Returns("Dave");
+        var moqLowerCaseFrank = new Mock<DbDataReader>();
+        moqLowerCaseFrank.Setup(x => x[PatColName])
+            .Returns("frank");
 
-            Assert.Multiple(() =>
-            {
-                Assert.That(rejector.Reject(moqDave.Object, out string? reason), Is.False);
-                Assert.That(reason, Is.Null);
-            });
-
-            var moqFrank = new Mock<DbDataReader>();
-            moqFrank.Setup(x => x[PatColName])
-                .Returns("Frank");
-
-            Assert.Multiple(() =>
-            {
-                Assert.That(rejector.Reject(moqFrank.Object, out var reason), Is.True);
-                Assert.That(reason, Is.EqualTo("Patient or Identifier was in reject list"));
-            });
-
-            var moqLowerCaseFrank = new Mock<DbDataReader>();
-            moqLowerCaseFrank.Setup(x => x[PatColName])
-                .Returns("frank");
-
-            Assert.Multiple(() =>
-            {
-                Assert.That(rejector.Reject(moqLowerCaseFrank.Object, out var reason), Is.True);
-                Assert.That(reason, Is.EqualTo("Patient or Identifier was in reject list"));
-            });
-        }
+        Assert.Multiple(() =>
+        {
+            Assert.That(rejector.Reject(moqLowerCaseFrank.Object, out var reason), Is.True);
+            Assert.That(reason, Is.EqualTo("Patient or Identifier was in reject list"));
+        });
     }
 }

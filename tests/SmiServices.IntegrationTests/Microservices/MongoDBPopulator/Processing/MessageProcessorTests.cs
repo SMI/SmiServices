@@ -9,72 +9,71 @@ using SmiServices.UnitTests.Microservices.MongoDbPopulator;
 using System;
 using System.Threading;
 
-namespace SmiServices.IntegrationTests.Microservices.MongoDBPopulator.Processing
+namespace SmiServices.IntegrationTests.Microservices.MongoDBPopulator.Processing;
+
+[TestFixture, RequiresMongoDb]
+public class MessageProcessorTests
 {
-    [TestFixture, RequiresMongoDb]
-    public class MessageProcessorTests
+    private MongoDbPopulatorTestHelper _helper = null!;
+
+    [OneTimeSetUp]
+    public void OneTimeSetUp()
     {
-        private MongoDbPopulatorTestHelper _helper = null!;
+        _helper = new MongoDbPopulatorTestHelper();
+        _helper.SetupSuite();
+    }
 
-        [OneTimeSetUp]
-        public void OneTimeSetUp()
+    [OneTimeTearDown]
+    public void OneTimeTearDown()
+    {
+        _helper.Dispose();
+    }
+
+    /// <summary>
+    /// Tests that the exception callback is used if an exception is thrown in ProcessMessage
+    /// </summary>
+    [Test]
+    public void TestExceptionCallbackUsed()
+    {
+        var mockAdapter = Mock.Of<IMongoDbAdapter>();
+
+        var callbackUsed = false;
+        void exceptionCallback(Exception exception) { callbackUsed = true; }
+
+        _helper.Globals.MongoDbPopulatorOptions!.MongoDbFlushTime = 1;
+
+        var processor = new TestMessageProcessor(_helper.Globals.MongoDbPopulatorOptions, mockAdapter, 1, exceptionCallback);
+
+        Assert.That(processor.IsStopping, Is.False);
+
+        Thread.Sleep(_helper.Globals.MongoDbPopulatorOptions.MongoDbFlushTime * 1000 + 100);
+
+        Assert.Multiple(() =>
         {
-            _helper = new MongoDbPopulatorTestHelper();
-            _helper.SetupSuite();
+            Assert.That(callbackUsed, Is.True);
+            Assert.That(processor.IsStopping, Is.True);
+        });
+    }
+
+    // Implementation of MessageProcessor for testing
+    private class TestMessageProcessor : MessageProcessor<SeriesMessage>
+    {
+        public TestMessageProcessor(MongoDbPopulatorOptions options, IMongoDbAdapter mongoDbAdapter, int maxQueueSize, Action<Exception> exceptionCallback)
+            : base(options, mongoDbAdapter, maxQueueSize, exceptionCallback) { }
+
+        public override void AddToWriteQueue(SeriesMessage message, IMessageHeader header, ulong deliveryTag)
+        {
+            ToProcess.Enqueue(new Tuple<BsonDocument, IMessageHeader, ulong>(new BsonDocument { { "hello", "world" } }, new MessageHeader(), deliveryTag));
         }
 
-        [OneTimeTearDown]
-        public void OneTimeTearDown()
+        public override void StopProcessing(string reason)
         {
-            _helper.Dispose();
+            StopProcessing();
         }
 
-        /// <summary>
-        /// Tests that the exception callback is used if an exception is thrown in ProcessMessage
-        /// </summary>
-        [Test]
-        public void TestExceptionCallbackUsed()
+        protected override void ProcessQueue()
         {
-            var mockAdapter = Mock.Of<IMongoDbAdapter>();
-
-            var callbackUsed = false;
-            void exceptionCallback(Exception exception) { callbackUsed = true; }
-
-            _helper.Globals.MongoDbPopulatorOptions!.MongoDbFlushTime = 1;
-
-            var processor = new TestMessageProcessor(_helper.Globals.MongoDbPopulatorOptions, mockAdapter, 1, exceptionCallback);
-
-            Assert.That(processor.IsStopping, Is.False);
-
-            Thread.Sleep(_helper.Globals.MongoDbPopulatorOptions.MongoDbFlushTime * 1000 + 100);
-
-            Assert.Multiple(() =>
-            {
-                Assert.That(callbackUsed, Is.True);
-                Assert.That(processor.IsStopping, Is.True);
-            });
-        }
-
-        // Implementation of MessageProcessor for testing
-        private class TestMessageProcessor : MessageProcessor<SeriesMessage>
-        {
-            public TestMessageProcessor(MongoDbPopulatorOptions options, IMongoDbAdapter mongoDbAdapter, int maxQueueSize, Action<Exception> exceptionCallback)
-                : base(options, mongoDbAdapter, maxQueueSize, exceptionCallback) { }
-
-            public override void AddToWriteQueue(SeriesMessage message, IMessageHeader header, ulong deliveryTag)
-            {
-                ToProcess.Enqueue(new Tuple<BsonDocument, IMessageHeader, ulong>(new BsonDocument { { "hello", "world" } }, new MessageHeader(), deliveryTag));
-            }
-
-            public override void StopProcessing(string reason)
-            {
-                StopProcessing();
-            }
-
-            protected override void ProcessQueue()
-            {
-                throw new ApplicationException("Test!");
-            }
+            throw new ApplicationException("Test!");
         }
     }
 }

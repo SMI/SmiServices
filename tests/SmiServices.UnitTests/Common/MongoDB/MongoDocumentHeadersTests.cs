@@ -7,97 +7,96 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 
-namespace SmiServices.UnitTests.Common.MongoDB
+namespace SmiServices.UnitTests.Common.MongoDB;
+
+[TestFixture]
+public class MongoDocumentHeadersTests
 {
-    [TestFixture]
-    public class MongoDocumentHeadersTests
+    [OneTimeSetUp]
+    public void OneTimeSetUp()
     {
-        [OneTimeSetUp]
-        public void OneTimeSetUp()
+    }
+
+    [Test]
+    public void ImageDocumentHeader_HasCorrectHeaders()
+    {
+        var msg = new DicomFileMessage
         {
-        }
+            DicomFilePath = "path/to/file.dcm",
+        };
 
-        [Test]
-        public void ImageDocumentHeader_HasCorrectHeaders()
+        string parents = $"{Guid.NewGuid()}->{Guid.NewGuid()}";
+        var headers = new Dictionary<string, object>
         {
-            var msg = new DicomFileMessage
-            {
-                DicomFilePath = "path/to/file.dcm",
-            };
+            { "MessageGuid", Encoding.UTF8.GetBytes(Guid.NewGuid().ToString()) },
+            { "ProducerProcessID", 1234 },
+            { "ProducerExecutableName", Encoding.UTF8.GetBytes("MongoDocumentHeadersTests") },
+            { "Parents", Encoding.UTF8.GetBytes(parents) },
+            { "OriginalPublishTimestamp", MessageHeader.UnixTimeNow() }
+        };
 
-            string parents = $"{Guid.NewGuid()}->{Guid.NewGuid()}";
-            var headers = new Dictionary<string, object>
-            {
-                { "MessageGuid", Encoding.UTF8.GetBytes(Guid.NewGuid().ToString()) },
-                { "ProducerProcessID", 1234 },
-                { "ProducerExecutableName", Encoding.UTF8.GetBytes("MongoDocumentHeadersTests") },
-                { "Parents", Encoding.UTF8.GetBytes(parents) },
-                { "OriginalPublishTimestamp", MessageHeader.UnixTimeNow() }
-            };
+        var header = MessageHeader.FromDict(headers, Encoding.UTF8);
+        BsonDocument bsonImageHeader = MongoDocumentHeaders.ImageDocumentHeader(msg, header);
 
-            var header = MessageHeader.FromDict(headers, Encoding.UTF8);
-            BsonDocument bsonImageHeader = MongoDocumentHeaders.ImageDocumentHeader(msg, header);
-
-            var expected = new BsonDocument
-            {
-                { "DicomFilePath",               msg.DicomFilePath },
-                { "DicomFileSize",               msg.DicomFileSize },
-                { "MessageHeader", new BsonDocument
-                {
-                    { "MessageGuid", header.MessageGuid.ToString() },
-                    { "ProducerProcessID", header.ProducerProcessID },
-                    { "ProducerExecutableName", header.ProducerExecutableName },
-                    { "Parents", string.Join(MessageHeader.Splitter, header.Parents) },
-                    { "OriginalPublishTimestamp", header.OriginalPublishTimestamp }
-                }}
-            };
-
-            Assert.That(bsonImageHeader, Is.EqualTo(expected));
-        }
-
-        [Test]
-        public void SeriesDocumentHeader_HasCorrectHeaders()
+        var expected = new BsonDocument
         {
-            var msg = new SeriesMessage
+            { "DicomFilePath",               msg.DicomFilePath },
+            { "DicomFileSize",               msg.DicomFileSize },
+            { "MessageHeader", new BsonDocument
             {
-                DirectoryPath = "path/to/files",
-                ImagesInSeries = 1234
-            };
+                { "MessageGuid", header.MessageGuid.ToString() },
+                { "ProducerProcessID", header.ProducerProcessID },
+                { "ProducerExecutableName", header.ProducerExecutableName },
+                { "Parents", string.Join(MessageHeader.Splitter, header.Parents) },
+                { "OriginalPublishTimestamp", header.OriginalPublishTimestamp }
+            }}
+        };
 
-            BsonDocument seriesHeader = MongoDocumentHeaders.SeriesDocumentHeader(msg);
+        Assert.That(bsonImageHeader, Is.EqualTo(expected));
+    }
 
-            var expected = new BsonDocument
-            {
-                { "DirectoryPath",               msg.DirectoryPath },
-                { "ImagesInSeries",              msg.ImagesInSeries }
-            };
-
-            Assert.That(seriesHeader, Is.EqualTo(expected));
-        }
-
-        [Test]
-        public void RebuildMessageHeader_HasCorrectHeaders()
+    [Test]
+    public void SeriesDocumentHeader_HasCorrectHeaders()
+    {
+        var msg = new SeriesMessage
         {
-            var msg = new DicomFileMessage
-            {
-                DicomFilePath = "path/to/file.dcm",
-            };
+            DirectoryPath = "path/to/files",
+            ImagesInSeries = 1234
+        };
 
-            string parents = $"{Guid.NewGuid()}->{Guid.NewGuid()}";
-            var headers = new Dictionary<string, object>
-            {
-                { "MessageGuid", Encoding.UTF8.GetBytes(Guid.NewGuid().ToString()) },
-                { "ProducerProcessID", 1234 },
-                { "ProducerExecutableName", Encoding.UTF8.GetBytes("MongoDocumentHeadersTests") },
-                { "Parents", Encoding.UTF8.GetBytes(parents) },
-                { "OriginalPublishTimestamp", MessageHeader.UnixTimeNow() }
-            };
+        BsonDocument seriesHeader = MongoDocumentHeaders.SeriesDocumentHeader(msg);
 
-            var header = MessageHeader.FromDict(headers, Encoding.UTF8);
-            BsonDocument bsonImageHeader = MongoDocumentHeaders.ImageDocumentHeader(msg, header);
-            IMessageHeader rebuiltHeader = MongoDocumentHeaders.RebuildMessageHeader(bsonImageHeader["MessageHeader"].AsBsonDocument);
+        var expected = new BsonDocument
+        {
+            { "DirectoryPath",               msg.DirectoryPath },
+            { "ImagesInSeries",              msg.ImagesInSeries }
+        };
 
-            Assert.That(rebuiltHeader, Is.EqualTo(header));
-        }
+        Assert.That(seriesHeader, Is.EqualTo(expected));
+    }
+
+    [Test]
+    public void RebuildMessageHeader_HasCorrectHeaders()
+    {
+        var msg = new DicomFileMessage
+        {
+            DicomFilePath = "path/to/file.dcm",
+        };
+
+        string parents = $"{Guid.NewGuid()}->{Guid.NewGuid()}";
+        var headers = new Dictionary<string, object>
+        {
+            { "MessageGuid", Encoding.UTF8.GetBytes(Guid.NewGuid().ToString()) },
+            { "ProducerProcessID", 1234 },
+            { "ProducerExecutableName", Encoding.UTF8.GetBytes("MongoDocumentHeadersTests") },
+            { "Parents", Encoding.UTF8.GetBytes(parents) },
+            { "OriginalPublishTimestamp", MessageHeader.UnixTimeNow() }
+        };
+
+        var header = MessageHeader.FromDict(headers, Encoding.UTF8);
+        BsonDocument bsonImageHeader = MongoDocumentHeaders.ImageDocumentHeader(msg, header);
+        IMessageHeader rebuiltHeader = MongoDocumentHeaders.RebuildMessageHeader(bsonImageHeader["MessageHeader"].AsBsonDocument);
+
+        Assert.That(rebuiltHeader, Is.EqualTo(header));
     }
 }

@@ -10,105 +10,104 @@ using System.IO;
 using System.IO.Abstractions.TestingHelpers;
 
 
-namespace SmiServices.UnitTests.Microservices.DicomTagReader
+namespace SmiServices.UnitTests.Microservices.DicomTagReader;
+
+public class DicomTagReaderTestHelper
 {
-    public class DicomTagReaderTestHelper
+    private const string TestSeriesQueueName = "TEST.SeriesQueue";
+    private const string TestImageQueueName = "TEST.ImageQueue";
+
+    public readonly ILogger MockLogger = Mock.Of<ILogger>();
+
+    public ConsumerOptions AccessionConsumerOptions = null!;
+
+    public AccessionDirectoryMessage TestAccessionDirectoryMessage = null!;
+
+    private IConnection _testConnection = null!;
+    private IModel _testModel = null!;
+
+    public Mock<IProducerModel> TestSeriesModel = null!;
+    public Mock<IProducerModel> TestImageModel = null!;
+
+    public MockFileSystem MockFileSystem = null!;
+    public IMicroserviceHost MockHost = null!;
+
+    public DirectoryInfo TestDir = null!;
+    public GlobalOptions Options = null!;
+
+    /// <summary>
+    /// Returns the number of image messages in <see cref="TestImageQueueName"/>
+    /// </summary>
+    public uint ImageCount => _testModel.MessageCount(TestImageQueueName);
+
+    /// <summary>
+    /// Returns the number of series messages in <see cref="TestSeriesQueueName"/>
+    /// </summary>
+    public uint SeriesCount => _testModel.MessageCount(TestSeriesQueueName);
+
+
+    public void SetUpSuite()
     {
-        private const string TestSeriesQueueName = "TEST.SeriesQueue";
-        private const string TestImageQueueName = "TEST.ImageQueue";
+        SetUpDefaults();
 
-        public readonly ILogger MockLogger = Mock.Of<ILogger>();
+        // Create the test Series/Image exchanges
+        var tester = new MicroserviceTester(Options.RabbitOptions!);
+        tester.CreateExchange(Options.DicomTagReaderOptions!.ImageProducerOptions!.ExchangeName!, TestImageQueueName);
+        tester.CreateExchange(Options.DicomTagReaderOptions.SeriesProducerOptions!.ExchangeName!, TestSeriesQueueName);
+        tester.CreateExchange(Options.RabbitOptions!.FatalLoggingExchange!, null);
+        tester.Shutdown();
 
-        public ConsumerOptions AccessionConsumerOptions = null!;
+        _testConnection = Options.RabbitOptions.Connection;
 
-        public AccessionDirectoryMessage TestAccessionDirectoryMessage = null!;
+        _testModel = _testConnection.CreateModel();
 
-        private IConnection _testConnection = null!;
-        private IModel _testModel = null!;
+        MockHost = Mock.Of<IMicroserviceHost>();
+    }
 
-        public Mock<IProducerModel> TestSeriesModel = null!;
-        public Mock<IProducerModel> TestImageModel = null!;
+    public void ResetSuite()
+    {
+        SetUpDefaults();
 
-        public MockFileSystem MockFileSystem = null!;
-        public IMicroserviceHost MockHost = null!;
+        _testModel.QueuePurge(TestSeriesQueueName);
+        _testModel.QueuePurge(TestImageQueueName);
+    }
 
-        public DirectoryInfo TestDir = null!;
-        public GlobalOptions Options = null!;
+    private void SetUpDefaults()
+    {
+        Options = new GlobalOptionsFactory().Load(nameof(DicomTagReaderTestHelper));
 
-        /// <summary>
-        /// Returns the number of image messages in <see cref="TestImageQueueName"/>
-        /// </summary>
-        public uint ImageCount => _testModel.MessageCount(TestImageQueueName);
+        AccessionConsumerOptions = Options.DicomTagReaderOptions!;
 
-        /// <summary>
-        /// Returns the number of series messages in <see cref="TestSeriesQueueName"/>
-        /// </summary>
-        public uint SeriesCount => _testModel.MessageCount(TestSeriesQueueName);
-
-
-        public void SetUpSuite()
+        TestAccessionDirectoryMessage = new AccessionDirectoryMessage
         {
-            SetUpDefaults();
+            DirectoryPath = @"C:\Temp\",
+        };
 
-            // Create the test Series/Image exchanges
-            var tester = new MicroserviceTester(Options.RabbitOptions!);
-            tester.CreateExchange(Options.DicomTagReaderOptions!.ImageProducerOptions!.ExchangeName!, TestImageQueueName);
-            tester.CreateExchange(Options.DicomTagReaderOptions.SeriesProducerOptions!.ExchangeName!, TestSeriesQueueName);
-            tester.CreateExchange(Options.RabbitOptions!.FatalLoggingExchange!, null);
-            tester.Shutdown();
+        TestSeriesModel = new Mock<IProducerModel>();
+        TestImageModel = new Mock<IProducerModel>();
 
-            _testConnection = Options.RabbitOptions.Connection;
+        MockFileSystem = new MockFileSystem();
+        MockFileSystem.AddDirectory(@"C:\Temp");
 
-            _testModel = _testConnection.CreateModel();
+        TestDir = new DirectoryInfo("DicomTagReaderTests");
+        TestDir.Create();
 
-            MockHost = Mock.Of<IMicroserviceHost>();
-        }
+        foreach (FileInfo f in TestDir.GetFiles())
+            f.Delete();
 
-        public void ResetSuite()
-        {
-            SetUpDefaults();
+        new TestData().Create(new FileInfo(Path.Combine(TestDir.FullName, "MyTestFile.dcm")));
+    }
 
-            _testModel.QueuePurge(TestSeriesQueueName);
-            _testModel.QueuePurge(TestImageQueueName);
-        }
+    public bool CheckQueues(int nInSeriesQueue, int nInImageQueue)
+    {
+        return
+            _testModel.MessageCount(TestSeriesQueueName) == nInSeriesQueue &&
+            _testModel.MessageCount(TestImageQueueName) == nInImageQueue;
+    }
 
-        private void SetUpDefaults()
-        {
-            Options = new GlobalOptionsFactory().Load(nameof(DicomTagReaderTestHelper));
-
-            AccessionConsumerOptions = Options.DicomTagReaderOptions!;
-
-            TestAccessionDirectoryMessage = new AccessionDirectoryMessage
-            {
-                DirectoryPath = @"C:\Temp\",
-            };
-
-            TestSeriesModel = new Mock<IProducerModel>();
-            TestImageModel = new Mock<IProducerModel>();
-
-            MockFileSystem = new MockFileSystem();
-            MockFileSystem.AddDirectory(@"C:\Temp");
-
-            TestDir = new DirectoryInfo("DicomTagReaderTests");
-            TestDir.Create();
-
-            foreach (FileInfo f in TestDir.GetFiles())
-                f.Delete();
-
-            new TestData().Create(new FileInfo(Path.Combine(TestDir.FullName, "MyTestFile.dcm")));
-        }
-
-        public bool CheckQueues(int nInSeriesQueue, int nInImageQueue)
-        {
-            return
-                _testModel.MessageCount(TestSeriesQueueName) == nInSeriesQueue &&
-                _testModel.MessageCount(TestImageQueueName) == nInImageQueue;
-        }
-
-        public void Dispose()
-        {
-            _testModel.Close();
-            _testConnection.Close();
-        }
+    public void Dispose()
+    {
+        _testModel.Close();
+        _testConnection.Close();
     }
 }

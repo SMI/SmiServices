@@ -7,43 +7,42 @@ using System.Collections.Generic;
 using System.IO;
 using System.IO.Abstractions;
 
-namespace SmiServices.Microservices.IsIdentifiable
+namespace SmiServices.Microservices.IsIdentifiable;
+
+public class TesseractStanfordDicomFileClassifier : Classifier, IDisposable
 {
-    public class TesseractStanfordDicomFileClassifier : Classifier, IDisposable
+    private readonly DicomFileRunner _runner;
+
+    //public TesseractStanfordDicomFileClassifier(DirectoryInfo dataDirectory) : base(dataDirectory)
+    public TesseractStanfordDicomFileClassifier(DirectoryInfo dataDirectory, IsIdentifiableDicomFileOptions fileOptions) : base(dataDirectory)
     {
-        private readonly DicomFileRunner _runner;
+        //need to pass this so that the runner doesn't get unhappy about there being no reports (even though we clear it below)
+        fileOptions.ColumnReport = true;
+        fileOptions.TessDirectory = dataDirectory.FullName;
 
-        //public TesseractStanfordDicomFileClassifier(DirectoryInfo dataDirectory) : base(dataDirectory)
-        public TesseractStanfordDicomFileClassifier(DirectoryInfo dataDirectory, IsIdentifiableDicomFileOptions fileOptions) : base(dataDirectory)
-        {
-            //need to pass this so that the runner doesn't get unhappy about there being no reports (even though we clear it below)
-            fileOptions.ColumnReport = true;
-            fileOptions.TessDirectory = dataDirectory.FullName;
+        // The Rules directory is always called "IsIdentifiableRules"
+        DirectoryInfo[] subDirs = dataDirectory.GetDirectories("IsIdentifiableRules");
+        foreach (DirectoryInfo subDir in subDirs)
+            fileOptions.RulesDirectory = subDir.FullName;
 
-            // The Rules directory is always called "IsIdentifiableRules"
-            DirectoryInfo[] subDirs = dataDirectory.GetDirectories("IsIdentifiableRules");
-            foreach (DirectoryInfo subDir in subDirs)
-                fileOptions.RulesDirectory = subDir.FullName;
-
-            _runner = new DicomFileRunner(fileOptions, new FileSystem());
-        }
+        _runner = new DicomFileRunner(fileOptions, new FileSystem());
+    }
 
 
 
-        public override IEnumerable<Failure> Classify(IFileInfo dcm)
-        {
-            _runner.Reports.Clear();
-            var toMemory = new ToMemoryFailureReport();
-            _runner.Reports.Add(toMemory);
-            _runner.ValidateDicomFile(dcm);
+    public override IEnumerable<Failure> Classify(IFileInfo dcm)
+    {
+        _runner.Reports.Clear();
+        var toMemory = new ToMemoryFailureReport();
+        _runner.Reports.Add(toMemory);
+        _runner.ValidateDicomFile(dcm);
 
-            return toMemory.Failures;
-        }
+        return toMemory.Failures;
+    }
 
-        public void Dispose()
-        {
-            _runner?.Dispose();
-            GC.SuppressFinalize(this);
-        }
+    public void Dispose()
+    {
+        _runner?.Dispose();
+        GC.SuppressFinalize(this);
     }
 }

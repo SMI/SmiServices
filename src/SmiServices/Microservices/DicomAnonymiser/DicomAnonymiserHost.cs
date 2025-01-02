@@ -4,48 +4,47 @@ using SmiServices.Microservices.DicomAnonymiser.Anonymisers;
 using System;
 using System.IO.Abstractions;
 
-namespace SmiServices.Microservices.DicomAnonymiser
+namespace SmiServices.Microservices.DicomAnonymiser;
+
+public class DicomAnonymiserHost : MicroserviceHost
 {
-    public class DicomAnonymiserHost : MicroserviceHost
+    private readonly IDicomAnonymiser _anonymiser;
+    private readonly DicomAnonymiserConsumer _consumer;
+
+    public DicomAnonymiserHost(
+        GlobalOptions options,
+        IDicomAnonymiser? anonymiser = null,
+        IFileSystem? fileSystem = null
+    )
+        : base(options)
     {
-        private readonly IDicomAnonymiser _anonymiser;
-        private readonly DicomAnonymiserConsumer _consumer;
+        _anonymiser = anonymiser ?? AnonymiserFactory.CreateAnonymiser(options!);
 
-        public DicomAnonymiserHost(
-            GlobalOptions options,
-            IDicomAnonymiser? anonymiser = null,
-            IFileSystem? fileSystem = null
-        )
-            : base(options)
+        var producerModel = MessageBroker.SetupProducer(options.DicomAnonymiserOptions!.ExtractFileStatusProducerOptions!, isBatch: false);
+
+        _consumer = new DicomAnonymiserConsumer(
+            Globals.DicomAnonymiserOptions!,
+            Globals.FileSystemOptions!.FileSystemRoot!,
+            Globals.FileSystemOptions.ExtractRoot!,
+            _anonymiser,
+            producerModel,
+            fileSystem
+        );
+    }
+
+    public override void Start()
+    {
+        MessageBroker.StartConsumer(Globals.DicomAnonymiserOptions!.AnonFileConsumerOptions!, _consumer, isSolo: false);
+    }
+
+    public override void Stop(string reason)
+    {
+        if (_anonymiser is IDisposable disposable)
         {
-            _anonymiser = anonymiser ?? AnonymiserFactory.CreateAnonymiser(options!);
-
-            var producerModel = MessageBroker.SetupProducer(options.DicomAnonymiserOptions!.ExtractFileStatusProducerOptions!, isBatch: false);
-
-            _consumer = new DicomAnonymiserConsumer(
-                Globals.DicomAnonymiserOptions!,
-                Globals.FileSystemOptions!.FileSystemRoot!,
-                Globals.FileSystemOptions.ExtractRoot!,
-                _anonymiser,
-                producerModel,
-                fileSystem
-            );
+            Logger.Info("Disposing anonymiser");
+            disposable.Dispose();
         }
 
-        public override void Start()
-        {
-            MessageBroker.StartConsumer(Globals.DicomAnonymiserOptions!.AnonFileConsumerOptions!, _consumer, isSolo: false);
-        }
-
-        public override void Stop(string reason)
-        {
-            if (_anonymiser is IDisposable disposable)
-            {
-                Logger.Info("Disposing anonymiser");
-                disposable.Dispose();
-            }
-
-            base.Stop(reason);
-        }
+        base.Stop(reason);
     }
 }

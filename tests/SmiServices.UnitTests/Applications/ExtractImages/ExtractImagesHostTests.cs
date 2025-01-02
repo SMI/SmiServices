@@ -7,151 +7,150 @@ using System;
 using System.IO.Abstractions;
 using System.IO.Abstractions.TestingHelpers;
 
-namespace SmiServices.UnitTests.Applications.ExtractImages
+namespace SmiServices.UnitTests.Applications.ExtractImages;
+
+internal class ExtractImagesHostTests
 {
-    internal class ExtractImagesHostTests
+    [Test]
+    public void Constructor_HappyPathWithoutPool()
     {
-        [Test]
-        public void Constructor_HappyPathWithoutPool()
+        var globals = new GlobalOptionsFactory().Load(nameof(Constructor_HappyPathWithoutPool));
+        globals.FileSystemOptions!.ExtractRoot = "extract-root";
+        globals.FileSystemOptions.ExtractionPoolRoot = null;
+
+        var cliOptions = new ExtractImagesCliOptions
         {
-            var globals = new GlobalOptionsFactory().Load(nameof(Constructor_HappyPathWithoutPool));
-            globals.FileSystemOptions!.ExtractRoot = "extract-root";
-            globals.FileSystemOptions.ExtractionPoolRoot = null;
+            CohortCsvFile = "foo.csv",
+        };
 
-            var cliOptions = new ExtractImagesCliOptions
-            {
-                CohortCsvFile = "foo.csv",
-            };
+        var fileSystem = new MockFileSystem();
+        fileSystem.Directory.CreateDirectory("extract-root");
+        fileSystem.File.Create("foo.csv");
 
-            var fileSystem = new MockFileSystem();
-            fileSystem.Directory.CreateDirectory("extract-root");
-            fileSystem.File.Create("foo.csv");
+        var mockMessageBroker = new Mock<IMessageBroker>(MockBehavior.Strict);
+        var mockSender = new Mock<IExtractionMessageSender>(MockBehavior.Strict);
 
-            var mockMessageBroker = new Mock<IMessageBroker>(MockBehavior.Strict);
-            var mockSender = new Mock<IExtractionMessageSender>(MockBehavior.Strict);
+        var host = new ExtractImagesHost(globals, cliOptions, mockSender.Object, mockMessageBroker.Object, fileSystem, false);
+    }
 
-            var host = new ExtractImagesHost(globals, cliOptions, mockSender.Object, mockMessageBroker.Object, fileSystem, false);
-        }
+    [Test]
+    public void Constructor_HappyPathWithPool()
+    {
+        var globals = new GlobalOptionsFactory().Load(nameof(Constructor_HappyPathWithPool));
+        globals.FileSystemOptions!.ExtractRoot = "extract-root";
+        globals.FileSystemOptions.ExtractionPoolRoot = "pool";
 
-        [Test]
-        public void Constructor_HappyPathWithPool()
+        var cliOptions = new ExtractImagesCliOptions
         {
-            var globals = new GlobalOptionsFactory().Load(nameof(Constructor_HappyPathWithPool));
-            globals.FileSystemOptions!.ExtractRoot = "extract-root";
-            globals.FileSystemOptions.ExtractionPoolRoot = "pool";
+            CohortCsvFile = "foo.csv",
+        };
 
-            var cliOptions = new ExtractImagesCliOptions
-            {
-                CohortCsvFile = "foo.csv",
-            };
+        var fileSystem = new MockFileSystem();
+        fileSystem.Directory.CreateDirectory("extract-root");
+        fileSystem.File.Create("foo.csv");
+        fileSystem.Directory.CreateDirectory("pool");
 
-            var fileSystem = new MockFileSystem();
-            fileSystem.Directory.CreateDirectory("extract-root");
-            fileSystem.File.Create("foo.csv");
-            fileSystem.Directory.CreateDirectory("pool");
+        var mockMessageBroker = new Mock<IMessageBroker>(MockBehavior.Strict);
+        var mockSender = new Mock<IExtractionMessageSender>(MockBehavior.Strict);
 
-            var mockMessageBroker = new Mock<IMessageBroker>(MockBehavior.Strict);
-            var mockSender = new Mock<IExtractionMessageSender>(MockBehavior.Strict);
+        var host = new ExtractImagesHost(globals, cliOptions, mockSender.Object, mockMessageBroker.Object, fileSystem, false);
+    }
 
-            var host = new ExtractImagesHost(globals, cliOptions, mockSender.Object, mockMessageBroker.Object, fileSystem, false);
-        }
+    [TestCase(null)]
+    [TestCase("some/missing/path")]
+    public void Constructor_PooledExtractionWithNoRootSet_ThrowsException(string? poolRoot)
+    {
+        // Arrange
 
-        [TestCase(null)]
-        [TestCase("some/missing/path")]
-        public void Constructor_PooledExtractionWithNoRootSet_ThrowsException(string? poolRoot)
+        var globals = new GlobalOptionsFactory().Load(nameof(Constructor_PooledExtractionWithNoRootSet_ThrowsException));
+        globals.FileSystemOptions!.ExtractRoot = "extract-root";
+        globals.FileSystemOptions.ExtractionPoolRoot = poolRoot;
+
+        var cliOptions = new ExtractImagesCliOptions
         {
-            // Arrange
+            CohortCsvFile = "foo.csv",
+            IsPooledExtraction = true,
+        };
 
-            var globals = new GlobalOptionsFactory().Load(nameof(Constructor_PooledExtractionWithNoRootSet_ThrowsException));
-            globals.FileSystemOptions!.ExtractRoot = "extract-root";
-            globals.FileSystemOptions.ExtractionPoolRoot = poolRoot;
+        var fileSystem = new MockFileSystem();
+        fileSystem.Directory.CreateDirectory("extract-root");
 
-            var cliOptions = new ExtractImagesCliOptions
-            {
-                CohortCsvFile = "foo.csv",
-                IsPooledExtraction = true,
-            };
+        var mockMessageBroker = new Mock<IMessageBroker>(MockBehavior.Strict);
+        var mockSender = new Mock<IExtractionMessageSender>(MockBehavior.Strict);
 
-            var fileSystem = new MockFileSystem();
-            fileSystem.Directory.CreateDirectory("extract-root");
+        // Act
 
-            var mockMessageBroker = new Mock<IMessageBroker>(MockBehavior.Strict);
-            var mockSender = new Mock<IExtractionMessageSender>(MockBehavior.Strict);
+        void act() => _ = new ExtractImagesHost(globals, cliOptions, mockSender.Object, mockMessageBroker.Object, fileSystem, false);
 
-            // Act
+        // Assert
 
-            void act() => _ = new ExtractImagesHost(globals, cliOptions, mockSender.Object, mockMessageBroker.Object, fileSystem, false);
+        var exc = Assert.Throws<InvalidOperationException>(act);
+        Assert.That(exc.Message, Is.EqualTo("IsPooledExtraction can only be passed if ExtractionPoolRoot is a directory"));
+    }
 
-            // Assert
+    [Test]
+    public void Constructor_PooledExtractionWithIsIdentifiableExtractionSet_ThrowsException()
+    {
+        // Arrange
 
-            var exc = Assert.Throws<InvalidOperationException>(act);
-            Assert.That(exc.Message, Is.EqualTo("IsPooledExtraction can only be passed if ExtractionPoolRoot is a directory"));
-        }
+        var globals = new GlobalOptionsFactory().Load(nameof(Constructor_PooledExtractionWithIsIdentifiableExtractionSet_ThrowsException));
+        globals.FileSystemOptions!.ExtractRoot = "extract-root";
+        globals.FileSystemOptions.ExtractionPoolRoot = "pool";
 
-        [Test]
-        public void Constructor_PooledExtractionWithIsIdentifiableExtractionSet_ThrowsException()
+        var cliOptions = new ExtractImagesCliOptions
         {
-            // Arrange
+            CohortCsvFile = "foo.csv",
+            IsPooledExtraction = true,
+            IsIdentifiableExtraction = true,
+        };
 
-            var globals = new GlobalOptionsFactory().Load(nameof(Constructor_PooledExtractionWithIsIdentifiableExtractionSet_ThrowsException));
-            globals.FileSystemOptions!.ExtractRoot = "extract-root";
-            globals.FileSystemOptions.ExtractionPoolRoot = "pool";
+        var fileSystem = new MockFileSystem();
+        fileSystem.Directory.CreateDirectory("extract-root");
+        fileSystem.Directory.CreateDirectory("pool");
 
-            var cliOptions = new ExtractImagesCliOptions
-            {
-                CohortCsvFile = "foo.csv",
-                IsPooledExtraction = true,
-                IsIdentifiableExtraction = true,
-            };
+        var mockMessageBroker = new Mock<IMessageBroker>(MockBehavior.Strict);
+        var mockSender = new Mock<IExtractionMessageSender>(MockBehavior.Strict);
 
-            var fileSystem = new MockFileSystem();
-            fileSystem.Directory.CreateDirectory("extract-root");
-            fileSystem.Directory.CreateDirectory("pool");
+        // Act
 
-            var mockMessageBroker = new Mock<IMessageBroker>(MockBehavior.Strict);
-            var mockSender = new Mock<IExtractionMessageSender>(MockBehavior.Strict);
+        void act() => _ = new ExtractImagesHost(globals, cliOptions, mockSender.Object, mockMessageBroker.Object, fileSystem, false);
 
-            // Act
+        // Assert
 
-            void act() => _ = new ExtractImagesHost(globals, cliOptions, mockSender.Object, mockMessageBroker.Object, fileSystem, false);
+        var exc = Assert.Throws<InvalidOperationException>(act);
+        Assert.That(exc.Message, Is.EqualTo("IsPooledExtraction is incompatible with IsIdentifiableExtraction"));
+    }
 
-            // Assert
+    [Test]
+    public void Constructor_PooledExtractionWithIsNoFilterExtractionSet_ThrowsException()
+    {
+        // Arrange
 
-            var exc = Assert.Throws<InvalidOperationException>(act);
-            Assert.That(exc.Message, Is.EqualTo("IsPooledExtraction is incompatible with IsIdentifiableExtraction"));
-        }
+        var globals = new GlobalOptionsFactory().Load(nameof(Constructor_PooledExtractionWithIsNoFilterExtractionSet_ThrowsException));
+        globals.FileSystemOptions!.ExtractRoot = "extract-root";
+        globals.FileSystemOptions.ExtractionPoolRoot = "pool";
 
-        [Test]
-        public void Constructor_PooledExtractionWithIsNoFilterExtractionSet_ThrowsException()
+        var cliOptions = new ExtractImagesCliOptions
         {
-            // Arrange
+            CohortCsvFile = "foo.csv",
+            IsPooledExtraction = true,
+            IsNoFiltersExtraction = true,
+        };
 
-            var globals = new GlobalOptionsFactory().Load(nameof(Constructor_PooledExtractionWithIsNoFilterExtractionSet_ThrowsException));
-            globals.FileSystemOptions!.ExtractRoot = "extract-root";
-            globals.FileSystemOptions.ExtractionPoolRoot = "pool";
+        var fileSystem = new MockFileSystem();
+        fileSystem.Directory.CreateDirectory("extract-root");
+        fileSystem.Directory.CreateDirectory("pool");
 
-            var cliOptions = new ExtractImagesCliOptions
-            {
-                CohortCsvFile = "foo.csv",
-                IsPooledExtraction = true,
-                IsNoFiltersExtraction = true,
-            };
+        var mockMessageBroker = new Mock<IMessageBroker>(MockBehavior.Strict);
+        var mockSender = new Mock<IExtractionMessageSender>(MockBehavior.Strict);
 
-            var fileSystem = new MockFileSystem();
-            fileSystem.Directory.CreateDirectory("extract-root");
-            fileSystem.Directory.CreateDirectory("pool");
+        // Act
 
-            var mockMessageBroker = new Mock<IMessageBroker>(MockBehavior.Strict);
-            var mockSender = new Mock<IExtractionMessageSender>(MockBehavior.Strict);
+        void act() => _ = new ExtractImagesHost(globals, cliOptions, mockSender.Object, mockMessageBroker.Object, fileSystem, false);
 
-            // Act
+        // Assert
 
-            void act() => _ = new ExtractImagesHost(globals, cliOptions, mockSender.Object, mockMessageBroker.Object, fileSystem, false);
-
-            // Assert
-
-            var exc = Assert.Throws<InvalidOperationException>(act);
-            Assert.That(exc.Message, Is.EqualTo("IsPooledExtraction is incompatible with IsNoFiltersExtraction"));
-        }
+        var exc = Assert.Throws<InvalidOperationException>(act);
+        Assert.That(exc.Message, Is.EqualTo("IsPooledExtraction is incompatible with IsNoFiltersExtraction"));
     }
 }

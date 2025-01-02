@@ -6,70 +6,69 @@ using SmiServices.UnitTests.Common;
 using System.IO.Abstractions;
 using System.IO.Abstractions.TestingHelpers;
 
-namespace SmiServices.UnitTests.Microservices.CohortExtractor
+namespace SmiServices.UnitTests.Microservices.CohortExtractor;
+
+public class NoSuffixProjectPathResolverTests
 {
-    public class NoSuffixProjectPathResolverTests
+    private IFileSystem _fileSystem = new MockFileSystem();
+
+    [SetUp]
+    public void SetUp()
     {
-        private IFileSystem _fileSystem = new MockFileSystem();
+        _fileSystem = new MockFileSystem();
+    }
 
-        [SetUp]
-        public void SetUp()
-        {
-            _fileSystem = new MockFileSystem();
-        }
+    [Test]
+    public void GetOutputPath_Basic()
+    {
+        // Arrange
 
-        [Test]
-        public void GetOutputPath_Basic()
-        {
-            // Arrange
+        var expectedPath = _fileSystem.Path.Combine("study", "series", "foo.dcm");
+        var resolver = new NoSuffixProjectPathResolver(_fileSystem);
+        var result = new QueryToExecuteResult(
+            "foo.dcm",
+            "study",
+            "series",
+            "sop",
+            rejection: false,
+            rejectionReason: null
+        );
+        var message = new ExtractionRequestMessage();
 
-            var expectedPath = _fileSystem.Path.Combine("study", "series", "foo.dcm");
-            var resolver = new NoSuffixProjectPathResolver(_fileSystem);
-            var result = new QueryToExecuteResult(
-                "foo.dcm",
-                "study",
-                "series",
-                "sop",
-                rejection: false,
-                rejectionReason: null
-            );
-            var message = new ExtractionRequestMessage();
+        // Act
 
-            // Act
+        var actualPath = resolver.GetOutputPath(result, message);
 
-            var actualPath = resolver.GetOutputPath(result, message);
+        // Assert
+        Assert.That(actualPath, Is.EqualTo(expectedPath));
+    }
 
-            // Assert
-            Assert.That(actualPath, Is.EqualTo(expectedPath));
-        }
+    [TestCase("file.dcm", "file.dcm")]
+    [TestCase("file.dcm", "file.dicom")]
+    [TestCase("file.dcm", "file")]
+    [TestCase("file.foo.dcm", "file.foo")]
+    public void GetOutputPath_Extensions(string expectedOutput, string inputFile)
+    {
+        // Arrange
 
-        [TestCase("file.dcm", "file.dcm")]
-        [TestCase("file.dcm", "file.dicom")]
-        [TestCase("file.dcm", "file")]
-        [TestCase("file.foo.dcm", "file.foo")]
-        public void GetOutputPath_Extensions(string expectedOutput, string inputFile)
-        {
-            // Arrange
+        var expectedPath = _fileSystem.Path.Combine("study", "series", expectedOutput);
+        var resolver = new NoSuffixProjectPathResolver(_fileSystem);
+        var result = new QueryToExecuteResult(
+            inputFile,
+            "study",
+            "series",
+            "sop",
+            rejection: false,
+            rejectionReason: null
+        );
+        var message = new ExtractionRequestMessage();
 
-            var expectedPath = _fileSystem.Path.Combine("study", "series", expectedOutput);
-            var resolver = new NoSuffixProjectPathResolver(_fileSystem);
-            var result = new QueryToExecuteResult(
-                inputFile,
-                "study",
-                "series",
-                "sop",
-                rejection: false,
-                rejectionReason: null
-            );
-            var message = new ExtractionRequestMessage();
+        // Act
 
-            // Act
+        var actualPath = resolver.GetOutputPath(result, message);
 
-            var actualPath = resolver.GetOutputPath(result, message);
+        // Assert
 
-            // Assert
-
-            Assert.That(actualPath, Is.EqualTo(expectedPath));
-        }
+        Assert.That(actualPath, Is.EqualTo(expectedPath));
     }
 }

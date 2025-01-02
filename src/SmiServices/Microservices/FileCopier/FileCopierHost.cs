@@ -4,37 +4,36 @@ using SmiServices.Common.Options;
 using System.IO.Abstractions;
 
 
-namespace SmiServices.Microservices.FileCopier
+namespace SmiServices.Microservices.FileCopier;
+
+public class FileCopierHost : MicroserviceHost
 {
-    public class FileCopierHost : MicroserviceHost
+    private readonly FileCopyQueueConsumer _consumer;
+
+    public FileCopierHost(
+        GlobalOptions options,
+        IFileSystem? fileSystem = null
+    )
+    : base(
+        options
+    )
     {
-        private readonly FileCopyQueueConsumer _consumer;
+        Logger.Debug("Creating FileCopierHost with FileSystemRoot: " + Globals.FileSystemOptions!.FileSystemRoot);
 
-        public FileCopierHost(
-            GlobalOptions options,
-            IFileSystem? fileSystem = null
-        )
-        : base(
-            options
-        )
-        {
-            Logger.Debug("Creating FileCopierHost with FileSystemRoot: " + Globals.FileSystemOptions!.FileSystemRoot);
+        IProducerModel copyStatusProducerModel = MessageBroker.SetupProducer(Globals.FileCopierOptions!.CopyStatusProducerOptions!, isBatch: false);
 
-            IProducerModel copyStatusProducerModel = MessageBroker.SetupProducer(Globals.FileCopierOptions!.CopyStatusProducerOptions!, isBatch: false);
+        var fileCopier = new ExtractionFileCopier(
+            Globals.FileCopierOptions,
+            copyStatusProducerModel,
+            Globals.FileSystemOptions.FileSystemRoot!,
+            Globals.FileSystemOptions.ExtractRoot!,
+            fileSystem
+        );
+        _consumer = new FileCopyQueueConsumer(fileCopier);
+    }
 
-            var fileCopier = new ExtractionFileCopier(
-                Globals.FileCopierOptions,
-                copyStatusProducerModel,
-                Globals.FileSystemOptions.FileSystemRoot!,
-                Globals.FileSystemOptions.ExtractRoot!,
-                fileSystem
-            );
-            _consumer = new FileCopyQueueConsumer(fileCopier);
-        }
-
-        public override void Start()
-        {
-            MessageBroker.StartConsumer(Globals.FileCopierOptions!, _consumer, isSolo: false);
-        }
+    public override void Start()
+    {
+        MessageBroker.StartConsumer(Globals.FileCopierOptions!, _consumer, isSolo: false);
     }
 }

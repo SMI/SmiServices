@@ -9,96 +9,96 @@ using SmiServices.UnitTests.Common;
 using System;
 using System.Reflection;
 
-namespace SmiServices.UnitTests.Microservices.CohortPackager.Execution.ExtractJobStorage.MongoDB.ObjectModel
+namespace SmiServices.UnitTests.Microservices.CohortPackager.Execution.ExtractJobStorage.MongoDB.ObjectModel;
+
+[TestFixture]
+public class MongoFileStatusDocTest
 {
-    [TestFixture]
-    public class MongoFileStatusDocTest
+    private readonly TestDateTimeProvider _dateTimeProvider = new();
+
+    private readonly MessageHeader _messageHeader = new()
     {
-        private readonly TestDateTimeProvider _dateTimeProvider = new();
+        Parents = [Guid.NewGuid(),],
+    };
 
-        private readonly MessageHeader _messageHeader = new()
+    #region Fixture Methods 
+
+    [OneTimeSetUp]
+    public void OneTimeSetUp()
+    {
+    }
+
+    [OneTimeTearDown]
+    public void OneTimeTearDown() { }
+
+    [SetUp]
+    public void SetUp() { }
+
+    [TearDown]
+    public void TearDown() { }
+
+    private static void AssertDocsEqualExceptHeader(MongoFileStatusDoc expected, MongoFileStatusDoc actual)
+    {
+        actual.ExtraElements = null;
+
+        foreach (PropertyInfo prop in expected.GetType().GetProperties())
         {
-            Parents = [Guid.NewGuid(),],
-        };
+            if (prop.Name == "Header")
+                continue;
 
-        #region Fixture Methods 
-
-        [OneTimeSetUp]
-        public void OneTimeSetUp()
-        {
+            var expectedProp = prop.GetValue(expected);
+            var parsedProp = prop.GetValue(actual);
+            Assert.That(parsedProp, Is.EqualTo(expectedProp));
         }
+    }
 
-        [OneTimeTearDown]
-        public void OneTimeTearDown() { }
+    #endregion
 
-        [SetUp]
-        public void SetUp() { }
+    #region Tests
 
-        [TearDown]
-        public void TearDown() { }
+    [Test]
+    public void Test_MongoFileStatusDoc_IsIdentifiable_StatusMessage()
+    {
+        var exc = Assert.Throws<ArgumentException>(() =>
+            new MongoFileStatusDoc(
+                MongoExtractionMessageHeaderDoc.FromMessageHeader(Guid.NewGuid(), new MessageHeader(), new DateTimeProvider()),
+                "input.dcm",
+                "anon.dcm",
+                ExtractedFileStatus.Anonymised,
+                VerifiedFileStatus.NotIdentifiable,
+                null
+            )
+        );
+        Assert.That(exc!.Message, Is.EqualTo("Cannot be null or whitespace except for successful file copies (Parameter 'statusMessage')"));
 
-        private static void AssertDocsEqualExceptHeader(MongoFileStatusDoc expected, MongoFileStatusDoc actual)
-        {
-            actual.ExtraElements = null;
+        exc = Assert.Throws<ArgumentException>(() =>
+            new MongoFileStatusDoc(
+                MongoExtractionMessageHeaderDoc.FromMessageHeader(Guid.NewGuid(), new MessageHeader(), new DateTimeProvider()),
+                "input.dcm",
+                "anon.dcm",
+                ExtractedFileStatus.Anonymised,
+                VerifiedFileStatus.NotIdentifiable,
+                "  "
+            )
+        );
+        Assert.That(exc!.Message, Is.EqualTo("Cannot be null or whitespace except for successful file copies (Parameter 'statusMessage')"));
 
-            foreach (PropertyInfo prop in expected.GetType().GetProperties())
-            {
-                if (prop.Name == "Header")
-                    continue;
+        var _ = new MongoFileStatusDoc(
+               MongoExtractionMessageHeaderDoc.FromMessageHeader(Guid.NewGuid(), new MessageHeader(), new DateTimeProvider()),
+               "input.dcm",
+               "anon.dcm",
+               ExtractedFileStatus.Copied,
+               VerifiedFileStatus.NotVerified,
+               "  "
+        );
+    }
 
-                var expectedProp = prop.GetValue(expected);
-                var parsedProp = prop.GetValue(actual);
-                Assert.That(parsedProp, Is.EqualTo(expectedProp));
-            }
-        }
+    [Test]
+    public void ParseVerificationMessage_v1_11_1()
+    {
+        // Arrange
 
-        #endregion
-
-        #region Tests
-
-        [Test]
-        public void Test_MongoFileStatusDoc_IsIdentifiable_StatusMessage()
-        {
-            var exc = Assert.Throws<ArgumentException>(() =>
-                new MongoFileStatusDoc(
-                    MongoExtractionMessageHeaderDoc.FromMessageHeader(Guid.NewGuid(), new MessageHeader(), new DateTimeProvider()),
-                    "input.dcm",
-                    "anon.dcm",
-                    ExtractedFileStatus.Anonymised,
-                    VerifiedFileStatus.NotIdentifiable,
-                    null
-                )
-            );
-            Assert.That(exc!.Message, Is.EqualTo("Cannot be null or whitespace except for successful file copies (Parameter 'statusMessage')"));
-
-            exc = Assert.Throws<ArgumentException>(() =>
-                new MongoFileStatusDoc(
-                    MongoExtractionMessageHeaderDoc.FromMessageHeader(Guid.NewGuid(), new MessageHeader(), new DateTimeProvider()),
-                    "input.dcm",
-                    "anon.dcm",
-                    ExtractedFileStatus.Anonymised,
-                    VerifiedFileStatus.NotIdentifiable,
-                    "  "
-                )
-            );
-            Assert.That(exc!.Message, Is.EqualTo("Cannot be null or whitespace except for successful file copies (Parameter 'statusMessage')"));
-
-            var _ = new MongoFileStatusDoc(
-                   MongoExtractionMessageHeaderDoc.FromMessageHeader(Guid.NewGuid(), new MessageHeader(), new DateTimeProvider()),
-                   "input.dcm",
-                   "anon.dcm",
-                   ExtractedFileStatus.Copied,
-                   VerifiedFileStatus.NotVerified,
-                   "  "
-            );
-        }
-
-        [Test]
-        public void ParseVerificationMessage_v1_11_1()
-        {
-            // Arrange
-
-            const string jsonDoc = @"
+        const string jsonDoc = @"
 {
     '_id' : ObjectId('5f490ef8473b9739448cbe4c'),
     'header': {
@@ -116,30 +116,30 @@ namespace SmiServices.UnitTests.Microservices.CohortPackager.Execution.ExtractJo
     'statusMessage' : '[]'
 }";
 
-            var expected = new MongoFileStatusDoc(
-                MongoExtractionMessageHeaderDoc.FromMessageHeader(Guid.NewGuid(), new MessageHeader(), new DateTimeProvider()),
-                "<unknown>",
-                "anon.dcm",
-                ExtractedFileStatus.Anonymised,
-                VerifiedFileStatus.NotIdentifiable,
-                "[]"
-            );
+        var expected = new MongoFileStatusDoc(
+            MongoExtractionMessageHeaderDoc.FromMessageHeader(Guid.NewGuid(), new MessageHeader(), new DateTimeProvider()),
+            "<unknown>",
+            "anon.dcm",
+            ExtractedFileStatus.Anonymised,
+            VerifiedFileStatus.NotIdentifiable,
+            "[]"
+        );
 
-            // Act
+        // Act
 
-            var parsed = BsonSerializer.Deserialize<MongoFileStatusDoc>(BsonDocument.Parse(jsonDoc));
+        var parsed = BsonSerializer.Deserialize<MongoFileStatusDoc>(BsonDocument.Parse(jsonDoc));
 
-            // Assert
+        // Assert
 
-            AssertDocsEqualExceptHeader(expected, parsed);
-        }
+        AssertDocsEqualExceptHeader(expected, parsed);
+    }
 
-        [Test]
-        public void ParseAnonFailedMessage_v1_11_1()
-        {
-            // Arrange
+    [Test]
+    public void ParseAnonFailedMessage_v1_11_1()
+    {
+        // Arrange
 
-            const string jsonDoc = @"
+        const string jsonDoc = @"
 {
     '_id' : ObjectId('5f490ef8473b9739448cbe4c'),
     'header': {
@@ -157,30 +157,30 @@ namespace SmiServices.UnitTests.Microservices.CohortPackager.Execution.ExtractJo
     'statusMessage' : 'failed to anonymise'
 }";
 
-            var expected = new MongoFileStatusDoc(
-              MongoExtractionMessageHeaderDoc.FromMessageHeader(Guid.NewGuid(), new MessageHeader(), new DateTimeProvider()),
-              "<unknown>",
-              null,
-              ExtractedFileStatus.ErrorWontRetry,
-              VerifiedFileStatus.NotVerified,
-              "failed to anonymise"
-            );
+        var expected = new MongoFileStatusDoc(
+          MongoExtractionMessageHeaderDoc.FromMessageHeader(Guid.NewGuid(), new MessageHeader(), new DateTimeProvider()),
+          "<unknown>",
+          null,
+          ExtractedFileStatus.ErrorWontRetry,
+          VerifiedFileStatus.NotVerified,
+          "failed to anonymise"
+        );
 
-            // Act
+        // Act
 
-            var parsed = BsonSerializer.Deserialize<MongoFileStatusDoc>(BsonDocument.Parse(jsonDoc));
+        var parsed = BsonSerializer.Deserialize<MongoFileStatusDoc>(BsonDocument.Parse(jsonDoc));
 
-            // Assert
+        // Assert
 
-            AssertDocsEqualExceptHeader(expected, parsed);
-        }
+        AssertDocsEqualExceptHeader(expected, parsed);
+    }
 
-        [Test]
-        public void ParseAnonFailedMessage_v5_1_3()
-        {
-            // Arrange
+    [Test]
+    public void ParseAnonFailedMessage_v5_1_3()
+    {
+        // Arrange
 
-            const string jsonDoc = @"
+        const string jsonDoc = @"
 {
     '_id' : ObjectId('5f490ef8473b9739448cbe4c'),
     'header': {
@@ -200,30 +200,30 @@ namespace SmiServices.UnitTests.Microservices.CohortPackager.Execution.ExtractJo
     'statusMessage' : 'failed to anonymise'
 }";
 
-            var expected = new MongoFileStatusDoc(
-                MongoExtractionMessageHeaderDoc.FromMessageHeader(Guid.NewGuid(), new MessageHeader(), new DateTimeProvider()),
-                "foo.dcm",
-                null,
-                ExtractedFileStatus.ErrorWontRetry,
-                VerifiedFileStatus.NotVerified,
-                "failed to anonymise"
-            );
+        var expected = new MongoFileStatusDoc(
+            MongoExtractionMessageHeaderDoc.FromMessageHeader(Guid.NewGuid(), new MessageHeader(), new DateTimeProvider()),
+            "foo.dcm",
+            null,
+            ExtractedFileStatus.ErrorWontRetry,
+            VerifiedFileStatus.NotVerified,
+            "failed to anonymise"
+        );
 
-            // Act
+        // Act
 
-            var parsed = BsonSerializer.Deserialize<MongoFileStatusDoc>(BsonDocument.Parse(jsonDoc));
+        var parsed = BsonSerializer.Deserialize<MongoFileStatusDoc>(BsonDocument.Parse(jsonDoc));
 
-            // Assert
+        // Assert
 
-            AssertDocsEqualExceptHeader(expected, parsed);
-        }
+        AssertDocsEqualExceptHeader(expected, parsed);
+    }
 
-        [Test]
-        public void ParseVerificationMessage_v5_1_3()
-        {
-            // Arrange
+    [Test]
+    public void ParseVerificationMessage_v5_1_3()
+    {
+        // Arrange
 
-            const string jsonDoc = @"
+        const string jsonDoc = @"
 {
     '_id' : ObjectId('5f490ef8473b9739448cbe4c'),
     'header': {
@@ -243,77 +243,76 @@ namespace SmiServices.UnitTests.Microservices.CohortPackager.Execution.ExtractJo
     'statusMessage' : '[]'
 }";
 
-            var expected = new MongoFileStatusDoc(
-                MongoExtractionMessageHeaderDoc.FromMessageHeader(Guid.NewGuid(), new MessageHeader(), new DateTimeProvider()),
-                "foo.dcm",
-                "foo-an.dcm",
-                ExtractedFileStatus.Anonymised,
-                VerifiedFileStatus.NotIdentifiable,
-                "[]"
-            );
+        var expected = new MongoFileStatusDoc(
+            MongoExtractionMessageHeaderDoc.FromMessageHeader(Guid.NewGuid(), new MessageHeader(), new DateTimeProvider()),
+            "foo.dcm",
+            "foo-an.dcm",
+            ExtractedFileStatus.Anonymised,
+            VerifiedFileStatus.NotIdentifiable,
+            "[]"
+        );
 
-            // Act
+        // Act
 
-            var parsed = BsonSerializer.Deserialize<MongoFileStatusDoc>(BsonDocument.Parse(jsonDoc));
+        var parsed = BsonSerializer.Deserialize<MongoFileStatusDoc>(BsonDocument.Parse(jsonDoc));
 
-            // Assert
+        // Assert
 
-            AssertDocsEqualExceptHeader(expected, parsed);
-        }
-
-        [Test]
-        public void TestMongoFileStatusDoc_SettersAvailable()
-        {
-            foreach (PropertyInfo p in typeof(MongoFileStatusDoc).GetProperties())
-                Assert.That(p.CanWrite, Is.True, $"Property '{p.Name}' is not writeable");
-        }
-
-        [Test]
-        public void TestMongoFileStatusDoc_Equality()
-        {
-            Guid guid = Guid.NewGuid();
-            var doc1 = new MongoFileStatusDoc(
-                MongoExtractionMessageHeaderDoc.FromMessageHeader(guid, _messageHeader, _dateTimeProvider),
-                "input.dcm",
-                "anon.dcm",
-                ExtractedFileStatus.Anonymised,
-                VerifiedFileStatus.NotIdentifiable,
-                "anonymised");
-
-            var doc2 = new MongoFileStatusDoc(
-                MongoExtractionMessageHeaderDoc.FromMessageHeader(guid, _messageHeader, _dateTimeProvider),
-                "input.dcm",
-                "anon.dcm",
-                ExtractedFileStatus.Anonymised,
-                VerifiedFileStatus.NotIdentifiable,
-                "anonymised");
-
-            Assert.That(doc2, Is.EqualTo(doc1));
-        }
-
-        [Test]
-        public void TestMongoFileStatusDoc_GetHashCode()
-        {
-            Guid guid = Guid.NewGuid();
-            var doc1 = new MongoFileStatusDoc(
-                MongoExtractionMessageHeaderDoc.FromMessageHeader(guid, _messageHeader, _dateTimeProvider),
-                "input.dcm",
-                "anon.dcm",
-                ExtractedFileStatus.Anonymised,
-                VerifiedFileStatus.NotIdentifiable,
-                "anonymised");
-
-            var doc2 = new MongoFileStatusDoc(
-                MongoExtractionMessageHeaderDoc.FromMessageHeader(guid, _messageHeader, _dateTimeProvider),
-                "input.dcm",
-                "anon.dcm",
-                ExtractedFileStatus.Anonymised,
-                VerifiedFileStatus.NotIdentifiable,
-                "anonymised");
-
-            Assert.That(doc2.GetHashCode(), Is.EqualTo(doc1.GetHashCode()));
-        }
-
-        #endregion
+        AssertDocsEqualExceptHeader(expected, parsed);
     }
+
+    [Test]
+    public void TestMongoFileStatusDoc_SettersAvailable()
+    {
+        foreach (PropertyInfo p in typeof(MongoFileStatusDoc).GetProperties())
+            Assert.That(p.CanWrite, Is.True, $"Property '{p.Name}' is not writeable");
+    }
+
+    [Test]
+    public void TestMongoFileStatusDoc_Equality()
+    {
+        Guid guid = Guid.NewGuid();
+        var doc1 = new MongoFileStatusDoc(
+            MongoExtractionMessageHeaderDoc.FromMessageHeader(guid, _messageHeader, _dateTimeProvider),
+            "input.dcm",
+            "anon.dcm",
+            ExtractedFileStatus.Anonymised,
+            VerifiedFileStatus.NotIdentifiable,
+            "anonymised");
+
+        var doc2 = new MongoFileStatusDoc(
+            MongoExtractionMessageHeaderDoc.FromMessageHeader(guid, _messageHeader, _dateTimeProvider),
+            "input.dcm",
+            "anon.dcm",
+            ExtractedFileStatus.Anonymised,
+            VerifiedFileStatus.NotIdentifiable,
+            "anonymised");
+
+        Assert.That(doc2, Is.EqualTo(doc1));
+    }
+
+    [Test]
+    public void TestMongoFileStatusDoc_GetHashCode()
+    {
+        Guid guid = Guid.NewGuid();
+        var doc1 = new MongoFileStatusDoc(
+            MongoExtractionMessageHeaderDoc.FromMessageHeader(guid, _messageHeader, _dateTimeProvider),
+            "input.dcm",
+            "anon.dcm",
+            ExtractedFileStatus.Anonymised,
+            VerifiedFileStatus.NotIdentifiable,
+            "anonymised");
+
+        var doc2 = new MongoFileStatusDoc(
+            MongoExtractionMessageHeaderDoc.FromMessageHeader(guid, _messageHeader, _dateTimeProvider),
+            "input.dcm",
+            "anon.dcm",
+            ExtractedFileStatus.Anonymised,
+            VerifiedFileStatus.NotIdentifiable,
+            "anonymised");
+
+        Assert.That(doc2.GetHashCode(), Is.EqualTo(doc1.GetHashCode()));
+    }
+
+    #endregion
 }

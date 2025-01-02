@@ -6,82 +6,81 @@ using SmiServices.UnitTests.Common;
 using System;
 
 
-namespace SmiServices.UnitTests.Microservices.CohortPackager.Messaging
+namespace SmiServices.UnitTests.Microservices.CohortPackager.Messaging;
+
+internal class CohortPackagerControlMessageHandlerTests
 {
-    internal class CohortPackagerControlMessageHandlerTests
+    [OneTimeSetUp]
+    public void OneTimeSetUp()
     {
-        [OneTimeSetUp]
-        public void OneTimeSetUp()
-        {
-        }
+    }
 
-        [OneTimeTearDown]
-        public void OneTimeTearDown() { }
+    [OneTimeTearDown]
+    public void OneTimeTearDown() { }
 
-        [SetUp]
-        public void SetUp() { }
+    [SetUp]
+    public void SetUp() { }
 
-        [TearDown]
-        public void TearDown() { }
+    [TearDown]
+    public void TearDown() { }
 
-        [TestCase(null)]
-        [TestCase("00000000-0000-0000-0000-000000000001")]
-        public void ControlMessageHandler_ProcessJobs_ValidGuids(string? jobIdStr)
-        {
-            // Arrange
+    [TestCase(null)]
+    [TestCase("00000000-0000-0000-0000-000000000001")]
+    public void ControlMessageHandler_ProcessJobs_ValidGuids(string? jobIdStr)
+    {
+        // Arrange
 
-            Guid jobId = default;
-            if (!string.IsNullOrWhiteSpace(jobIdStr))
-                jobId = Guid.Parse(jobIdStr);
+        Guid jobId = default;
+        if (!string.IsNullOrWhiteSpace(jobIdStr))
+            jobId = Guid.Parse(jobIdStr);
 
-            var jobWatcherMock = new Mock<IExtractJobWatcher>(MockBehavior.Strict);
-            jobWatcherMock.Setup(x => x.ProcessJobs(jobId));
+        var jobWatcherMock = new Mock<IExtractJobWatcher>(MockBehavior.Strict);
+        jobWatcherMock.Setup(x => x.ProcessJobs(jobId));
 
-            var consumer = new CohortPackagerControlMessageHandler(jobWatcherMock.Object);
+        var consumer = new CohortPackagerControlMessageHandler(jobWatcherMock.Object);
 
-            // Act
+        // Act
 
-            consumer.ControlMessageHandler("processjobs", jobIdStr);
+        consumer.ControlMessageHandler("processjobs", jobIdStr);
 
-            // Assert
+        // Assert
 
-            jobWatcherMock.VerifyAll();
-        }
+        jobWatcherMock.VerifyAll();
+    }
 
-        [Test]
-        public void ControlMessageHandler_ProcessJobs_InvalidGuid()
-        {
-            // Arrange
+    [Test]
+    public void ControlMessageHandler_ProcessJobs_InvalidGuid()
+    {
+        // Arrange
 
-            var jobWatcherMock = new Mock<IExtractJobWatcher>(MockBehavior.Strict);
+        var jobWatcherMock = new Mock<IExtractJobWatcher>(MockBehavior.Strict);
 
-            var consumer = new CohortPackagerControlMessageHandler(jobWatcherMock.Object);
+        var consumer = new CohortPackagerControlMessageHandler(jobWatcherMock.Object);
 
-            // Act
+        // Act
 
-            consumer.ControlMessageHandler("processjobs", "not-a-guid");
+        consumer.ControlMessageHandler("processjobs", "not-a-guid");
 
-            // Assert
+        // Assert
 
-            jobWatcherMock.VerifyAll();
-        }
+        jobWatcherMock.VerifyAll();
+    }
 
-        [Test]
-        public void ControlMessageHandler_OtherAction_Ignored()
-        {
-            // Arrange
+    [Test]
+    public void ControlMessageHandler_OtherAction_Ignored()
+    {
+        // Arrange
 
-            var jobWatcherMock = new Mock<IExtractJobWatcher>(MockBehavior.Strict);
+        var jobWatcherMock = new Mock<IExtractJobWatcher>(MockBehavior.Strict);
 
-            var consumer = new CohortPackagerControlMessageHandler(jobWatcherMock.Object);
+        var consumer = new CohortPackagerControlMessageHandler(jobWatcherMock.Object);
 
-            // Act
+        // Act
 
-            consumer.ControlMessageHandler("something-else", "foo");
+        consumer.ControlMessageHandler("something-else", "foo");
 
-            // Assert
+        // Assert
 
-            jobWatcherMock.VerifyAll();
-        }
+        jobWatcherMock.VerifyAll();
     }
 }

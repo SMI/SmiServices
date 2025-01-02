@@ -10,61 +10,60 @@ using System.Threading;
 using System.Threading.Tasks;
 
 
-namespace SmiServices.Microservices.DicomTagReader.Execution
+namespace SmiServices.Microservices.DicomTagReader.Execution;
+
+public class ParallelTagReader : TagReaderBase
 {
-    public class ParallelTagReader : TagReaderBase
+    private readonly ParallelOptions _parallelOptions;
+
+    public ParallelTagReader(DicomTagReaderOptions options, FileSystemOptions fileSystemOptions,
+        IProducerModel seriesMessageProducerModel, IProducerModel fileMessageProducerModel, IFileSystem fs)
+        : base(options, fileSystemOptions, seriesMessageProducerModel, fileMessageProducerModel, fs)
     {
-        private readonly ParallelOptions _parallelOptions;
-
-        public ParallelTagReader(DicomTagReaderOptions options, FileSystemOptions fileSystemOptions,
-            IProducerModel seriesMessageProducerModel, IProducerModel fileMessageProducerModel, IFileSystem fs)
-            : base(options, fileSystemOptions, seriesMessageProducerModel, fileMessageProducerModel, fs)
+        _parallelOptions = new ParallelOptions
         {
-            _parallelOptions = new ParallelOptions
-            {
-                MaxDegreeOfParallelism = options.MaxIoThreads
-            };
+            MaxDegreeOfParallelism = options.MaxIoThreads
+        };
 
-            Logger.Info($"Using MaxDegreeOfParallelism={_parallelOptions.MaxDegreeOfParallelism} for parallel IO operations");
-        }
+        Logger.Info($"Using MaxDegreeOfParallelism={_parallelOptions.MaxDegreeOfParallelism} for parallel IO operations");
+    }
 
-        protected override List<DicomFileMessage> ReadTagsImpl(IEnumerable<FileInfo> dicomFilePaths,
-            AccessionDirectoryMessage accMessage)
+    protected override List<DicomFileMessage> ReadTagsImpl(IEnumerable<FileInfo> dicomFilePaths,
+        AccessionDirectoryMessage accMessage)
+    {
+        var fileMessages = new List<DicomFileMessage>();
+        var fileMessagesLock = new object();
+
+        Parallel.ForEach(dicomFilePaths, _parallelOptions, dicomFilePath =>
         {
-            var fileMessages = new List<DicomFileMessage>();
-            var fileMessagesLock = new object();
+            Logger.Trace("TagReader: Processing " + dicomFilePath);
 
-            Parallel.ForEach(dicomFilePaths, _parallelOptions, dicomFilePath =>
+            DicomFileMessage fileMessage;
+
+            try
             {
-                Logger.Trace("TagReader: Processing " + dicomFilePath);
+                fileMessage = ReadTagsFromFile(dicomFilePath);
+            }
+            catch (Exception e)
+            {
+                if (NackIfAnyFileErrors)
+                    throw new ApplicationException(
+                        "Exception processing file and NackIfAnyFileErrors option set. File was: " + dicomFilePath,
+                        e);
 
-                DicomFileMessage fileMessage;
+                Logger.Error(e,
+                    "Error processing file " + dicomFilePath +
+                    ". Ignoring and moving on since NackIfAnyFileErrors is false");
 
-                try
-                {
-                    fileMessage = ReadTagsFromFile(dicomFilePath);
-                }
-                catch (Exception e)
-                {
-                    if (NackIfAnyFileErrors)
-                        throw new ApplicationException(
-                            "Exception processing file and NackIfAnyFileErrors option set. File was: " + dicomFilePath,
-                            e);
+                return;
+            }
 
-                    Logger.Error(e,
-                        "Error processing file " + dicomFilePath +
-                        ". Ignoring and moving on since NackIfAnyFileErrors is false");
+            lock (fileMessagesLock)
+                fileMessages.Add(fileMessage);
 
-                    return;
-                }
+            Interlocked.Increment(ref NFilesProcessed);
+        });
 
-                lock (fileMessagesLock)
-                    fileMessages.Add(fileMessage);
-
-                Interlocked.Increment(ref NFilesProcessed);
-            });
-
-            return fileMessages;
-        }
+        return fileMessages;
     }
 }

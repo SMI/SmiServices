@@ -6,41 +6,39 @@
 
 using System;
 
-namespace SmiServices.Applications.Setup
+namespace SmiServices.Applications.Setup;
+
+/// <summary>
+/// This is the Settings static class that can be used in your Core solution or in any
+/// of your client applications. All settings are laid out the same exact way with getters
+/// and setters. 
+/// </summary>
+public static class SetupSettings
 {
-    /// <summary>
-    /// This is the Settings static class that can be used in your Core solution or in any
-    /// of your client applications. All settings are laid out the same exact way with getters
-    /// and setters. 
-    /// </summary>
-    public static class SetupSettings
+    static readonly Lazy<SetupIsolatedStorage> _implementation = new(static () => CreateSettings(), System.Threading.LazyThreadSafetyMode.PublicationOnly);
+
+    private static SetupIsolatedStorage AppSettings
     {
-        static readonly Lazy<SetupIsolatedStorage> _implementation = new(static () => CreateSettings(), System.Threading.LazyThreadSafetyMode.PublicationOnly);
-
-        private static SetupIsolatedStorage AppSettings
+        get
         {
-            get
-            {
-                SetupIsolatedStorage ret = _implementation.Value ?? throw new NotImplementedException("Isolated Storage does not work in this environment...");
-                return ret;
-            }
+            SetupIsolatedStorage ret = _implementation.Value ?? throw new NotImplementedException("Isolated Storage does not work in this environment...");
+            return ret;
         }
+    }
 
-        /// <summary>
-        /// Last loaded/selected .yaml file
-        /// </summary>
-        internal static string YamlFile
-        {
-            get => AppSettings?.GetValueOrDefault("YamlFile", "") ?? throw new InvalidOperationException("AppSettings not yet initialised");
-            set => AppSettings.AddOrUpdateValue("YamlFile", value);
-        }
+    /// <summary>
+    /// Last loaded/selected .yaml file
+    /// </summary>
+    internal static string YamlFile
+    {
+        get => AppSettings?.GetValueOrDefault("YamlFile", "") ?? throw new InvalidOperationException("AppSettings not yet initialised");
+        set => AppSettings.AddOrUpdateValue("YamlFile", value);
+    }
 
 
-        private static SetupIsolatedStorage CreateSettings()
-        {
-            return new SetupIsolatedStorage();
-        }
-
+    private static SetupIsolatedStorage CreateSettings()
+    {
+        return new SetupIsolatedStorage();
     }
 
 }

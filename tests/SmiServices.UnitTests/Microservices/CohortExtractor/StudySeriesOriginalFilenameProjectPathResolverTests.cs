@@ -7,121 +7,120 @@ using System.IO.Abstractions;
 using System.IO.Abstractions.TestingHelpers;
 
 
-namespace SmiServices.UnitTests.Microservices.CohortExtractor
+namespace SmiServices.UnitTests.Microservices.CohortExtractor;
+
+public class StudySeriesOriginalFilenameProjectPathResolverTests
 {
-    public class StudySeriesOriginalFilenameProjectPathResolverTests
+    #region Fixture Methods
+
+    private ExtractionRequestMessage _requestMessage = new() { IsIdentifiableExtraction = false };
+    private IFileSystem _fileSystem = new MockFileSystem();
+
+    [OneTimeSetUp]
+    public void OneTimeSetUp()
     {
-        #region Fixture Methods
-
-        private ExtractionRequestMessage _requestMessage = new() { IsIdentifiableExtraction = false };
-        private IFileSystem _fileSystem = new MockFileSystem();
-
-        [OneTimeSetUp]
-        public void OneTimeSetUp()
-        {
-        }
-
-        [OneTimeTearDown]
-        public void OneTimeTearDown() { }
-
-        #endregion
-
-        #region Test Methods
-
-        [SetUp]
-        public void SetUp()
-        {
-            _fileSystem = new MockFileSystem();
-        }
-
-        [TearDown]
-        public void TearDown() { }
-
-        #endregion
-
-        #region Tests
-
-        [Test]
-        public void GetOutputPath_Basic()
-        {
-            // Arrange
-
-            var expectedPath = _fileSystem.Path.Combine("study", "series", "foo-an.dcm");
-            var resolver = new StudySeriesOriginalFilenameProjectPathResolver(_fileSystem);
-            var result = new QueryToExecuteResult(
-                "foo.dcm",
-                "study",
-                "series",
-                "sop",
-                rejection: false,
-                rejectionReason: null
-            );
-            var message = new ExtractionRequestMessage();
-
-            // Act
-
-            var actualPath = resolver.GetOutputPath(result, message);
-
-            // Assert
-            Assert.That(actualPath, Is.EqualTo(expectedPath));
-        }
-
-        [TestCase("file-an.dcm", "file.dcm")]
-        [TestCase("file-an.dcm", "file.dicom")]
-        [TestCase("file-an.dcm", "file")]
-        [TestCase("file.foo-an.dcm", "file.foo")]
-        public void GetOutputPath_Extensions(string expectedOutput, string inputFile)
-        {
-            // Arrange
-
-            var expectedPath = _fileSystem.Path.Combine("study", "series", expectedOutput);
-            var resolver = new StudySeriesOriginalFilenameProjectPathResolver(_fileSystem);
-            var result = new QueryToExecuteResult(
-                inputFile,
-                "study",
-                "series",
-                "sop",
-                rejection: false,
-                rejectionReason: null
-            );
-            var message = new ExtractionRequestMessage();
-
-            // Act
-
-            var actualPath = resolver.GetOutputPath(result, message);
-
-            // Assert
-            Assert.That(actualPath, Is.EqualTo(expectedPath));
-        }
-
-        [Test]
-        public void GetOutputPath_IdentExtraction()
-        {
-            // Arrange
-
-            var expectedPath = _fileSystem.Path.Combine("study", "series", "foo.dcm");
-            var resolver = new StudySeriesOriginalFilenameProjectPathResolver(_fileSystem);
-            var result = new QueryToExecuteResult(
-                "foo.dcm",
-                "study",
-                "series",
-                "sop",
-                rejection: false,
-                rejectionReason: null
-            );
-            var message = new ExtractionRequestMessage()
-            {
-                IsIdentifiableExtraction = true,
-            };
-
-            // Act
-
-            var actualPath = resolver.GetOutputPath(result, message);
-
-            // Assert
-            Assert.That(actualPath, Is.EqualTo(expectedPath));
-        }
-
-        #endregion
     }
+
+    [OneTimeTearDown]
+    public void OneTimeTearDown() { }
+
+    #endregion
+
+    #region Test Methods
+
+    [SetUp]
+    public void SetUp()
+    {
+        _fileSystem = new MockFileSystem();
+    }
+
+    [TearDown]
+    public void TearDown() { }
+
+    #endregion
+
+    #region Tests
+
+    [Test]
+    public void GetOutputPath_Basic()
+    {
+        // Arrange
+
+        var expectedPath = _fileSystem.Path.Combine("study", "series", "foo-an.dcm");
+        var resolver = new StudySeriesOriginalFilenameProjectPathResolver(_fileSystem);
+        var result = new QueryToExecuteResult(
+            "foo.dcm",
+            "study",
+            "series",
+            "sop",
+            rejection: false,
+            rejectionReason: null
+        );
+        var message = new ExtractionRequestMessage();
+
+        // Act
+
+        var actualPath = resolver.GetOutputPath(result, message);
+
+        // Assert
+        Assert.That(actualPath, Is.EqualTo(expectedPath));
+    }
+
+    [TestCase("file-an.dcm", "file.dcm")]
+    [TestCase("file-an.dcm", "file.dicom")]
+    [TestCase("file-an.dcm", "file")]
+    [TestCase("file.foo-an.dcm", "file.foo")]
+    public void GetOutputPath_Extensions(string expectedOutput, string inputFile)
+    {
+        // Arrange
+
+        var expectedPath = _fileSystem.Path.Combine("study", "series", expectedOutput);
+        var resolver = new StudySeriesOriginalFilenameProjectPathResolver(_fileSystem);
+        var result = new QueryToExecuteResult(
+            inputFile,
+            "study",
+            "series",
+            "sop",
+            rejection: false,
+            rejectionReason: null
+        );
+        var message = new ExtractionRequestMessage();
+
+        // Act
+
+        var actualPath = resolver.GetOutputPath(result, message);
+
+        // Assert
+        Assert.That(actualPath, Is.EqualTo(expectedPath));
+    }
+
+    [Test]
+    public void GetOutputPath_IdentExtraction()
+    {
+        // Arrange
+
+        var expectedPath = _fileSystem.Path.Combine("study", "series", "foo.dcm");
+        var resolver = new StudySeriesOriginalFilenameProjectPathResolver(_fileSystem);
+        var result = new QueryToExecuteResult(
+            "foo.dcm",
+            "study",
+            "series",
+            "sop",
+            rejection: false,
+            rejectionReason: null
+        );
+        var message = new ExtractionRequestMessage()
+        {
+            IsIdentifiableExtraction = true,
+        };
+
+        // Act
+
+        var actualPath = resolver.GetOutputPath(result, message);
+
+        // Assert
+        Assert.That(actualPath, Is.EqualTo(expectedPath));
+    }
+
+    #endregion
 }

@@ -7,79 +7,77 @@ using SmiServices.UnitTests.Common;
 using SmiServices.UnitTests.TestCommon;
 using System;
 
-namespace SmiServices.IntegrationTests.Common
+namespace SmiServices.IntegrationTests.Common;
+
+[RequiresRabbit]
+public class HeaderPreservationTest
 {
-    [RequiresRabbit]
-    public class HeaderPreservationTest
+    [OneTimeSetUp]
+    public void OneTimeSetUp()
     {
-        [OneTimeSetUp]
-        public void OneTimeSetUp()
+    }
+
+    [Test]
+    public void SendHeader()
+    {
+        var o = new GlobalOptionsFactory().Load(nameof(SendHeader));
+
+        var consumerOptions = new ConsumerOptions
         {
-        }
+            QueueName = "TEST.HeaderPreservationTest_Read1",
+            AutoAck = false,
+            QoSPrefetchCount = 1
+        };
 
-        [Test]
-        public void SendHeader()
+        TestConsumer consumer;
+
+        using var tester = new MicroserviceTester(o.RabbitOptions!, consumerOptions);
+
+        var header = new MessageHeader
         {
-            var o = new GlobalOptionsFactory().Load(nameof(SendHeader));
+            MessageGuid = Guid.Parse("5afce68f-c270-4bf3-b327-756f6038bb76"),
+            Parents = [Guid.Parse("12345678-c270-4bf3-b327-756f6038bb76"), Guid.Parse("87654321-c270-4bf3-b327-756f6038bb76")],
+        };
 
-            var consumerOptions = new ConsumerOptions
-            {
-                QueueName = "TEST.HeaderPreservationTest_Read1",
-                AutoAck = false,
-                QoSPrefetchCount = 1
-            };
+        tester.SendMessage(consumerOptions, header, new TestMessage { Message = "hi" });
 
-            TestConsumer consumer;
+        consumer = new TestConsumer();
+        tester.Broker.StartConsumer(consumerOptions, consumer);
 
-            using var tester = new MicroserviceTester(o.RabbitOptions!, consumerOptions);
+        TestTimelineAwaiter.Await(() => consumer.Failed || consumer.Passed, "timed out", 5000);
 
-            var header = new MessageHeader
-            {
-                MessageGuid = Guid.Parse("5afce68f-c270-4bf3-b327-756f6038bb76"),
-                Parents = [Guid.Parse("12345678-c270-4bf3-b327-756f6038bb76"), Guid.Parse("87654321-c270-4bf3-b327-756f6038bb76")],
-            };
+        Assert.That(consumer.Passed, Is.True);
+    }
 
-            tester.SendMessage(consumerOptions, header, new TestMessage { Message = "hi" });
+    private class TestConsumer : Consumer<TestMessage>
+    {
+        public bool Passed { get; private set; }
+        public bool Failed { get; private set; }
 
-            consumer = new TestConsumer();
-            tester.Broker.StartConsumer(consumerOptions, consumer);
 
-            TestTimelineAwaiter.Await(() => consumer.Failed || consumer.Passed, "timed out", 5000);
-
-            Assert.That(consumer.Passed, Is.True);
-        }
-
-        private class TestConsumer : Consumer<TestMessage>
+        protected override void ProcessMessageImpl(IMessageHeader header, TestMessage message, ulong tag)
         {
-            public bool Passed { get; private set; }
-            public bool Failed { get; private set; }
-
-
-            protected override void ProcessMessageImpl(IMessageHeader header, TestMessage message, ulong tag)
+            try
             {
-                try
+                Assert.Multiple(() =>
                 {
-                    Assert.Multiple(() =>
-                    {
-                        Assert.That(header.Parents[0].ToString(), Is.EqualTo("12345678-c270-4bf3-b327-756f6038bb76"));
-                        Assert.That(header.Parents[1].ToString(), Is.EqualTo("87654321-c270-4bf3-b327-756f6038bb76"));
-                        Assert.That(header.Parents[2].ToString(), Is.EqualTo("5afce68f-c270-4bf3-b327-756f6038bb76"));
-                    });
+                    Assert.That(header.Parents[0].ToString(), Is.EqualTo("12345678-c270-4bf3-b327-756f6038bb76"));
+                    Assert.That(header.Parents[1].ToString(), Is.EqualTo("87654321-c270-4bf3-b327-756f6038bb76"));
+                    Assert.That(header.Parents[2].ToString(), Is.EqualTo("5afce68f-c270-4bf3-b327-756f6038bb76"));
+                });
 
-                    Passed = true;
-                    Ack(header, tag);
-                }
-                catch (Exception)
-                {
-                    Failed = true;
-                }
+                Passed = true;
+                Ack(header, tag);
             }
-        }
-
-        private class TestMessage : IMessage
-        {
-            public string? Message { get; set; }
+            catch (Exception)
+            {
+                Failed = true;
+            }
         }
     }
 
+    private class TestMessage : IMessage
+    {
+        public string? Message { get; set; }
+    }
 }

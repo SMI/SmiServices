@@ -8,47 +8,46 @@ using System.IO;
 using System.IO.Abstractions;
 
 
-namespace SmiServices.Microservices.DicomTagReader.Execution
+namespace SmiServices.Microservices.DicomTagReader.Execution;
+
+public class SerialTagReader : TagReaderBase
 {
-    public class SerialTagReader : TagReaderBase
+    public SerialTagReader(DicomTagReaderOptions options, FileSystemOptions fileSystemOptions,
+        IProducerModel seriesMessageProducerModel, IProducerModel fileMessageProducerModel, IFileSystem fs)
+        : base(options, fileSystemOptions, seriesMessageProducerModel, fileMessageProducerModel, fs) { }
+
+    protected override List<DicomFileMessage> ReadTagsImpl(IEnumerable<FileInfo> dicomFilePaths, AccessionDirectoryMessage accMessage)
     {
-        public SerialTagReader(DicomTagReaderOptions options, FileSystemOptions fileSystemOptions,
-            IProducerModel seriesMessageProducerModel, IProducerModel fileMessageProducerModel, IFileSystem fs)
-            : base(options, fileSystemOptions, seriesMessageProducerModel, fileMessageProducerModel, fs) { }
+        var fileMessages = new List<DicomFileMessage>();
 
-        protected override List<DicomFileMessage> ReadTagsImpl(IEnumerable<FileInfo> dicomFilePaths, AccessionDirectoryMessage accMessage)
+        foreach (FileInfo dicomFilePath in dicomFilePaths)
         {
-            var fileMessages = new List<DicomFileMessage>();
+            Logger.Trace("TagReader: Processing " + dicomFilePath);
 
-            foreach (FileInfo dicomFilePath in dicomFilePaths)
+            DicomFileMessage fileMessage;
+
+            try
             {
-                Logger.Trace("TagReader: Processing " + dicomFilePath);
+                fileMessage = ReadTagsFromFile(dicomFilePath);
+            }
+            catch (Exception e)
+            {
+                if (NackIfAnyFileErrors)
+                    throw new ApplicationException(
+                        "Exception processing file and NackIfAnyFileErrors option set. File was: " + dicomFilePath,
+                        e);
 
-                DicomFileMessage fileMessage;
+                Logger.Error(e,
+                    "Error processing file " + dicomFilePath +
+                    ". Ignoring and moving on since NackIfAnyFileErrors is false");
 
-                try
-                {
-                    fileMessage = ReadTagsFromFile(dicomFilePath);
-                }
-                catch (Exception e)
-                {
-                    if (NackIfAnyFileErrors)
-                        throw new ApplicationException(
-                            "Exception processing file and NackIfAnyFileErrors option set. File was: " + dicomFilePath,
-                            e);
-
-                    Logger.Error(e,
-                        "Error processing file " + dicomFilePath +
-                        ". Ignoring and moving on since NackIfAnyFileErrors is false");
-
-                    continue;
-                }
-
-                fileMessages.Add(fileMessage);
-                ++NFilesProcessed;
+                continue;
             }
 
-            return fileMessages;
+            fileMessages.Add(fileMessage);
+            ++NFilesProcessed;
         }
+
+        return fileMessages;
     }
 }

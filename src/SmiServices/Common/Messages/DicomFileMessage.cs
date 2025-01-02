@@ -5,107 +5,106 @@ using System;
 using System.IO;
 using System.Text;
 
-namespace SmiServices.Common.Messages
+namespace SmiServices.Common.Messages;
+
+/// <inheritdoc />
+/// <summary>
+/// Object representing a dicom file message.
+/// https://github.com/HicServices/SMIPlugin/wiki/SMI-RabbitMQ-messages-and-queues#dicomfilemessage
+/// </summary>
+public sealed class DicomFileMessage : MemberwiseEquatable<DicomFileMessage>, IFileReferenceMessage
 {
-    /// <inheritdoc />
     /// <summary>
-    /// Object representing a dicom file message.
-    /// https://github.com/HicServices/SMIPlugin/wiki/SMI-RabbitMQ-messages-and-queues#dicomfilemessage
+    /// File path relative to the root path.
     /// </summary>
-    public sealed class DicomFileMessage : MemberwiseEquatable<DicomFileMessage>, IFileReferenceMessage
+    [JsonProperty(Required = Required.Always)]
+    public string DicomFilePath { get; set; } = null!;
+
+    public long DicomFileSize { get; set; } = -1;
+
+    /// <summary>
+    /// Dicom tag (0020,000D).
+    /// </summary>
+    [JsonProperty(Required = Required.Always)]
+    public string StudyInstanceUID { get; set; } = null!;
+
+    /// <summary>
+    /// Dicom tag (0020,000E).
+    /// </summary>
+    [JsonProperty(Required = Required.Always)]
+    public string SeriesInstanceUID { get; set; } = null!;
+
+    /// <summary>
+    /// Dicom tag (0008,0018)
+    /// </summary>
+    [JsonProperty(Required = Required.Always)]
+    public string SOPInstanceUID { get; set; } = null!;
+
+    /// <summary>
+    /// Key-value pairs of Dicom tags and their values.
+    /// </summary>
+    [JsonProperty(Required = Required.Always)]
+    public string DicomDataset { get; set; } = null!;
+
+
+    public DicomFileMessage() { }
+
+    public DicomFileMessage(string root, FileInfo file)
+        : this(root, file.FullName) { }
+
+    public DicomFileMessage(string root, string file)
     {
-        /// <summary>
-        /// File path relative to the root path.
-        /// </summary>
-        [JsonProperty(Required = Required.Always)]
-        public string DicomFilePath { get; set; } = null!;
+        if (!file.StartsWith(root, StringComparison.CurrentCultureIgnoreCase))
+            throw new Exception("File '" + file + "' did not share a common root with the root '" + root + "'");
 
-        public long DicomFileSize { get; set; } = -1;
+        DicomFilePath = file[root.Length..].TrimStart(Path.DirectorySeparatorChar);
+    }
 
-        /// <summary>
-        /// Dicom tag (0020,000D).
-        /// </summary>
-        [JsonProperty(Required = Required.Always)]
-        public string StudyInstanceUID { get; set; } = null!;
+    public string GetAbsolutePath(string rootPath)
+    {
+        return Path.Combine(rootPath, DicomFilePath);
+    }
 
-        /// <summary>
-        /// Dicom tag (0020,000E).
-        /// </summary>
-        [JsonProperty(Required = Required.Always)]
-        public string SeriesInstanceUID { get; set; } = null!;
+    public bool Validate(string fileSystemRoot)
+    {
+        var absolutePath = GetAbsolutePath(fileSystemRoot);
 
-        /// <summary>
-        /// Dicom tag (0008,0018)
-        /// </summary>
-        [JsonProperty(Required = Required.Always)]
-        public string SOPInstanceUID { get; set; } = null!;
+        if (string.IsNullOrWhiteSpace(absolutePath))
+            return false;
 
-        /// <summary>
-        /// Key-value pairs of Dicom tags and their values.
-        /// </summary>
-        [JsonProperty(Required = Required.Always)]
-        public string DicomDataset { get; set; } = null!;
-
-
-        public DicomFileMessage() { }
-
-        public DicomFileMessage(string root, FileInfo file)
-            : this(root, file.FullName) { }
-
-        public DicomFileMessage(string root, string file)
+        try
         {
-            if (!file.StartsWith(root, StringComparison.CurrentCultureIgnoreCase))
-                throw new Exception("File '" + file + "' did not share a common root with the root '" + root + "'");
+            var dir = new FileInfo(absolutePath);
 
-            DicomFilePath = file[root.Length..].TrimStart(Path.DirectorySeparatorChar);
+            //There file referenced must exist 
+            return dir.Exists;
+        }
+        catch (Exception)
+        {
+            return false;
         }
 
-        public string GetAbsolutePath(string rootPath)
-        {
-            return Path.Combine(rootPath, DicomFilePath);
-        }
+    }
 
-        public bool Validate(string fileSystemRoot)
-        {
-            var absolutePath = GetAbsolutePath(fileSystemRoot);
+    public bool VerifyPopulated()
+    {
+        return !string.IsNullOrWhiteSpace(DicomFilePath) &&
+               !string.IsNullOrWhiteSpace(StudyInstanceUID) &&
+               !string.IsNullOrWhiteSpace(SeriesInstanceUID) &&
+               !string.IsNullOrWhiteSpace(SOPInstanceUID) &&
+               !string.IsNullOrWhiteSpace(DicomDataset);
+    }
 
-            if (string.IsNullOrWhiteSpace(absolutePath))
-                return false;
+    public override string ToString()
+    {
+        var sb = new StringBuilder();
 
-            try
-            {
-                var dir = new FileInfo(absolutePath);
+        sb.AppendLine("DicomFilePath: " + DicomFilePath);
+        sb.AppendLine("StudyInstanceUID: " + StudyInstanceUID);
+        sb.AppendLine("SeriesInstanceUID: " + SeriesInstanceUID);
+        sb.AppendLine("SOPInstanceUID: " + SOPInstanceUID);
+        sb.AppendLine("=== DicomDataset ===\n" + DicomDataset + "\n====================");
 
-                //There file referenced must exist 
-                return dir.Exists;
-            }
-            catch (Exception)
-            {
-                return false;
-            }
-
-        }
-
-        public bool VerifyPopulated()
-        {
-            return !string.IsNullOrWhiteSpace(DicomFilePath) &&
-                   !string.IsNullOrWhiteSpace(StudyInstanceUID) &&
-                   !string.IsNullOrWhiteSpace(SeriesInstanceUID) &&
-                   !string.IsNullOrWhiteSpace(SOPInstanceUID) &&
-                   !string.IsNullOrWhiteSpace(DicomDataset);
-        }
-
-        public override string ToString()
-        {
-            var sb = new StringBuilder();
-
-            sb.AppendLine("DicomFilePath: " + DicomFilePath);
-            sb.AppendLine("StudyInstanceUID: " + StudyInstanceUID);
-            sb.AppendLine("SeriesInstanceUID: " + SeriesInstanceUID);
-            sb.AppendLine("SOPInstanceUID: " + SOPInstanceUID);
-            sb.AppendLine("=== DicomDataset ===\n" + DicomDataset + "\n====================");
-
-            return sb.ToString();
-        }
+        return sb.ToString();
     }
 }

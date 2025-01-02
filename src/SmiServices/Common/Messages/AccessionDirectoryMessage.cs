@@ -4,31 +4,30 @@ using Newtonsoft.Json;
 using System;
 using System.IO;
 
-namespace SmiServices.Common.Messages
+namespace SmiServices.Common.Messages;
+
+/// <summary>
+/// Object representing an accession directory message.
+/// </summary>
+public sealed class AccessionDirectoryMessage : MemberwiseEquatable<AccessionDirectoryMessage>, IMessage
 {
     /// <summary>
-    /// Object representing an accession directory message.
+    /// Directory path relative to the root path.
     /// </summary>
-    public sealed class AccessionDirectoryMessage : MemberwiseEquatable<AccessionDirectoryMessage>, IMessage
+    [JsonProperty(Required = Required.Always)]
+    public string DirectoryPath { get; set; } = null!;
+
+    public AccessionDirectoryMessage() { }
+
+    public AccessionDirectoryMessage(string root, DirectoryInfo directory)
     {
-        /// <summary>
-        /// Directory path relative to the root path.
-        /// </summary>
-        [JsonProperty(Required = Required.Always)]
-        public string DirectoryPath { get; set; } = null!;
+        if (!directory.FullName.StartsWith(root, StringComparison.CurrentCultureIgnoreCase))
+            throw new Exception("Directory '" + directory + "' did not share a common root with the root '" + root + "'");
 
-        public AccessionDirectoryMessage() { }
-
-        public AccessionDirectoryMessage(string root, DirectoryInfo directory)
-        {
-            if (!directory.FullName.StartsWith(root, StringComparison.CurrentCultureIgnoreCase))
-                throw new Exception("Directory '" + directory + "' did not share a common root with the root '" + root + "'");
-
-            DirectoryPath = directory.FullName[root.Length..].TrimStart(Path.DirectorySeparatorChar);
-        }
-
-        public string GetAbsolutePath(string rootPath) => Path.Combine(rootPath, DirectoryPath);
-
-        public override string ToString() => $"AccessionDirectoryMessage[DirectoryPath={DirectoryPath}]";
+        DirectoryPath = directory.FullName[root.Length..].TrimStart(Path.DirectorySeparatorChar);
     }
+
+    public string GetAbsolutePath(string rootPath) => Path.Combine(rootPath, DirectoryPath);
+
+    public override string ToString() => $"AccessionDirectoryMessage[DirectoryPath={DirectoryPath}]";
 }

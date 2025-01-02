@@ -1,28 +1,27 @@
 using System;
 
-namespace SmiServices.Common.Options
+namespace SmiServices.Common.Options;
+
+/// <summary>
+/// Populates values in <see cref="GlobalOptions"/> based on environment variables 
+/// </summary>
+public class EnvironmentVariableDecorator : OptionsDecorator
 {
-    /// <summary>
-    /// Populates values in <see cref="GlobalOptions"/> based on environment variables 
-    /// </summary>
-    public class EnvironmentVariableDecorator : OptionsDecorator
+    public override GlobalOptions Decorate(GlobalOptions options)
     {
-        public override GlobalOptions Decorate(GlobalOptions options)
-        {
-            ForAll<MongoDbOptions>(options, SetMongoPassword);
-            return options;
-        }
+        ForAll<MongoDbOptions>(options, SetMongoPassword);
+        return options;
+    }
 
-        private static MongoDbOptions SetMongoPassword(MongoDbOptions opt)
-        {
-            //get the environment variables current value
-            var envVar = Environment.GetEnvironmentVariable("MONGO_SERVICE_PASSWORD");
+    private static MongoDbOptions SetMongoPassword(MongoDbOptions opt)
+    {
+        //get the environment variables current value
+        var envVar = Environment.GetEnvironmentVariable("MONGO_SERVICE_PASSWORD");
 
-            //if there's an env var for it and there are mongodb options being used
-            if (!string.IsNullOrWhiteSpace(envVar))
-                opt.Password = envVar;
+        //if there's an env var for it and there are mongodb options being used
+        if (!string.IsNullOrWhiteSpace(envVar))
+            opt.Password = envVar;
 
-            return opt;
-        }
+        return opt;
     }
 }
