@@ -10,7 +10,6 @@ using System.Collections.Generic;
 namespace SmiServices.UnitTests.Microservices.CohortPackager.Execution.ExtractJobStorage;
 
 
-[TestFixture]
 public class ExtractJobStoreTest
 {
     #region Fixture Methods 

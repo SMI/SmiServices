@@ -10,7 +10,6 @@ using System.IO.Abstractions.TestingHelpers;
 
 namespace SmiServices.UnitTests.Applications.DicomDirectoryProcessor;
 
-[TestFixture]
 public class PacsDirectoryFinderTests
 {
     [OneTimeSetUp]

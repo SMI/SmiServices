@@ -5,7 +5,6 @@ using System;
 
 namespace SmiServices.UnitTests.Microservices.CohortPackager.Execution.ExtractJobStorage;
 
-[TestFixture]
 public class ExtractJobInfoTest
 {
     private readonly TestDateTimeProvider _dateTimeProvider = new();

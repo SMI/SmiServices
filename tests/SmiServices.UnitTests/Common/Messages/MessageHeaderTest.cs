@@ -6,7 +6,6 @@ using System.Text;
 
 namespace SmiServices.UnitTests.Common.Messages;
 
-[TestFixture]
 public class MessageHeaderTest
 {
     private readonly Dictionary<string, object> _testProps = new()

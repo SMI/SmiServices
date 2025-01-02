@@ -21,7 +21,7 @@ using System.Threading;
 
 namespace SmiServices.IntegrationTests.Microservices.CohortPackager;
 
-[TestFixture, RequiresMongoDb, RequiresRabbit]
+[RequiresMongoDb, RequiresRabbit]
 public class CohortPackagerHostTest
 {
     private readonly TestDateTimeProvider _dateTimeProvider = new();

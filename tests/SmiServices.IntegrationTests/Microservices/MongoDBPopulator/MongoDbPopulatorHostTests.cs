@@ -15,7 +15,7 @@ using System.Threading;
 
 namespace SmiServices.IntegrationTests.Microservices.MongoDBPopulator;
 
-[TestFixture, RequiresMongoDb, RequiresRabbit]
+[RequiresMongoDb, RequiresRabbit]
 public class MongoDbPopulatorHostTests
 {
     private MongoDbPopulatorTestHelper _helper = null!;

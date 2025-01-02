@@ -14,7 +14,6 @@ namespace SmiServices.UnitTests.Applications.DicomDirectoryProcessor;
 /// <summary>
 /// Unit tests for AccessionDirectoryLister
 /// </summary>
-[TestFixture]
 public class AccessionDirectoryListerTest
 {
     [OneTimeSetUp]

@@ -17,7 +17,7 @@ using System.Linq;
 
 namespace SmiServices.IntegrationTests.Microservices.MongoDBPopulator.Processing;
 
-[TestFixture, RequiresMongoDb]
+[RequiresMongoDb]
 public class ImageMessageProcessorTests
 {
     private MongoDbPopulatorTestHelper _helper = null!;

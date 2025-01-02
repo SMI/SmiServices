@@ -14,7 +14,7 @@ using System.Linq;
 namespace SmiServices.IntegrationTests.Microservices.DicomTagReader;
 
 //TODO Some of these can be tested without RabbitMQ
-[TestFixture, RequiresRabbit]
+[RequiresRabbit]
 public class TagReaderTests
 {
     private readonly DicomTagReaderTestHelper _helper = new();

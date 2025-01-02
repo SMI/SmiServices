@@ -8,7 +8,6 @@ using System.Linq;
 
 namespace SmiServices.UnitTests.Common.MongoDB;
 
-[TestFixture]
 public class MongoModalityGroupsTests
 {
     [Test]

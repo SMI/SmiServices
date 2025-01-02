@@ -9,7 +9,6 @@ using System.Text;
 
 namespace SmiServices.UnitTests.Common.MongoDB;
 
-[TestFixture]
 public class MongoDocumentHeadersTests
 {
     [OneTimeSetUp]

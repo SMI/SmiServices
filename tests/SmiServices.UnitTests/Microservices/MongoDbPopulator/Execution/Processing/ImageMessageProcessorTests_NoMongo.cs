@@ -14,7 +14,6 @@ using System.Linq;
 
 namespace SmiServices.UnitTests.Microservices.MongoDbPopulator.Execution.Processing;
 
-[TestFixture]
 public class ImageMessageProcessorTests_NoMongo
 {
     private GlobalOptions _testOptions = null!;

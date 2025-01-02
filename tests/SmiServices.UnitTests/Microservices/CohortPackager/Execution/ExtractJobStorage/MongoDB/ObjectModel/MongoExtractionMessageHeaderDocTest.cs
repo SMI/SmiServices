@@ -8,7 +8,6 @@ using System.Reflection;
 
 namespace SmiServices.UnitTests.Microservices.CohortPackager.Execution.ExtractJobStorage.MongoDB.ObjectModel;
 
-[TestFixture]
 public class MongoExtractionMessageHeaderDocTest
 {
     #region Fixture Methods 
