@@ -1,4 +1,3 @@
-using Newtonsoft.Json;
 using System;
 
 namespace SmiServices.Common.Messages.Extraction;

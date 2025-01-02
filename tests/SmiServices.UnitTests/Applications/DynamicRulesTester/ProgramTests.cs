@@ -1,6 +1,5 @@
 using NUnit.Framework;
 using SmiServices.Common.Options;
-using SmiServices.UnitTests.Common;
 using System.Collections.Generic;
 using System.IO.Abstractions.TestingHelpers;
 

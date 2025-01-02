@@ -1,4 +1,3 @@
-using RabbitMQ.Client;
 using SmiServices.Common.Events;
 using SmiServices.Common.Messages;
 

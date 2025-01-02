@@ -2,7 +2,6 @@ using NUnit.Framework;
 using SmiServices.Common.Messages;
 using SmiServices.Common.Messages.Extraction;
 using SmiServices.Microservices.CohortPackager.ExtractJobStorage;
-using SmiServices.UnitTests.Common;
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;

@@ -1,6 +1,5 @@
 using MongoDB.Bson;
 using NLog;
-using RabbitMQ.Client;
 using SmiServices.Common.Events;
 using SmiServices.Common.Messages;
 using SmiServices.Common.Options;

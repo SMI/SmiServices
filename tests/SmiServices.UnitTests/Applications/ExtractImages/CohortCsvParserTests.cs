@@ -1,7 +1,6 @@
 using NUnit.Framework;
 using SmiServices.Applications.ExtractImages;
 using SmiServices.Common.Messages.Extraction;
-using SmiServices.UnitTests.Common;
 using System;
 using System.Collections.Generic;
 using System.IO.Abstractions.TestingHelpers;

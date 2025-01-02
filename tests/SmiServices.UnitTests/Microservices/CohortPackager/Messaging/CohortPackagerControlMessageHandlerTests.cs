@@ -2,7 +2,6 @@ using Moq;
 using NUnit.Framework;
 using SmiServices.Microservices.CohortPackager;
 using SmiServices.Microservices.CohortPackager.JobProcessing;
-using SmiServices.UnitTests.Common;
 using System;
 
 

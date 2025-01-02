@@ -2,9 +2,7 @@
 using DicomTypeTranslation;
 using FellowOakDicom;
 using MongoDB.Bson;
-using Moq;
 using NUnit.Framework;
-using RabbitMQ.Client;
 using SmiServices.Common.Messages;
 using SmiServices.Common.Options;
 using SmiServices.Microservices.MongoDBPopulator;

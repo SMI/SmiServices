@@ -1,7 +1,6 @@
 using SmiServices.Common.Messages.Extraction;
 using SmiServices.Common.Options;
 using System.Collections.Generic;
-using System.Text.RegularExpressions;
 
 namespace SmiServices.Microservices.CohortExtractor.RequestFulfillers;
 

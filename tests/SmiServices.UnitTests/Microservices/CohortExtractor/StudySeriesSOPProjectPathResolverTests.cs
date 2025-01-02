@@ -2,7 +2,6 @@ using NUnit.Framework;
 using SmiServices.Common.Messages.Extraction;
 using SmiServices.Microservices.CohortExtractor.ProjectPathResolvers;
 using SmiServices.Microservices.CohortExtractor.RequestFulfillers;
-using SmiServices.UnitTests.Common;
 using System.IO.Abstractions;
 using System.IO.Abstractions.TestingHelpers;
 

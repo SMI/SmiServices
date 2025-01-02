@@ -1,6 +1,5 @@
 using Moq;
 using NUnit.Framework;
-using RabbitMQ.Client;
 using SmiServices.Common.Messages;
 using SmiServices.Common.Messages.Extraction;
 using SmiServices.Microservices.CohortPackager;

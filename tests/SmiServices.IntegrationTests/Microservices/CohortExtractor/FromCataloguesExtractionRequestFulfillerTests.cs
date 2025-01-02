@@ -7,7 +7,6 @@ using Rdmp.Core.Curation.Data;
 using SmiServices.Common.Messages.Extraction;
 using SmiServices.Microservices.CohortExtractor;
 using SmiServices.Microservices.CohortExtractor.RequestFulfillers;
-using SmiServices.UnitTests.Common;
 using System.Collections.Generic;
 using System.Data;
 using System.Diagnostics.CodeAnalysis;

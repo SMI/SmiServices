@@ -6,7 +6,6 @@ using NLog;
 using SmiServices.Common.Messages;
 using SmiServices.Common.Messaging;
 using SmiServices.Common.MongoDB;
-using SmiServices.Common.Options;
 using System;
 using System.Collections.Generic;
 using System.Threading;

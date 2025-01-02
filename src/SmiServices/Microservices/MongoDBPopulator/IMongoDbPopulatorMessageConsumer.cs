@@ -1,4 +1,3 @@
-using SmiServices.Common.Messaging;
 using SmiServices.Common.Options;
 using SmiServices.Microservices.MongoDBPopulator.Processing;
 
