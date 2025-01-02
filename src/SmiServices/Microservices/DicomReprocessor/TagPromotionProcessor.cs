@@ -1,7 +1,5 @@
 using MongoDB.Bson;
-using NLog;
 using SmiServices.Common.Messaging;
-using SmiServices.Common.Options;
 using System;
 
 namespace SmiServices.Microservices.DicomReprocessor;

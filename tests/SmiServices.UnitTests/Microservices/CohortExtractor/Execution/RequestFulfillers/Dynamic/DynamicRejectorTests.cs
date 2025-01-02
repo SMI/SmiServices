@@ -1,6 +1,5 @@
 using NUnit.Framework;
 using SmiServices.Microservices.CohortExtractor.RequestFulfillers.Dynamic;
-using SmiServices.UnitTests.Common;
 using System.IO;
 using System.IO.Abstractions.TestingHelpers;
 

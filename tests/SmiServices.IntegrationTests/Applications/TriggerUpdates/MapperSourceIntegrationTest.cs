@@ -7,7 +7,6 @@ using Rdmp.Core.DataLoad.Triggers.Implementations;
 using Rdmp.Core.MapsDirectlyToDatabaseTable;
 using Rdmp.Core.ReusableLibraryCode.Checks;
 using SmiServices.Applications.TriggerUpdates;
-using SmiServices.Common.Messages;
 using SmiServices.Common.Options;
 using SmiServices.IntegrationTests.Common;
 using SmiServices.Microservices.IdentifierMapper.Swappers;

@@ -5,7 +5,6 @@ using SmiServices.Common.Messages.Extraction;
 using SmiServices.Common.Messaging;
 using SmiServices.Common.Options;
 using SmiServices.Microservices.FileCopier;
-using SmiServices.UnitTests.Common;
 using System;
 using System.IO.Abstractions.TestingHelpers;
 

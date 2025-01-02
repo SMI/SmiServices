@@ -4,7 +4,6 @@ using RabbitMQ.Client;
 using RabbitMQ.Client.Exceptions;
 using System;
 using System.IO;
-using System.Text;
 using YamlDotNet.Serialization;
 
 namespace SmiServices.IntegrationTests;

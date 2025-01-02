@@ -1,7 +1,6 @@
 using NUnit.Framework;
 using SmiServices.Common.Options;
 using SmiServices.Microservices.DicomAnonymiser.Anonymisers;
-using SmiServices.UnitTests.Common;
 using System;
 
 namespace SmiServices.UnitTests.Microservices.DicomAnonymiser.Anonymisers;

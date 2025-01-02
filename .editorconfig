@@ -29,4 +29,7 @@ dotnet_diagnostic.CA1861.severity = none
 # SYSLIB1045: Use GeneratedRegexAttribute to generate the regular expression implementation at compile time.
 dotnet_diagnostic.SYSLIB1045.severity = none
 
+# Remove unnecessary using directives
+dotnet_diagnostic.IDE0005.severity = error
+
 csharp_style_namespace_declarations = file_scoped:error

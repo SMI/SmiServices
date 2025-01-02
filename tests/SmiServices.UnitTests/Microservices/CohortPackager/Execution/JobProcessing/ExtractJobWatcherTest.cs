@@ -5,9 +5,7 @@ using SmiServices.Microservices.CohortPackager.ExtractJobStorage;
 using SmiServices.Microservices.CohortPackager.JobProcessing;
 using SmiServices.Microservices.CohortPackager.JobProcessing.Notifying;
 using SmiServices.Microservices.CohortPackager.JobProcessing.Reporting;
-using SmiServices.UnitTests.Common;
 using System;
-using System.Collections.Generic;
 
 namespace SmiServices.UnitTests.Microservices.CohortPackager.Execution.JobProcessing;
 

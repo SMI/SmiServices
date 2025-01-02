@@ -4,7 +4,6 @@ using SmiServices.Applications.ExtractImages;
 using SmiServices.Common;
 using SmiServices.Common.Options;
 using System;
-using System.IO.Abstractions;
 using System.IO.Abstractions.TestingHelpers;
 
 namespace SmiServices.UnitTests.Applications.ExtractImages;

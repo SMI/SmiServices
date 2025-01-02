@@ -3,7 +3,6 @@ using NUnit.Framework;
 using SmiServices.Applications.DicomDirectoryProcessor.DirectoryFinders;
 using SmiServices.Common.Messages;
 using SmiServices.Common.Messaging;
-using SmiServices.UnitTests.Common;
 using System.Collections.Generic;
 using System.IO;
 using System.IO.Abstractions.TestingHelpers;

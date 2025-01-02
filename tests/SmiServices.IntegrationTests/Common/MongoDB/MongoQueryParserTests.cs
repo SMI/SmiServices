@@ -5,7 +5,6 @@ using NLog;
 using NUnit.Framework;
 using SmiServices.Common.MongoDB;
 using SmiServices.Common.Options;
-using SmiServices.UnitTests.Common;
 using System.Threading.Tasks;
 
 namespace SmiServices.IntegrationTests.Common.MongoDB;

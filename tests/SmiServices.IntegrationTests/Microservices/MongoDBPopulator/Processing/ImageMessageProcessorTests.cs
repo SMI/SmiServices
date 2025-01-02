@@ -5,7 +5,6 @@ using MongoDB.Bson;
 using MongoDB.Driver;
 using Moq;
 using NUnit.Framework;
-using RabbitMQ.Client;
 using SmiServices.Common.Messages;
 using SmiServices.Common.Options;
 using SmiServices.Microservices.MongoDBPopulator;

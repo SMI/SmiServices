@@ -1,6 +1,5 @@
 using NUnit.Framework;
 using SmiServices.Microservices.CohortPackager.ExtractJobStorage;
-using SmiServices.UnitTests.Common;
 using System;
 using System.Collections.Generic;
 
