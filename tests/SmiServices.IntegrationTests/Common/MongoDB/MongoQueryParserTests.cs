@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 
 namespace SmiServices.IntegrationTests.Common.MongoDB;
 
-[TestFixture, RequiresMongoDb]
+[RequiresMongoDb]
 public class MongoQueryParserTests
 {
     private readonly ILogger _logger = LogManager.GetCurrentClassLogger();

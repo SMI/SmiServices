@@ -19,7 +19,6 @@ using System.Threading;
 
 namespace SmiServices.UnitTests.Microservices.CohortPackager.Execution.ExtractJobStorage.MongoDB;
 
-[TestFixture]
 public class MongoExtractJobStoreTest
 {
     private const string ExtractionDatabaseName = "testExtraction";

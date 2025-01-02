@@ -7,7 +7,7 @@ using System.Collections.Generic;
 
 namespace SmiServices.IntegrationTests.Microservices.MongoDBPopulator;
 
-[TestFixture, RequiresMongoDb]
+[RequiresMongoDb]
 public class MongoDbAdapterTests
 {
     private MongoDbPopulatorTestHelper _helper = null!;

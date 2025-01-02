@@ -6,7 +6,6 @@ using System.IO.Abstractions.TestingHelpers;
 namespace SmiServices.IntegrationTests.Common;
 
 //TODO: Rework these tests. We should assert that every option in GlobalOptions has an entry in default.yaml. Non-required options should be present with a comment
-[TestFixture]
 public class OptionsTests
 {
     [TestCase]

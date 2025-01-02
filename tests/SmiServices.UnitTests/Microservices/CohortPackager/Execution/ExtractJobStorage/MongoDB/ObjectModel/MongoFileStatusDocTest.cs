@@ -11,7 +11,6 @@ using System.Reflection;
 
 namespace SmiServices.UnitTests.Microservices.CohortPackager.Execution.ExtractJobStorage.MongoDB.ObjectModel;
 
-[TestFixture]
 public class MongoFileStatusDocTest
 {
     private readonly TestDateTimeProvider _dateTimeProvider = new();

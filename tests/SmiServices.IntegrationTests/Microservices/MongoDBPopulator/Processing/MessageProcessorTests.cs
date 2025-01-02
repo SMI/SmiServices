@@ -11,7 +11,7 @@ using System.Threading;
 
 namespace SmiServices.IntegrationTests.Microservices.MongoDBPopulator.Processing;
 
-[TestFixture, RequiresMongoDb]
+[RequiresMongoDb]
 public class MessageProcessorTests
 {
     private MongoDbPopulatorTestHelper _helper = null!;

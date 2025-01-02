@@ -9,7 +9,7 @@ using System.IO;
 
 namespace SmiServices.IntegrationTests.Microservices.IsIdentifiable;
 
-[TestFixture, RequiresRabbit]
+[RequiresRabbit]
 public class IsIdentifiableHostTests
 {
     [OneTimeSetUp]

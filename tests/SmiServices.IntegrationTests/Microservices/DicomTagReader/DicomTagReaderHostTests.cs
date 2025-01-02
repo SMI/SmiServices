@@ -13,7 +13,7 @@ using System.Threading;
 
 namespace SmiServices.IntegrationTests.Microservices.DicomTagReader;
 
-[TestFixture, RequiresRabbit]
+[RequiresRabbit]
 public class DicomTagReaderHostTests
 {
     private readonly DicomTagReaderTestHelper _helper = new();

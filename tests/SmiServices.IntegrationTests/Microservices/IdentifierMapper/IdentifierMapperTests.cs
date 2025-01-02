@@ -24,7 +24,6 @@ using DatabaseType = FAnsi.DatabaseType;
 
 namespace SmiServices.IntegrationTests.Microservices.IdentifierMapper;
 
-[TestFixture]
 [RequiresRelationalDb(DatabaseType.MicrosoftSQLServer)]
 public class IdentifierMapperTests : DatabaseTests
 {

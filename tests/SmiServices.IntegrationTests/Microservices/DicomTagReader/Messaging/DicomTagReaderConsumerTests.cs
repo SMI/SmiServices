@@ -11,7 +11,7 @@ using System.IO.Abstractions.TestingHelpers;
 
 namespace SmiServices.IntegrationTests.Microservices.DicomTagReader.Messaging;
 
-[TestFixture, RequiresRabbit]
+[RequiresRabbit]
 public class DicomTagReaderConsumerTests
 {
     private readonly DicomTagReaderTestHelper _helper = new();

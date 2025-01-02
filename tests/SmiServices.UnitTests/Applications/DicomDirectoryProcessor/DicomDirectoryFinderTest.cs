@@ -13,7 +13,6 @@ namespace SmiServices.UnitTests.Applications.DicomDirectoryProcessor;
 /// <summary>
 /// Unit tests for BasicDicomDirectoryFinder
 /// </summary>
-[TestFixture]
 public class DicomDirectoryFinderTest
 {
     [OneTimeSetUp]

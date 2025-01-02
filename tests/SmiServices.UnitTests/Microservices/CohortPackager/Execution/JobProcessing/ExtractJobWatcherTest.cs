@@ -9,7 +9,6 @@ using System;
 
 namespace SmiServices.UnitTests.Microservices.CohortPackager.Execution.JobProcessing;
 
-[TestFixture]
 public class ExtractJobWatcherTest
 {
     #region Fixture Methods
