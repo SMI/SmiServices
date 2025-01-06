@@ -86,47 +86,30 @@ public class DicomAnonymiserConsumer : Consumer<ExtractFileMessage>
 
         _logger.Debug($"Anonymising '{sourceFileAbs}' to '{destFileAbs}'");
 
-        ExtractedFileStatus anonymiserStatus = ExtractedFileStatus.None;
-        string? anonymiserStatusMessage = "";
+        var anonymiserStatus = _anonymiser.Anonymise(sourceFileAbs, destFileAbs, message.Modality, out var anonymiserStatusMessage);
 
-        try
-        {
-            anonymiserStatus = _anonymiser.Anonymise(sourceFileAbs, destFileAbs, message.Modality, out anonymiserStatusMessage);
-        }
-        catch (Exception e)
-        {
-            var msg = $"Error anonymising '{sourceFileAbs}'";
-            _logger.Error(e, msg);
+        var logMessage = $"Anonymisation of '{sourceFileAbs}' returned {anonymiserStatus}";
+        if (anonymiserStatus != ExtractedFileStatus.Anonymised)
+            logMessage += $" with message {anonymiserStatusMessage}";
+        _logger.Info(logMessage);
 
-            statusMessage.Status = ExtractedFileStatus.ErrorWontRetry;
-            statusMessage.StatusMessage = $"{msg}. Exception message: {e.Message}";
-            statusMessage.OutputFilePath = null;
-            _statusMessageProducer.SendMessage(statusMessage, header, _options.RoutingKeyFailure);
-
-            Ack(header, tag);
-        }
+        statusMessage.Status = anonymiserStatus;
+        statusMessage.StatusMessage = anonymiserStatusMessage;
 
         string routingKey;
 
         if (anonymiserStatus == ExtractedFileStatus.Anonymised)
         {
-            _logger.Info($"Anonymisation of '{sourceFileAbs}' successful");
-            statusMessage.Status = anonymiserStatus;
-            statusMessage.StatusMessage = anonymiserStatusMessage;
             routingKey = _options.RoutingKeySuccess ?? "verify";
         }
         else
         {
-            _logger.Info($"Anonymisation of '{sourceFileAbs}' failed");
             statusMessage.OutputFilePath = null;
-            statusMessage.Status = anonymiserStatus;
-            statusMessage.StatusMessage = anonymiserStatusMessage;
             routingKey = _options.RoutingKeyFailure ?? "noverify";
         }
 
         _statusMessageProducer.SendMessage(statusMessage, header, routingKey);
 
         Ack(header, tag);
-        return;
     }
 }
