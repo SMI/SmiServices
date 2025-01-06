@@ -5,6 +5,7 @@ using SmiServices.Microservices.DicomAnonymiser.Helpers;
 using System;
 using System.Diagnostics;
 using System.IO;
+using System.IO.Abstractions;
 using System.Threading.Tasks;
 
 namespace SmiServices.Microservices.DicomAnonymiser.Anonymisers;
@@ -44,7 +45,7 @@ public class SmiCtpAnonymiser : IDicomAnonymiser, IDisposable
             throw new Exception("Did not receive READY before timeout");
     }
 
-    public ExtractedFileStatus Anonymise(FileInfo sourceFile, FileInfo destFile, string modality, out string? anonymiserStatusMessage)
+    public ExtractedFileStatus Anonymise(IFileInfo sourceFile, IFileInfo destFile, string modality, out string? anonymiserStatusMessage)
     {
         var args = $"{sourceFile.FullName} {destFile.FullName}";
         _logger.Debug($"> {args}");
