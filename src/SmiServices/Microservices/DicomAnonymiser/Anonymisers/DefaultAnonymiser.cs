@@ -2,7 +2,7 @@ using NLog;
 using SmiServices.Common.Messages.Extraction;
 using SmiServices.Common.Options;
 using System;
-using System.IO;
+using System.IO.Abstractions;
 
 namespace SmiServices.Microservices.DicomAnonymiser.Anonymisers;
 
@@ -21,7 +21,7 @@ public class DefaultAnonymiser : IDicomAnonymiser, IDisposable
     /// <summary>
     /// Anonymises a DICOM file based on image modality
     /// </summary>
-    public ExtractedFileStatus Anonymise(FileInfo sourceFile, FileInfo destFile, string modality, out string? anonymiserStatusMessage)
+    public ExtractedFileStatus Anonymise(IFileInfo sourceFile, IFileInfo destFile, string modality, out string? anonymiserStatusMessage)
     {
         var status = _ctpAnonymiser.Anonymise(sourceFile, destFile, modality, out string? ctpStatusMessage);
         if (status != ExtractedFileStatus.Anonymised)

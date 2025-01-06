@@ -5,18 +5,14 @@ using SmiServices.Common.Messaging;
 using SmiServices.Common.Options;
 using SmiServices.Microservices.DicomAnonymiser.Anonymisers;
 using System;
-using System.IO;
 using System.IO.Abstractions;
 
 namespace SmiServices.Microservices.DicomAnonymiser;
 
 public class DicomAnonymiserConsumer : Consumer<ExtractFileMessage>
 {
-    // TODO (da 2024-02-23) Additional Requirement: Message Batching
-    // https://github.com/SMI/SmiServices/blob/main/src/microservices/Microservices.CohortPackager/Messaging/AnonVerificationMessageConsumer.cs#L72
-    // https://github.com/SMI/SmiServices/blob/main/src/microservices/Microservices.MongoDbPopulator/Messaging/MongoDbPopulatorMessageConsumer.cs#L56
-
     private readonly ILogger _logger = LogManager.GetCurrentClassLogger();
+    private readonly IFileSystem _fileSystem;
     private readonly DicomAnonymiserOptions _options;
     private readonly string _fileSystemRoot;
     private readonly string _extractRoot;
@@ -33,15 +29,16 @@ public class DicomAnonymiserConsumer : Consumer<ExtractFileMessage>
     )
     {
         _options = options ?? throw new ArgumentNullException(nameof(options));
+        _fileSystem = fileSystem ?? new FileSystem();
         _fileSystemRoot = fileSystemRoot ?? throw new ArgumentNullException(nameof(fileSystemRoot));
         _extractRoot = extractRoot ?? throw new ArgumentNullException(nameof(extractRoot));
         _anonymiser = anonymiser ?? throw new ArgumentNullException(nameof(anonymiser));
         _statusMessageProducer = statusMessageProducer ?? throw new ArgumentNullException(nameof(statusMessageProducer));
 
-            if (!Directory.Exists(_fileSystemRoot))
+        if (!_fileSystem.Directory.Exists(_fileSystemRoot))
             throw new Exception($"Filesystem root does not exist: '{fileSystemRoot}'");
 
-            if (!Directory.Exists(_extractRoot))
+        if (!_fileSystem.Directory.Exists(_extractRoot))
             throw new Exception($"Extract root does not exist: '{extractRoot}'");
     }
 
@@ -52,7 +49,7 @@ public class DicomAnonymiserConsumer : Consumer<ExtractFileMessage>
 
         var statusMessage = new ExtractedFileStatusMessage(message);
 
-            var sourceFileAbs = new FileInfo(Path.Combine(_fileSystemRoot, message.DicomFilePath));
+        var sourceFileAbs = _fileSystem.FileInfo.New(_fileSystem.Path.Combine(_fileSystemRoot, message.DicomFilePath));
 
         if (!sourceFileAbs.Exists)
         {
@@ -65,7 +62,7 @@ public class DicomAnonymiserConsumer : Consumer<ExtractFileMessage>
             return;
         }
 
-        if (_options.FailIfSourceWriteable && !sourceFileAbs.Attributes.HasFlag(FileAttributes.ReadOnly))
+        if (_options.FailIfSourceWriteable && !sourceFileAbs.Attributes.HasFlag(System.IO.FileAttributes.ReadOnly))
         {
             statusMessage.Status = ExtractedFileStatus.ErrorWontRetry;
             statusMessage.StatusMessage = $"Source file was writeable and FailIfSourceWriteable is set: '{sourceFileAbs}'";
@@ -76,25 +73,25 @@ public class DicomAnonymiserConsumer : Consumer<ExtractFileMessage>
             return;
         }
 
-            var extractionDirAbs = Path.Combine(_extractRoot, message.ExtractionDirectory);
+        var extractionDirAbs = _fileSystem.Path.Combine(_extractRoot, message.ExtractionDirectory);
 
         // NOTE(rkm 2021-12-07) Since this directory should have already been created, we treat this more like an assertion and throw if not found.
         // This helps prevent a flood of messages if e.g. the filesystem is temporarily unavailable.
-            if (!Directory.Exists(extractionDirAbs))
-            throw new DirectoryNotFoundException($"Expected extraction directory to exist: '{extractionDirAbs}'");
+        if (!_fileSystem.Directory.Exists(extractionDirAbs))
+            throw new System.IO.DirectoryNotFoundException($"Expected extraction directory to exist: '{extractionDirAbs}'");
 
-            var destFileAbs = new FileInfo(Path.Combine(extractionDirAbs, message.OutputPath));
+        var destFileAbs = _fileSystem.FileInfo.New(_fileSystem.Path.Combine(extractionDirAbs, message.OutputPath));
 
         destFileAbs.Directory!.Create();
 
         _logger.Debug($"Anonymising '{sourceFileAbs}' to '{destFileAbs}'");
 
         ExtractedFileStatus anonymiserStatus = ExtractedFileStatus.None;
-            string? anonymiserStatusMessage = "";
+        string? anonymiserStatusMessage = "";
 
         try
         {
-                anonymiserStatus = _anonymiser.Anonymise(sourceFileAbs, destFileAbs, message.Modality, out anonymiserStatusMessage);
+            anonymiserStatus = _anonymiser.Anonymise(sourceFileAbs, destFileAbs, message.Modality, out anonymiserStatusMessage);
         }
         catch (Exception e)
         {

@@ -1,5 +1,5 @@
 using SmiServices.Common.Messages.Extraction;
-using System.IO;
+using System.IO.Abstractions;
 
 namespace SmiServices.Microservices.DicomAnonymiser.Anonymisers;
 
@@ -14,5 +14,5 @@ public interface IDicomAnonymiser
     /// <param name="modality"></param>
     /// <param name="anonymiserStatusMessage"></param>
     /// <returns></returns>
-    ExtractedFileStatus Anonymise(FileInfo sourceFile, FileInfo destFile, string modality, out string? anonymiserStatusMessage);
+    ExtractedFileStatus Anonymise(IFileInfo sourceFile, IFileInfo destFile, string modality, out string? anonymiserStatusMessage);
 }
