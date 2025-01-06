@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 
 namespace SmiServices.Microservices.DicomAnonymiser.Anonymisers;
 
-internal class SmiCtpAnonymiser : IDicomAnonymiser, IDisposable
+public class SmiCtpAnonymiser : IDicomAnonymiser, IDisposable
 {
     private readonly ILogger _logger = LogManager.GetCurrentClassLogger();
     private readonly Process _ctpProcess;
@@ -46,12 +46,12 @@ internal class SmiCtpAnonymiser : IDicomAnonymiser, IDisposable
 
     public ExtractedFileStatus Anonymise(FileInfo sourceFile, FileInfo destFile, string modality, out string? anonymiserStatusMessage)
     {
-        _logger.Info($"{sourceFile} to {destFile}");
-
         var args = $"{sourceFile.FullName} {destFile.FullName}";
+        _logger.Debug($"> {args}");
         _ctpProcess.StandardInput.WriteLine(args);
+
         var result = _ctpProcess.StandardOutput.ReadLine();
-        _logger.Info(result);
+        _logger.Info($"< {result}");
 
         ExtractedFileStatus status;
         if (result == "OK")
