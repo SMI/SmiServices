@@ -10,6 +10,7 @@ using SmiServices.UnitTests.Common;
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.IO.Abstractions;
 using System.Linq;
 using System.Threading;
 
@@ -83,8 +84,8 @@ public class DicomAnonymiserHostTests
         mockAnonymiser
             .Setup(
                 x => x.Anonymise(
-                        It.Is<FileInfo>(x => x.Name == _fakeDicom),
-                        It.Is<FileInfo>(x => x.Name == Path.Combine(extractDirAbs.FullName, "foo-an.dcm")),
+                        It.Is<IFileInfo>(x => x.Name == _fakeDicom),
+                        It.Is<IFileInfo>(x => x.Name == Path.Combine(extractDirAbs.FullName, "foo-an.dcm")),
                         It.IsAny<string>(),
                         out It.Ref<string?>.IsAny
                 )
@@ -98,34 +99,34 @@ public class DicomAnonymiserHostTests
 
         List<ExtractedFileStatusMessage> statusMessages = [];
 
-            using var tester = new MicroserviceTester(
-                globals.RabbitOptions!,
-                globals.DicomAnonymiserOptions.AnonFileConsumerOptions!
-            );
+        using var tester = new MicroserviceTester(
+            globals.RabbitOptions!,
+            globals.DicomAnonymiserOptions.AnonFileConsumerOptions!
+        );
 
-            tester.CreateExchange(statusExchange, successQueue, isSecondaryBinding: false, routingKey: "verify");
-            tester.CreateExchange(statusExchange, failureQueue, isSecondaryBinding: true, routingKey: "noverify");
+        tester.CreateExchange(statusExchange, successQueue, isSecondaryBinding: false, routingKey: "verify");
+        tester.CreateExchange(statusExchange, failureQueue, isSecondaryBinding: true, routingKey: "noverify");
 
-            tester.SendMessage(globals.DicomAnonymiserOptions.AnonFileConsumerOptions!, new MessageHeader(), testExtractFileMessage);
+        tester.SendMessage(globals.DicomAnonymiserOptions.AnonFileConsumerOptions!, new MessageHeader(), testExtractFileMessage);
 
-            var host = new DicomAnonymiserHost(globals, mockAnonymiser.Object);
+        var host = new DicomAnonymiserHost(globals, mockAnonymiser.Object);
 
-            host.Start();
+        host.Start();
 
-            var timeoutSecs = 10;
+        var timeoutSecs = 10;
 
-            while (statusMessages.Count == 0 && timeoutSecs > 0)
-            {
-                statusMessages.AddRange(tester.ConsumeMessages<ExtractedFileStatusMessage>(successQueue).Select(x => x.Item2));
-                statusMessages.AddRange(tester.ConsumeMessages<ExtractedFileStatusMessage>(failureQueue).Select(x => x.Item2));
+        while (statusMessages.Count == 0 && timeoutSecs > 0)
+        {
+            statusMessages.AddRange(tester.ConsumeMessages<ExtractedFileStatusMessage>(successQueue).Select(x => x.Item2));
+            statusMessages.AddRange(tester.ConsumeMessages<ExtractedFileStatusMessage>(failureQueue).Select(x => x.Item2));
 
-                --timeoutSecs;
-                if (statusMessages.Count == 0)
-                    Thread.Sleep(TimeSpan.FromSeconds(1));
-            }
+            --timeoutSecs;
+            if (statusMessages.Count == 0)
+                Thread.Sleep(TimeSpan.FromSeconds(1));
+        }
 
-            host.Stop("Test end");
-            tester.Dispose();
+        host.Stop("Test end");
+        tester.Dispose();
 
         var statusMessage = statusMessages.Single();
         Assert.Multiple(() =>

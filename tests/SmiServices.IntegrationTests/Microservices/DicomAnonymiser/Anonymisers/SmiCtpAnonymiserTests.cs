@@ -5,6 +5,7 @@ using SmiServices.Common.Options;
 using SmiServices.Microservices.DicomAnonymiser.Anonymisers;
 using SmiServices.UnitTests.TestCommon;
 using System.IO;
+using System.IO.Abstractions;
 
 namespace SmiServices.IntegrationTests.Microservices.DicomAnonymiser.Anonymisers;
 
@@ -33,9 +34,11 @@ internal class SmiCtpAnonymiserTests
         var srcPath = Path.Combine(tempDir, "in.dcm");
         srcDcm.Save(srcPath);
         File.SetAttributes(srcPath, FileAttributes.ReadOnly);
-        var srcFile = new FileInfo(srcPath);
+
+        var fileSystem = new FileSystem();
+        var srcFile = fileSystem.FileInfo.New(srcPath);
         var destPath = Path.Combine(tempDir, "out.dcm");
-        var destFile = new FileInfo(destPath);
+        var destFile = fileSystem.FileInfo.New(destPath);
 
         using var anonymiser = new SmiCtpAnonymiser(globals);
 
