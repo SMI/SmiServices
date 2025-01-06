@@ -83,6 +83,7 @@ public class DicomAnonymiserConsumerTests
             ExtractionDirectory = extractDirName,
             DicomFilePath = "foo.dcm",
             OutputPath = "foo-an.dcm",
+            Modality = "CT",
         };
 
         _options = new DicomAnonymiserOptions
@@ -121,10 +122,6 @@ public class DicomAnonymiserConsumerTests
 
     #region Tests
 
-    // TODO (da 2024-03-28) Extract modality from cohort extractor instead of opening DICOM file
-    // This test is disabled because of FellowOakDicom.DicomFileException caused by DicomFile.Open
-    // Once the above TODO is implemented, this test can be enabled.
-    /*
     [Test]
     public void ProcessMessageImpl_HappyPath()
     {
@@ -132,10 +129,10 @@ public class DicomAnonymiserConsumerTests
 
         Expression<Func<IDicomAnonymiser, ExtractedFileStatus>> expectedAnonCall =
             x => x.Anonymise(
-                It.Is<ExtractFileMessage>(x => x == _extractFileMessage),
                 It.Is<IFileInfo>(x => x.FullName == _sourceDcmPathAbs),
                 It.Is<IFileInfo>(x => x.FullName == _mockFs.Path.Combine(_extractDir, _extractFileMessage.OutputPath)),
-                out It.Ref<string>.IsAny
+                "CT",
+                out It.Ref<string?>.IsAny
             );
 
         var mockAnonymiser = new Mock<IDicomAnonymiser>(MockBehavior.Strict);
@@ -160,7 +157,8 @@ public class DicomAnonymiserConsumerTests
         var consumer = GetNewDicomAnonymiserConsumer(mockAnonymiser.Object, mockProducerModel.Object);
 
         // Act
-        consumer.TestMessage(_extractFileMessage);
+
+        consumer.ProcessMessage(new MessageHeader(), _extractFileMessage, 1);
 
         // Assert
 
@@ -169,7 +167,6 @@ public class DicomAnonymiserConsumerTests
         mockAnonymiser.Verify(expectedAnonCall, Times.Once);
         mockProducerModel.Verify(expectedSendCall, Times.Once);
     }
-    */
 
     [Test]
     public void ProcessMessageImpl_IsIdentifiableExtraction_ThrowsException()
@@ -296,29 +293,27 @@ public class DicomAnonymiserConsumerTests
         });
     }
 
-    // TODO (da 2024-03-28) Extract modality from cohort extractor instead of opening DICOM file
-    // This test is disabled because of FellowOakDicom.DicomFileException caused by DicomFile.Open
-    // Once the above TODO is implemented, this test can be enabled.
-    /*
+    private class FailingAnonymiser : IDicomAnonymiser
+    {
+        public ExtractedFileStatus Anonymise(IFileInfo sourceFile, IFileInfo destFile, string modality, out string? anonymiserStatusMessage)
+        {
+            anonymiserStatusMessage = "oh no!";
+            return ExtractedFileStatus.ErrorWontRetry;
+        }
+    }
+
     [Test]
     public void ProcessMessageImpl_AnonymisationFailed_AcksWithFailureStatus()
     {
         // Arrange
 
-        var mockAnonymiser = new Mock<IDicomAnonymiser>(MockBehavior.Strict);
-        mockAnonymiser
-            .Setup(x => x.Anonymise(
-                It.IsAny<ExtractFileMessage>(),
-                It.IsAny<IFileInfo>(), 
-                It.IsAny<IFileInfo>(),
-                out It.Ref<string>.IsAny))
-            .Throws(new Exception("oh no"));
+        var anonymiser = new FailingAnonymiser();
 
         Expression<Func<IProducerModel, IMessageHeader>> expectedCall =
             x => x.SendMessage(
                 It.Is<ExtractedFileStatusMessage>(x =>
                     x.Status == ExtractedFileStatus.ErrorWontRetry &&
-                    x.StatusMessage!.StartsWith($"Error anonymising '{_sourceDcmPathAbs}'. Exception message: IDicomAnonymiser") &&
+                    x.StatusMessage!.StartsWith("oh no!") &&
                     x.OutputFilePath == null
                  ),
                 It.IsAny<IMessageHeader>(),
@@ -328,10 +323,10 @@ public class DicomAnonymiserConsumerTests
         var mockProducerModel = new Mock<IProducerModel>();
         mockProducerModel.Setup(expectedCall);
 
-        var consumer = GetNewDicomAnonymiserConsumer(null, mockProducerModel.Object);
+        var consumer = GetNewDicomAnonymiserConsumer(anonymiser, mockProducerModel.Object);
 
         // Act
-        consumer.TestMessage(_extractFileMessage);
+        consumer.ProcessMessage(new MessageHeader(), _extractFileMessage, 1);
 
         // Assert
 
@@ -339,7 +334,6 @@ public class DicomAnonymiserConsumerTests
 
         mockProducerModel.Verify(expectedCall, Times.Once);
     }
-    */
 
     #endregion
 }
