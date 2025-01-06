@@ -95,6 +95,12 @@ jobs:
       - name: "[linux] install RDMP databases"
         if: ${{ matrix.os == 'linux' }}
         run: ${{ env.rdmp-cli-dir }}/rdmp install --createdatabasetimeout 180 ${{ env.rdmp_conn_str }} TEST_
+      - name: "Download ctp-anon-cli jar"
+        if: ${{ matrix.os == 'linux' }}
+        run: |
+          set -euxo pipefail
+          ctp_jar_ver=$(grep -E 'TEST_CTP_JAR_VERSION = "(.*)";' tests/SmiServices.IntegrationTests/Microservices/DicomAnonymiser/FixtureSetup.cs | cut -d'"' -f2)
+          ./bin/smi/downloadCtpAnonJar.py "${ctp_jar_ver}"
       - name: show dotnet info
         run: dotnet --info
       - name: build, test, and package dotnet
