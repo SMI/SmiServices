@@ -72,7 +72,7 @@ repos:
               .github/ISSUE_TEMPLATE/.*md|
           )$
   - repo: https://github.com/tcort/markdown-link-check
-    rev: "v3.12.2"
+    rev: "v3.13.6"
     hooks:
       - id: markdown-link-check
         args: [--quiet, --config, .meta/markdown-link-check.json]
@@ -100,7 +100,7 @@ repos:
         additional_dependencies:
         - pep8-naming==0.14.1
   - repo: https://github.com/pre-commit/mirrors-mypy
-    rev: "v1.14.0"
+    rev: "v1.14.1"
     hooks:
       - id: mypy
         args: [--config-file, .meta/mypy.ini]
