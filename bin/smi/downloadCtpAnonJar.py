@@ -24,6 +24,8 @@ def main(argv: Sequence[str] | None = None) -> int:
         f"v{args.version}/ctp-anon-cli-{args.version}.jar"
     )
     file = os.path.join(_CTP_JAR_DIR, f"ctp-anon-cli-{args.version}.jar")
+    if os.path.isfile(file):
+        return 0
 
     print(f"Downloading {url} to {file}")
     urllib.request.urlretrieve(url, file)
