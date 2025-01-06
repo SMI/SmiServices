@@ -1,4 +1,3 @@
-using FellowOakDicom;
 using NLog;
 using SmiServices.Common.Messages;
 using SmiServices.Common.Messages.Extraction;
