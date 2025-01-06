@@ -37,4 +37,4 @@ removed all PII from the file, it will not proceed if it cannot insert redacted 
 
 ## CLI Options
 
-The anonymisation script can be specified using the `-a` option. An example script can be viewed [here](/data/ctp/ctp-whitelist.script).
+The anonymisation script can be specified using the `-a` option. An example script can be viewed [here](/data/ctp/ctp-allowlist.script).
