@@ -33,3 +33,4 @@ dotnet_diagnostic.SYSLIB1045.severity = none
 dotnet_diagnostic.IDE0005.severity = error
 
 csharp_style_namespace_declarations = file_scoped:error
+dotnet_style_namespace_match_folder = true:error
