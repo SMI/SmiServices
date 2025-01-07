@@ -18,7 +18,6 @@ env:
   # dotnet
   rdmp-cli-dir: "./rdmp-cli"
   db-password: "YourStrongPassw0rd"
-  MSBUILDDISABLENODEREUSE: 1
   # java
   java-version: 11
   java-distribution: temurin
