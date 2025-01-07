@@ -34,7 +34,7 @@ public class SmiCtpAnonymiser : IDicomAnonymiser, IDisposable
             srAnonTool = dicomAnonymiserOptions.SRAnonymiserToolPath;
         }
 
-        var ctpArgs = $"-jar {dicomAnonymiserOptions.CtpAnonCliJar} --anon-script {dicomAnonymiserOptions.CtpAllowlistScript} --sr-anon-tool {srAnonTool} --daemonize";
+        var ctpArgs = $"-jar {dicomAnonymiserOptions.CtpAnonCliJar.Replace("/", "\\")} --anon-script {dicomAnonymiserOptions.CtpAllowlistScript.Replace("/", "\\")} --sr-anon-tool {srAnonTool.Replace("/", "\\")} --daemonize";
         _logger.Info($"Starting ctp with: java {ctpArgs}");
         _ctpProcess = ProcessWrapper.CreateProcess("java", ctpArgs);
         _ctpProcess.Start();
