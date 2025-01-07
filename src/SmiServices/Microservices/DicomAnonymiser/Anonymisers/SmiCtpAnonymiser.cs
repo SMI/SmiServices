@@ -44,7 +44,7 @@ public class SmiCtpAnonymiser : IDicomAnonymiser, IDisposable
         });
         if (!readyTask.Wait(TimeSpan.FromSeconds(5)))
         {
-            _ctpProcess.Dispose();
+            _ctpProcess.Kill();
             throw new Exception($"Did not receive READY before timeout. Stderr: {_ctpProcess.StandardError.ReadToEnd()}");
         }
     }
