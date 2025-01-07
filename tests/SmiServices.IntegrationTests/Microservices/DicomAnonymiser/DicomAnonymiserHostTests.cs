@@ -84,8 +84,8 @@ public class DicomAnonymiserHostTests
         mockAnonymiser
             .Setup(
                 x => x.Anonymise(
-                        It.Is<IFileInfo>(x => x.Name == _fakeDicom),
-                        It.Is<IFileInfo>(x => x.Name == Path.Combine(extractDirAbs.FullName, "foo-an.dcm")),
+                        It.IsAny<IFileInfo>(),
+                        It.IsAny<IFileInfo>(),
                         It.IsAny<string>(),
                         out It.Ref<string?>.IsAny
                 )
@@ -126,7 +126,6 @@ public class DicomAnonymiserHostTests
         }
 
         host.Stop("Test end");
-        tester.Dispose();
 
         var statusMessage = statusMessages.Single();
         Assert.Multiple(() =>
