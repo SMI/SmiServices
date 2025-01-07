@@ -60,8 +60,9 @@ public class SmiCtpAnonymiser : IDicomAnonymiser, IDisposable
         if (!readyTask.Wait(TimeSpan.FromSeconds(10)) || !ready)
         {
             ts.Cancel();
+            var stderr = _ctpProcess.StandardError.ReadToEnd();
             _ctpProcess.Kill();
-            throw new Exception($"Did not receive READY before timeout. Stderr: {_ctpProcess.StandardError.ReadToEnd()}");
+            throw new Exception($"Did not receive READY before timeout. Stderr: {stderr}");
         }
     }
 
