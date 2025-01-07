@@ -57,7 +57,7 @@ public class SmiCtpAnonymiser : IDicomAnonymiser, IDisposable
             while (!ts.IsCancellationRequested && line != null);
         });
 
-        if (!readyTask.Wait(TimeSpan.FromSeconds(5)) || !ready)
+        if (!readyTask.Wait(TimeSpan.FromSeconds(10)) || !ready)
         {
             ts.Cancel();
             _ctpProcess.Kill();
