@@ -17,8 +17,15 @@ public sealed class DisposableTempDir : IDisposable
 
     public void Dispose()
     {
-        DirectoryInfo.Delete(recursive: true);
-        TestContext.Out.WriteLine($"[{GetType().Name}] Deleted {DirectoryInfo}");
+        try
+        {
+            DirectoryInfo.Delete(recursive: true);
+            TestContext.Out.WriteLine($"[{GetType().Name}] Deleted {DirectoryInfo}");
+        }
+        catch (UnauthorizedAccessException)
+        {
+            TestContext.Error.WriteLine($"[{GetType().Name}] Could not delete {DirectoryInfo}");
+        }
     }
 
     public static implicit operator string(DisposableTempDir d) => d.DirectoryInfo.FullName;
