@@ -34,6 +34,7 @@ public class SmiCtpAnonymiser : IDicomAnonymiser, IDisposable
         }
 
         var ctpArgs = $"-jar {dicomAnonymiserOptions.CtpAnonCliJar} --anon-script {dicomAnonymiserOptions.CtpAllowlistScript} --sr-anon-tool {srAnonTool} --daemonize";
+        _logger.Info($"Starting ctp with: java {ctpArgs}");
         _ctpProcess = ProcessWrapper.CreateProcess("java", ctpArgs);
         _ctpProcess.Start();
 
@@ -42,7 +43,7 @@ public class SmiCtpAnonymiser : IDicomAnonymiser, IDisposable
             while (_ctpProcess.StandardOutput.ReadLine() != "READY") { }
         });
         if (!readyTask.Wait(TimeSpan.FromSeconds(5)))
-            throw new Exception("Did not receive READY before timeout");
+            throw new Exception($"Did not receive READY before timeout. Stderr: {_ctpProcess.StandardError.ReadToEnd()}");
     }
 
     public ExtractedFileStatus Anonymise(IFileInfo sourceFile, IFileInfo destFile, string modality, out string? anonymiserStatusMessage)
