@@ -43,7 +43,10 @@ public class SmiCtpAnonymiser : IDicomAnonymiser, IDisposable
             while (_ctpProcess.StandardOutput.ReadLine() != "READY") { }
         });
         if (!readyTask.Wait(TimeSpan.FromSeconds(5)))
+        {
+            _ctpProcess.Dispose();
             throw new Exception($"Did not receive READY before timeout. Stderr: {_ctpProcess.StandardError.ReadToEnd()}");
+        }
     }
 
     public ExtractedFileStatus Anonymise(IFileInfo sourceFile, IFileInfo destFile, string modality, out string? anonymiserStatusMessage)
