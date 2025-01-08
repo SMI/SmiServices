@@ -35,9 +35,9 @@ public class SmiCtpAnonymiser : IDicomAnonymiser, IDisposable
 
         var ctpArgs = $"-jar {dicomAnonymiserOptions.CtpAnonCliJar} --anon-script {dicomAnonymiserOptions.CtpAllowlistScript} --sr-anon-tool {srAnonTool} --daemonize";
         _logger.Info($"Starting ctp with: java {ctpArgs}");
-        _ctpProcess = ProcessWrapper.CreateProcess("java", ctpArgs);
-        var ready = false;
 
+        var ready = false;
+        _ctpProcess = ProcessWrapper.CreateProcess("java", ctpArgs);
         _ctpProcess.OutputDataReceived += OnCtpOutputDataReceived;
         _ctpProcess.ErrorDataReceived += (process, args) => _logger.Debug($"[ctp-anon-cli stderr] {args.Data}");
         _ctpProcess.Start();
@@ -48,14 +48,16 @@ public class SmiCtpAnonymiser : IDicomAnonymiser, IDisposable
             Monitor.Wait(_ctpProcess, TimeSpan.FromSeconds(10));
 
         _ctpProcess.OutputDataReceived -= OnCtpOutputDataReceived;
-        if (ready) return;
 
-        _ctpProcess.Kill();
-        throw new Exception($"Did not receive READY before timeout");
+        if (!ready)
+        {
+            _ctpProcess.Kill();
+            throw new Exception($"Did not receive READY before timeout");
+        }
 
         void OnCtpOutputDataReceived(object process, DataReceivedEventArgs args)
         {
-            _logger.Debug(args.Data);
+            _logger.Debug($"[ctp-anon-cli stdout] {args.Data}");
             if ("READY" != args.Data) return;
 
             ready = true;
@@ -67,7 +69,7 @@ public class SmiCtpAnonymiser : IDicomAnonymiser, IDisposable
     public ExtractedFileStatus Anonymise(IFileInfo sourceFile, IFileInfo destFile, string modality, out string? anonymiserStatusMessage)
     {
         var args = $"{sourceFile.FullName} {destFile.FullName}";
-        _logger.Debug($"> {args}");
+        _logger.Debug($"[ctp-anon-cli stdin ] {args}");
         ExtractedFileStatus status;
         string? result = null;
 
@@ -77,7 +79,7 @@ public class SmiCtpAnonymiser : IDicomAnonymiser, IDisposable
             Monitor.Wait(args);
         _ctpProcess.OutputDataReceived -= CtpProcessOnOutputDataReceived;
 
-        _logger.Info($"< {result}");
+        _logger.Info($"[ctp-anon-cli stdout] {result}");
 
         if (result == "OK")
         {
