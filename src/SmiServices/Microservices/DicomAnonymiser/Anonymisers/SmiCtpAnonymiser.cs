@@ -53,6 +53,7 @@ public class SmiCtpAnonymiser : IDicomAnonymiser, IDisposable
 
         lock (_ctpProcess)
             Monitor.Wait(_ctpProcess, 100000);
+        _ctpProcess.CancelOutputRead();
         if (ready) return;
 
         _ctpProcess.Kill();
