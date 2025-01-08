@@ -46,30 +46,41 @@ public class SmiCtpAnonymiser : IDicomAnonymiser, IDisposable
             lock (_ctpProcess)
                 Monitor.Pulse(_ctpProcess);
         };
-        _ctpProcess.ErrorDataReceived += (process, args) => _logger.Debug(args.Data);
+
+        _ctpProcess.ErrorDataReceived += OnCtpProcessOnErrorDataReceived;
         _ctpProcess.Start();
         _ctpProcess.BeginOutputReadLine();
         _ctpProcess.BeginErrorReadLine();
 
         lock (_ctpProcess)
             Monitor.Wait(_ctpProcess, 100000);
-        _ctpProcess.CancelOutputRead();
+        _ctpProcess.ErrorDataReceived -= OnCtpProcessOnErrorDataReceived;
         if (ready) return;
 
         _ctpProcess.Kill();
         throw new Exception($"Did not receive READY before timeout");
+
+        void OnCtpProcessOnErrorDataReceived(object process, DataReceivedEventArgs args)
+        {
+            _logger.Debug(args.Data);
+        }
     }
 
     public ExtractedFileStatus Anonymise(IFileInfo sourceFile, IFileInfo destFile, string modality, out string? anonymiserStatusMessage)
     {
         var args = $"{sourceFile.FullName} {destFile.FullName}";
         _logger.Debug($"> {args}");
-        _ctpProcess.StandardInput.WriteLine(args);
+        ExtractedFileStatus status;
+        string? result = null;
 
-        var result = _ctpProcess.StandardOutput.ReadLine();
+        _ctpProcess.OutputDataReceived += CtpProcessOnOutputDataReceived;
+        _ctpProcess.StandardInput.WriteLine(args);
+        lock (args)
+            Monitor.Wait(args);
+        _ctpProcess.OutputDataReceived -= CtpProcessOnOutputDataReceived;
+
         _logger.Info($"< {result}");
 
-        ExtractedFileStatus status;
         if (result == "OK")
         {
             anonymiserStatusMessage = null;
@@ -82,6 +93,13 @@ public class SmiCtpAnonymiser : IDicomAnonymiser, IDisposable
         }
 
         return status;
+
+        void CtpProcessOnOutputDataReceived(object sender, DataReceivedEventArgs e)
+        {
+            result = e.Data;
+            lock (args)
+                Monitor.Pulse(args);
+        }
     }
 
     public void Dispose()
