@@ -7,7 +7,6 @@ using System.Diagnostics;
 using System.IO;
 using System.IO.Abstractions;
 using System.Threading;
-using System.Threading.Tasks;
 
 namespace SmiServices.Microservices.DicomAnonymiser.Anonymisers;
 
