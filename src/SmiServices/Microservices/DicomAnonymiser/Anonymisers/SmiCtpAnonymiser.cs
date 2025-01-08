@@ -15,6 +15,9 @@ public class SmiCtpAnonymiser : IDicomAnonymiser, IDisposable
     private readonly ILogger _logger = LogManager.GetCurrentClassLogger();
     private readonly Process _ctpProcess;
 
+    // NOTE(rkm 2025-01-08) This sometimes takes more than 10s in CI for some reason
+    private readonly TimeSpan CTP_TIMEOUT = TimeSpan.FromSeconds(20);
+
     public SmiCtpAnonymiser(GlobalOptions globalOptions)
     {
         var dicomAnonymiserOptions = globalOptions.DicomAnonymiserOptions ?? throw new ArgumentException($"{nameof(globalOptions.DicomAnonymiserOptions)} was null", nameof(globalOptions));
@@ -45,7 +48,7 @@ public class SmiCtpAnonymiser : IDicomAnonymiser, IDisposable
         _ctpProcess.BeginErrorReadLine();
 
         lock (_ctpProcess)
-            Monitor.Wait(_ctpProcess, TimeSpan.FromSeconds(100));
+            Monitor.Wait(_ctpProcess, CTP_TIMEOUT);
 
         _ctpProcess.ErrorDataReceived -= OnCtpProcessOnErrorDataReceived;
         if (!ready)
