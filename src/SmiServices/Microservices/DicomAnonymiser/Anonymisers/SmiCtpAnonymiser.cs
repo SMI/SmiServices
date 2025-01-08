@@ -56,7 +56,7 @@ public class SmiCtpAnonymiser : IDicomAnonymiser, IDisposable
             throw new Exception($"Did not receive READY before timeout");
         }
 
-        void OnCtpOutputDataReceived(object process, DataReceivedEventArgs args)
+        void OnCtpOutputDataReceived(object _, DataReceivedEventArgs args)
         {
             _logger.Debug($"[ctp-anon-cli stdout] {args.Data}");
             if ("READY" != args.Data) return;
@@ -70,16 +70,19 @@ public class SmiCtpAnonymiser : IDicomAnonymiser, IDisposable
     public ExtractedFileStatus Anonymise(IFileInfo sourceFile, IFileInfo destFile, string modality, out string? anonymiserStatusMessage)
     {
         var args = $"{sourceFile.FullName} {destFile.FullName}";
-        _logger.Debug($"[ctp-anon-cli stdin ] {args}");
-        ExtractedFileStatus status;
         string? result = null;
 
         _ctpProcess.OutputDataReceived += CtpProcessOnOutputDataReceived;
+
+        _logger.Debug($"[ctp-anon-cli stdin ] {args}");
         _ctpProcess.StandardInput.WriteLine(args);
+
         lock (args)
             Monitor.Wait(args);
+
         _ctpProcess.OutputDataReceived -= CtpProcessOnOutputDataReceived;
 
+        ExtractedFileStatus status;
         if (result == "OK")
         {
             anonymiserStatusMessage = null;
@@ -93,7 +96,7 @@ public class SmiCtpAnonymiser : IDicomAnonymiser, IDisposable
 
         return status;
 
-        void CtpProcessOnOutputDataReceived(object sender, DataReceivedEventArgs e)
+        void CtpProcessOnOutputDataReceived(object _, DataReceivedEventArgs e)
         {
             result = e.Data;
             lock (args)
