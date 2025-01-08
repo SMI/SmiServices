@@ -37,16 +37,8 @@ public class SmiCtpAnonymiser : IDicomAnonymiser, IDisposable
         _logger.Info($"Starting ctp with: java {ctpArgs}");
         _ctpProcess = ProcessWrapper.CreateProcess("java", ctpArgs);
         var ready = false;
-        _ctpProcess.OutputDataReceived += (process, args) =>
-        {
-            _logger.Debug(args.Data);
-            if ("READY" != args.Data) return;
 
-            ready = true;
-            lock (_ctpProcess)
-                Monitor.Pulse(_ctpProcess);
-        };
-
+        _ctpProcess.OutputDataReceived += OnCtpOutputDataReceived;
         _ctpProcess.ErrorDataReceived += (process, args) => _logger.Debug($"[ctp-anon-cli stderr] {args.Data}");
         _ctpProcess.Start();
         _ctpProcess.BeginOutputReadLine();
@@ -54,10 +46,22 @@ public class SmiCtpAnonymiser : IDicomAnonymiser, IDisposable
 
         lock (_ctpProcess)
             Monitor.Wait(_ctpProcess, TimeSpan.FromSeconds(10));
+
+        _ctpProcess.OutputDataReceived -= OnCtpOutputDataReceived;
         if (ready) return;
 
         _ctpProcess.Kill();
         throw new Exception($"Did not receive READY before timeout");
+
+        void OnCtpOutputDataReceived(object process, DataReceivedEventArgs args)
+        {
+            _logger.Debug(args.Data);
+            if ("READY" != args.Data) return;
+
+            ready = true;
+            lock (_ctpProcess)
+                Monitor.Pulse(_ctpProcess);
+        }
     }
 
     public ExtractedFileStatus Anonymise(IFileInfo sourceFile, IFileInfo destFile, string modality, out string? anonymiserStatusMessage)
