@@ -39,7 +39,7 @@ public class SmiCtpAnonymiser : IDicomAnonymiser, IDisposable
         var ready = false;
         _ctpProcess = ProcessWrapper.CreateProcess("java", ctpArgs);
         _ctpProcess.OutputDataReceived += OnCtpOutputDataReceived;
-        _ctpProcess.ErrorDataReceived += (process, args) => _logger.Debug($"[ctp-anon-cli stderr] {args.Data}");
+        _ctpProcess.ErrorDataReceived += OnCtpProcessOnErrorDataReceived;
         _ctpProcess.Start();
         _ctpProcess.BeginOutputReadLine();
         _ctpProcess.BeginErrorReadLine();
@@ -47,6 +47,7 @@ public class SmiCtpAnonymiser : IDicomAnonymiser, IDisposable
         lock (_ctpProcess)
             Monitor.Wait(_ctpProcess, TimeSpan.FromSeconds(10));
 
+        _ctpProcess.ErrorDataReceived -= OnCtpProcessOnErrorDataReceived;
         if (!ready)
         {
             _ctpProcess.Kill();
@@ -61,6 +62,11 @@ public class SmiCtpAnonymiser : IDicomAnonymiser, IDisposable
             ready = true;
             lock (_ctpProcess)
                 Monitor.Pulse(_ctpProcess);
+        }
+
+        void OnCtpProcessOnErrorDataReceived(object process, DataReceivedEventArgs args)
+        {
+            _logger.Debug(args.Data);
         }
     }
 
