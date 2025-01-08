@@ -47,23 +47,17 @@ public class SmiCtpAnonymiser : IDicomAnonymiser, IDisposable
                 Monitor.Pulse(_ctpProcess);
         };
 
-        _ctpProcess.ErrorDataReceived += OnCtpProcessOnErrorDataReceived;
+        _ctpProcess.ErrorDataReceived += (process, args) => _logger.Debug($"[ctp-anon-cli stderr] {args.Data}");
         _ctpProcess.Start();
         _ctpProcess.BeginOutputReadLine();
         _ctpProcess.BeginErrorReadLine();
 
         lock (_ctpProcess)
             Monitor.Wait(_ctpProcess, TimeSpan.FromSeconds(10));
-        _ctpProcess.ErrorDataReceived -= OnCtpProcessOnErrorDataReceived;
         if (ready) return;
 
         _ctpProcess.Kill();
         throw new Exception($"Did not receive READY before timeout");
-
-        void OnCtpProcessOnErrorDataReceived(object process, DataReceivedEventArgs args)
-        {
-            _logger.Debug(args.Data);
-        }
     }
 
     public ExtractedFileStatus Anonymise(IFileInfo sourceFile, IFileInfo destFile, string modality, out string? anonymiserStatusMessage)
