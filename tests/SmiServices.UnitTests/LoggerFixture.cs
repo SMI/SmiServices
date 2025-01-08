@@ -17,7 +17,7 @@ public static class LoggerFixture
 
         var consoleTarget = new ConsoleTarget(TestLoggerName)
         {
-            Layout = @"${longdate}|${level}|${logger}|${message}|${exception:format=toString,Data:maxInnerExceptionLevel=5}",
+            Layout = @"${longdate}|${level:padding=-5}|${logger}|${message}|${exception:format=toString,Data:maxInnerExceptionLevel=5}",
             AutoFlush = true
         };
 
