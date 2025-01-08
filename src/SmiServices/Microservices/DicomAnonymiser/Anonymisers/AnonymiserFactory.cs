@@ -14,7 +14,8 @@ public static class AnonymiserFactory
         return anonymiserType switch
         {
             AnonymiserType.DefaultAnonymiser => new DefaultAnonymiser(options),
-                _ => throw new NotImplementedException($"No case for AnonymiserType '{anonymiserType}'"),
+            AnonymiserType.SmiCtpAnonymiser => new SmiCtpAnonymiser(options),
+            _ => throw new NotImplementedException($"No case for AnonymiserType '{anonymiserType}'"),
         };
     }
 }
