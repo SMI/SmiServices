@@ -7,53 +7,73 @@ namespace SmiServices.UnitTests.Microservices.DicomAnonymiser.Anonymisers;
 
 public class AnonymiserFactoryTests
 {
-    #region Fixture Methods
-
-    [OneTimeSetUp]
-    public void OneTimeSetUp()
+    [Test]
+    public void CreateAnonymiser_ValidAnonymiser_IsOk()
     {
+        // Arrange
+
+        var globals = new GlobalOptions
+        {
+            DicomAnonymiserOptions = new DicomAnonymiserOptions
+            {
+                AnonymiserType = "SmiCtpAnonymiser",
+                CtpAnonCliJar = "missing.jar",
+            }
+        };
+
+        // Act
+
+        void call() => AnonymiserFactory.CreateAnonymiser(globals);
+
+        // Assert
+
+        var exc = Assert.Throws<ArgumentException>(call);
+        Assert.That(exc.Message, Is.EqualTo("CtpAnonCliJar 'missing.jar' does not exist (Parameter 'globalOptions')"));
     }
-
-    [OneTimeTearDown]
-    public void OneTimeTearDown() { }
-
-    #endregion
-
-    #region Test Methods
-
-    [SetUp]
-    public void SetUp() { }
-
-    [TearDown]
-    public void TearDown() { }
-
-    #endregion
-
-    #region Tests
 
     [Test]
     public void CreateAnonymiser_InvalidAnonymiserName_ThrowsException()
     {
-        var e = Assert.Throws<ArgumentException>(() =>
+        // Arrange
+
+        var globals = new GlobalOptions
         {
-            // TODO (da 2024-02-28) Review if this is the correct way to test this
-            // AnonymiserFactory.CreateAnonymiser(new DefaultAnonymiser { AnonymiserType = "whee" });
-            AnonymiserFactory.CreateAnonymiser(new GlobalOptions { DicomAnonymiserOptions = new DicomAnonymiserOptions { AnonymiserType = "whee" } });
-        });
-        Assert.That(e!.Message, Is.EqualTo("Could not parse 'whee' to a valid AnonymiserType"));
+            DicomAnonymiserOptions = new DicomAnonymiserOptions
+            {
+                AnonymiserType = "whee",
+            }
+        };
+
+        // Act
+
+        void call() => AnonymiserFactory.CreateAnonymiser(globals);
+
+        // Assert
+
+        var e = Assert.Throws<ArgumentException>(call);
+        Assert.That(e.Message, Is.EqualTo("Could not parse 'whee' to a valid AnonymiserType"));
     }
 
     [Test]
     public void CreateAnonymiser_NoCaseForAnonymiser_ThrowsException()
     {
-        var e = Assert.Throws<NotImplementedException>(() =>
-        {
-            // TODO (da 2024-02-28) Review if this is the correct way to test this
-            // AnonymiserFactory.CreateAnonymiser(new DicomAnonymiserOptions { AnonymiserType = "None" });
-            AnonymiserFactory.CreateAnonymiser(new GlobalOptions { DicomAnonymiserOptions = new DicomAnonymiserOptions { AnonymiserType = "None" } });
-        });
-        Assert.That(e!.Message, Is.EqualTo("No case for AnonymiserType 'None'"));
-    }
+        // Arrange
 
-    #endregion
+        var globals = new GlobalOptions
+        {
+            DicomAnonymiserOptions = new DicomAnonymiserOptions
+            {
+                AnonymiserType = "None",
+            }
+        };
+
+        // Act
+
+        void call() => AnonymiserFactory.CreateAnonymiser(globals);
+
+        // Assert
+
+        var e = Assert.Throws<NotImplementedException>(call);
+        Assert.That(e.Message, Is.EqualTo("No case for AnonymiserType 'None'"));
+    }
 }
