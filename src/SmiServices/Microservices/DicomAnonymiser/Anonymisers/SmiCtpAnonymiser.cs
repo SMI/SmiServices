@@ -37,32 +37,27 @@ public class SmiCtpAnonymiser : IDicomAnonymiser, IDisposable
         var ctpArgs = $"-jar {dicomAnonymiserOptions.CtpAnonCliJar} --anon-script {dicomAnonymiserOptions.CtpAllowlistScript} --sr-anon-tool {srAnonTool} --daemonize";
         _logger.Info($"Starting ctp with: java {ctpArgs}");
         _ctpProcess = ProcessWrapper.CreateProcess("java", ctpArgs);
-        _ctpProcess.Start();
-
-        CancellationTokenSource ts = new();
         var ready = false;
-        var readyTask = Task.Run(() =>
+        _ctpProcess.OutputDataReceived += (process, args) =>
         {
-            string? line;
-            do
-            {
-                line = _ctpProcess.StandardOutput.ReadLine();
-                _logger.Debug(line);
-                if (line == "READY")
-                {
-                    ready = true;
-                    break;
-                }
-            }
-            while (!ts.IsCancellationRequested && line != null);
-        });
+            _logger.Debug(args.Data);
+            if ("READY" != args.Data) return;
 
-        if (!readyTask.Wait(TimeSpan.FromSeconds(10)) || !ready)
-        {
-            ts.Cancel();
-            _ctpProcess.Kill();
-            throw new Exception($"Did not receive READY before timeout");
-        }
+            ready = true;
+            lock (_ctpProcess)
+                Monitor.Pulse(_ctpProcess);
+        };
+        _ctpProcess.ErrorDataReceived += (process, args) => _logger.Debug(args.Data);
+        _ctpProcess.Start();
+        _ctpProcess.BeginOutputReadLine();
+        _ctpProcess.BeginErrorReadLine();
+
+        lock (_ctpProcess)
+            Monitor.Wait(_ctpProcess, 100000);
+        if (ready) return;
+
+        _ctpProcess.Kill();
+        throw new Exception($"Did not receive READY before timeout");
     }
 
     public ExtractedFileStatus Anonymise(IFileInfo sourceFile, IFileInfo destFile, string modality, out string? anonymiserStatusMessage)
