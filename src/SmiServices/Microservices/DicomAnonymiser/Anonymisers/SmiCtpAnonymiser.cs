@@ -47,8 +47,6 @@ public class SmiCtpAnonymiser : IDicomAnonymiser, IDisposable
         lock (_ctpProcess)
             Monitor.Wait(_ctpProcess, TimeSpan.FromSeconds(10));
 
-        _ctpProcess.OutputDataReceived -= OnCtpOutputDataReceived;
-
         if (!ready)
         {
             _ctpProcess.Kill();
@@ -78,8 +76,6 @@ public class SmiCtpAnonymiser : IDicomAnonymiser, IDisposable
         lock (args)
             Monitor.Wait(args);
         _ctpProcess.OutputDataReceived -= CtpProcessOnOutputDataReceived;
-
-        _logger.Info($"[ctp-anon-cli stdout] {result}");
 
         if (result == "OK")
         {
