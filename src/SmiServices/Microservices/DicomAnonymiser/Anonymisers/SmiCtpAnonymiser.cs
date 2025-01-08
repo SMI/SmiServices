@@ -16,7 +16,7 @@ public class SmiCtpAnonymiser : IDicomAnonymiser, IDisposable
     private readonly Process _ctpProcess;
 
     // NOTE(rkm 2025-01-08) This sometimes takes more than 10s in CI for some reason
-    private readonly TimeSpan CTP_TIMEOUT = TimeSpan.FromSeconds(20);
+    private readonly TimeSpan CTP_TIMEOUT = TimeSpan.FromSeconds(30);
 
     public SmiCtpAnonymiser(GlobalOptions globalOptions)
     {
