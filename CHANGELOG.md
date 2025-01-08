@@ -11,6 +11,38 @@ A raw git diff can be seen [here][unreleased].
 
 <!--next-->
 
+## [6.0.0] 2025-01-08
+
+### Feature
+
+- [#2018](https://github.com/SMI/SmiServices/pull/2018) by rkm. Bump .NET SDK to 9.0.100
+- [#2024](https://github.com/SMI/SmiServices/pull/2024) by rkm. Target net9.0 / C# 13.0
+- [#2041](https://github.com/SMI/SmiServices/pull/2041) by rkm. Support restricting which extraction keys are allowed
+- [#2042](https://github.com/SMI/SmiServices/pull/2042) by rkm. Add options for pooled extractions (not used yet)
+- [#2053](https://github.com/SMI/SmiServices/pull/2053) by rkm. Finish dicom-anonymiser CTP implementation and expand tests
+- [#2068](https://github.com/SMI/SmiServices/pull/2068) by rkm. Refactor message Ack/Nack using events
+- [#2069](https://github.com/SMI/SmiServices/pull/2069) by rkm. Delete IModel from Consumer and update usage in tests
+- [#2072](https://github.com/SMI/SmiServices/pull/2072) by rkm. Refactor message deserialization from RabbitMQ
+
+### Bugfix
+
+- [#2012](https://github.com/SMI/SmiServices/pull/2012) by rkm. Add dependency on System.Private.Uri to resolve CVE
+- [#2013](https://github.com/SMI/SmiServices/pull/2013) by rkm. Require RID in dotnet clean script to workaround lack of `--use-current-runtime`
+- [#2025](https://github.com/SMI/SmiServices/pull/2025) by rkm. Add `DisableImplicitNuGetFallbackFolder` to work around https://github.com/NuGet/Home/issues/7921
+- [#2044](https://github.com/SMI/SmiServices/pull/2044) by rkm. Add missing IsPooledExtraction property to ExtractMessage.java
+
+### Change
+
+- [#2023](https://github.com/SMI/SmiServices/pull/2023) by rkm. Centralise test logging setup into LoggingFixture
+- [#2045](https://github.com/SMI/SmiServices/pull/2045) by rkm. Make modality required for all extractions
+
+### Meta
+
+- [#2007](https://github.com/SMI/SmiServices/pull/2007) by rkm. Enable Dependabot updates for dotnet-sdk
+- [#2015](https://github.com/SMI/SmiServices/pull/2015) by rkm. Fix runtime selection in helper scripts
+- [#2022](https://github.com/SMI/SmiServices/pull/2022) by rkm. Add pre-commit python hooks & tidy helper scripts
+- [#2072](https://github.com/SMI/SmiServices/pull/2072) by rkm. Tidy-up code & add style rules
+
 ## [5.10.3] 2024-11-18
 
 ### Bugfix
@@ -1481,4 +1513,5 @@ First stable release after importing the repository from the private
 [5.7.2]: https://github.com/SMI/SmiServices/compare/v5.7.1...v5.7.2
 [5.8.0]: https://github.com/SMI/SmiServices/compare/v5.7.2...v5.8.0
 [5.9.0]: https://github.com/SMI/SmiServices/compare/v5.8.0...v5.9.0
-[unreleased]: https://github.com/SMI/SmiServices/compare/v5.10.3...main
+[6.0.0]: https://github.com/SMI/SmiServices/compare/v5.10.3...v6.0.0
+[unreleased]: https://github.com/SMI/SmiServices/compare/v6.0.0...main
