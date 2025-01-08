@@ -109,7 +109,8 @@ def main(argv: Sequence[str] | None = None) -> int:
     for fragment_file in fragment_files:
         with open(fragment_file) as f:
             contents = f.read()
-        pr_ref, _, frag_type = os.path.splitext(fragment_file)[0].partition("-")
+        split = os.path.splitext(os.path.basename(fragment_file))
+        pr_ref, _, frag_type = split[0].partition("-")
         fragments[frag_type][int(pr_ref)] = contents
 
     # Write-out the new CHANGELOG
