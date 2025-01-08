@@ -53,7 +53,7 @@ public class SmiCtpAnonymiser : IDicomAnonymiser, IDisposable
         _ctpProcess.BeginErrorReadLine();
 
         lock (_ctpProcess)
-            Monitor.Wait(_ctpProcess, 100000);
+            Monitor.Wait(_ctpProcess, TimeSpan.FromSeconds(10));
         _ctpProcess.ErrorDataReceived -= OnCtpProcessOnErrorDataReceived;
         if (ready) return;
 
