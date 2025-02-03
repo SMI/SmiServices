@@ -59,9 +59,9 @@
       },
       "NLog": {
         "type": "Direct",
-        "requested": "[5.3.4, )",
-        "resolved": "5.3.4",
-        "contentHash": "gLy7+O1hEYJXIlcTr1/VWjGXrZTQFZzYNO18IWasD64pNwz0BreV+nHLxWKXWZzERRzoKnsk2XYtwLkTVk7J1A=="
+        "requested": "[5.4.0, )",
+        "resolved": "5.4.0",
+        "contentHash": "LwMcGSW3soF3/SL68rlJN3Eh3ktrAPycC3zZR/07OYBPraZUu0bygEC7kIN10lUQgMXT4s84Fi1chglGdGrQEg=="
       },
       "NUnit": {
         "type": "Direct",
@@ -913,7 +913,7 @@
           "MongoDB.Analyzer": "[1.5.0, )",
           "MongoDB.Bson": "[3.1.0, )",
           "MongoDB.Driver": "[3.0.0, )",
-          "NLog": "[5.3.4, )",
+          "NLog": "[5.4.0, )",
           "Newtonsoft.Json": "[13.0.3, )",
           "RabbitMQ.Client": "[6.8.1, )",
           "StackExchange.Redis": "[2.8.24, )",
@@ -931,7 +931,7 @@
           "Microsoft.NET.Test.Sdk": "[17.12.0, )",
           "MongoDB.Analyzer": "[1.5.0, )",
           "Moq": "[4.20.72, )",
-          "NLog": "[5.3.4, )",
+          "NLog": "[5.4.0, )",
           "NUnit": "[4.3.2, )",
           "System.IO.Abstractions.TestingHelpers": "[21.2.8, )",
           "smi": "[1.0.0, )"
