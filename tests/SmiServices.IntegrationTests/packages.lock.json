@@ -917,7 +917,7 @@
           "Newtonsoft.Json": "[13.0.3, )",
           "RabbitMQ.Client": "[6.8.1, )",
           "StackExchange.Redis": "[2.8.24, )",
-          "System.IO.Abstractions": "[21.2.8, )",
+          "System.IO.Abstractions": "[21.3.1, )",
           "System.Private.Uri": "[4.3.2, )",
           "YamlDotNet": "[16.3.0, )"
         }
@@ -1175,12 +1175,12 @@
       },
       "System.IO.Abstractions": {
         "type": "CentralTransitive",
-        "requested": "[21.2.8, )",
-        "resolved": "21.2.8",
-        "contentHash": "kgu2kRfPVf50c0Tp5EMEiY6NtbNOIZlNgWW83LIKFCbo+d0WXPygAF+1fjBzmWjebKiIF5KClIXlA7qTOfZBDg==",
+        "requested": "[21.3.1, )",
+        "resolved": "21.3.1",
+        "contentHash": "Gm8HI/AHwoWd1r9IUShekWgAQjJgTM1jmrJHSkxONeuVUQAZdxSKzGYTjReBYgqLvF1Zq1Hcd1qHytrL0HuiBg==",
         "dependencies": {
-          "TestableIO.System.IO.Abstractions": "21.2.8",
-          "TestableIO.System.IO.Abstractions.Wrappers": "21.2.8"
+          "TestableIO.System.IO.Abstractions": "21.3.1",
+          "TestableIO.System.IO.Abstractions.Wrappers": "21.3.1"
         }
       },
       "System.IO.FileSystem": {
