@@ -96,7 +96,7 @@ jobs:
         if: ${{ matrix.os == 'linux' }}
         run: ${{ env.rdmp-cli-dir }}/rdmp install --createdatabasetimeout 180 ${{ env.rdmp_conn_str }} TEST_
       - name: Setup Java JDK
-        uses: actions/setup-java@v4.6.0
+        uses: actions/setup-java@v4.7.0
         with:
           java-version: ${{ env.java-version }}
           distribution: ${{ env.java-distribution }}
@@ -152,7 +152,7 @@ jobs:
       - name: checkout
         uses: actions/checkout@v4
       - name: Setup Java JDK
-        uses: actions/setup-java@v4.6.0
+        uses: actions/setup-java@v4.7.0
         with:
           java-version: ${{ env.java-version }}
           distribution: ${{ env.java-distribution }}
