@@ -28,9 +28,9 @@
       },
       "Microsoft.CodeCoverage": {
         "type": "Direct",
-        "requested": "[17.12.0, )",
-        "resolved": "17.12.0",
-        "contentHash": "4svMznBd5JM21JIG2xZKGNanAHNXplxf/kQDFfLHXQ3OnpJkayRK/TjacFjA+EYmoyuNXHo/sOETEfcYtAzIrA=="
+        "requested": "[17.13.0, )",
+        "resolved": "17.13.0",
+        "contentHash": "9LIUy0y+DvUmEPtbRDw6Bay3rzwqFV8P4efTrK4CZhQle3M/QwLPjISghfcolmEGAPWxuJi6m98ZEfk4VR4Lfg=="
       },
       "Microsoft.NET.Test.Sdk": {
         "type": "Direct",
@@ -927,7 +927,7 @@
         "dependencies": {
           "HIC.BadMedicine.Dicom": "[0.1.2, )",
           "HIC.RDMP.Plugin.Test": "[8.4.2, )",
-          "Microsoft.CodeCoverage": "[17.12.0, )",
+          "Microsoft.CodeCoverage": "[17.13.0, )",
           "Microsoft.NET.Test.Sdk": "[17.12.0, )",
           "MongoDB.Analyzer": "[1.5.0, )",
           "Moq": "[4.20.72, )",
