@@ -41,7 +41,7 @@ jobs:
       - name: setup .NET
         if: ${{ matrix.language == 'csharp' }}
         # NOTE(rkm 2022-02-20) Uses global.json
-        uses: actions/setup-dotnet@v4.3.0
+        uses: actions/setup-dotnet@v4.3.1
       - name: Build .Net
         if: ${{ matrix.language == 'csharp' }}
         run: ./bin/smi/smi_build.py -c Release
