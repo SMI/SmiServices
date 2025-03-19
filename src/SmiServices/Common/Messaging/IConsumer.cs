@@ -41,7 +41,7 @@ public interface IConsumer<T> where T : IMessage
     bool HoldUnprocessableMessages { get; set; }
 
     /// <summary>
-    /// The BasicQos value configured on the <see cref="IModel"/>
+    /// The BasicQos value configured on the <see cref="IChannel"/>
     /// </summary>
     int QoSPrefetchCount { get; set; }
 }

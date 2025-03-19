@@ -13,7 +13,7 @@ public class BatchProducerModel : ProducerModel
 {
     public BatchProducerModel(
         string exchangeName,
-        IModel model,
+        IChannel model,
         IBasicProperties properties,
         int maxPublishAttempts = 1,
         IBackoffProvider? backoffProvider = null,

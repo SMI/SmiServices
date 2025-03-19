@@ -20,7 +20,7 @@ public class ProducerModel : IProducerModel
 
     private readonly ILogger _logger;
 
-    private readonly IModel _model;
+    private readonly IChannel _model;
     private readonly IBasicProperties _messageBasicProperties;
 
     private readonly string _exchangeName;
@@ -55,7 +55,7 @@ public class ProducerModel : IProducerModel
     /// <param name="probeQueueLimit"></param>
     /// <param name="probeTimeout"></param>
     public ProducerModel(
-        string exchangeName, IModel model,
+        string exchangeName, IChannel model,
         IBasicProperties properties,
         int maxRetryAttempts = 1,
         IBackoffProvider? backoffProvider = null,

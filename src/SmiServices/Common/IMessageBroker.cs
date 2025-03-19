@@ -18,7 +18,7 @@ public interface IMessageBroker
 
     IProducerModel SetupProducer(ProducerOptions producerOptions, bool isBatch);
 
-    IModel GetModel(string connectionName);
+    IChannel GetModel(string connectionName);
 
     void Shutdown(TimeSpan timeout);
     public void Wait();

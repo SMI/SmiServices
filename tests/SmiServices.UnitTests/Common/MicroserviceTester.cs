@@ -156,7 +156,7 @@ public class MicroserviceTester : IDisposable
     /// <returns></returns>
     public IEnumerable<Tuple<IMessageHeader, T>> ConsumeMessages<T>(string queueName) where T : IMessage
     {
-        IModel model = Broker.GetModel($"ConsumeMessages-{queueName}");
+        IChannel model = Broker.GetModel($"ConsumeMessages-{queueName}");
 
         while (true)
         {
@@ -187,7 +187,7 @@ public class MicroserviceTester : IDisposable
 
         if (CleanUpAfterTest)
         {
-            using IModel model = Broker.GetModel(nameof(Dispose));
+            using IChannel model = Broker.GetModel(nameof(Dispose));
             _declaredExchanges.ForEach(x => model.ExchangeDelete(x));
             _declaredQueues.ForEach(x => model.QueueDelete(x));
         }

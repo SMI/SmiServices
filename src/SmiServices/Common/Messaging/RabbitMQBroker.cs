@@ -293,7 +293,7 @@ public class RabbitMQBroker : IMessageBroker
         if (!producerOptions.VerifyPopulated())
             throw new ArgumentException("The given producer options have invalid values");
 
-        //NOTE: IModel objects are /not/ thread safe
+        //NOTE: IChannel objects are /not/ thread safe
         var model = _connection.CreateModel();
         model.ConfirmSelect();
 
@@ -360,7 +360,7 @@ public class RabbitMQBroker : IMessageBroker
     /// </summary>
     /// <param name="connectionName"></param>
     /// <returns></returns>
-    public IModel GetModel(string connectionName)
+    public IChannel GetModel(string connectionName)
     {
         //TODO This method has no callback available for fatal errors
 
@@ -431,13 +431,13 @@ public class RabbitMQBroker : IMessageBroker
 
     private class RabbitResources : IDisposable
     {
-        public IModel Model { get; }
+        public IChannel Model { get; }
 
         protected readonly object OResourceLock = new();
 
         protected readonly ILogger Logger;
 
-        public RabbitResources(IModel model)
+        public RabbitResources(IChannel model)
         {
             Logger = LogManager.GetLogger(GetType().Name);
             Model = model;
@@ -454,7 +454,7 @@ public class RabbitMQBroker : IMessageBroker
     {
         public IProducerModel? ProducerModel { get; set; }
 
-        public ProducerResources(IModel model, IProducerModel ipm) : base(model)
+        public ProducerResources(IChannel model, IProducerModel ipm) : base(model)
         {
             ProducerModel = ipm;
         }
@@ -477,7 +477,7 @@ public class RabbitMQBroker : IMessageBroker
             Model.Dispose();
         }
 
-        internal ConsumerResources(EventingBasicConsumer ebc, string q, IModel model) : base(model)
+        internal ConsumerResources(EventingBasicConsumer ebc, string q, IChannel model) : base(model)
         {
             this.ebc = ebc;
             this.QueueName = q;
