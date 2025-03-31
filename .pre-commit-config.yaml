@@ -115,7 +115,7 @@ repos:
         name: isort (python)
         args: [--settings=.meta/isort.cfg]
   - repo: https://github.com/pycqa/flake8
-    rev: "7.1.2"
+    rev: "7.2.0"
     hooks:
       - id: flake8
         additional_dependencies:
