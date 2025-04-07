@@ -71,9 +71,9 @@
       },
       "NUnit.Analyzers": {
         "type": "Direct",
-        "requested": "[4.6.0, )",
-        "resolved": "4.6.0",
-        "contentHash": "uK1TEViVBugOO6uDou1amu7CoNhrd2sEUFr/iaEmVfoeY8qq/zzWCCUZi97aCCSZmjnHKCCWKh3RucU27qPlKg=="
+        "requested": "[4.7.0, )",
+        "resolved": "4.7.0",
+        "contentHash": "1AjtK0uoJgxyobNtNwjQLlEs2X+9mgfWbWXiIktquTvpOhSXMf56TZF43+q2lIIYhV4IrfS82/pfo4uPUYka4w=="
       },
       "NUnit3TestAdapter": {
         "type": "Direct",
