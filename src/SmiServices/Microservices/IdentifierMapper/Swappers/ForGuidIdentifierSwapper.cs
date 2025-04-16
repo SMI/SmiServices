@@ -126,7 +126,6 @@ public class ForGuidIdentifierSwapper : SwapIdentifiers
         }
     }
 
-
     private void CreateTableIfNotExists()
     {
         try
@@ -145,11 +144,14 @@ public class ForGuidIdentifierSwapper : SwapIdentifiers
             {
                 _logger.Info("Guid mapping table does not exist, creating it now");
 
-                _table.Database.CreateTable(_table.GetRuntimeName(),
+                _table.Database.CreateTable(
+                    _table.GetRuntimeName(),
                     [
                         new DatabaseColumnRequest(_options.SwapColumnName, new DatabaseTypeRequest(typeof(string), 10), false){ IsPrimaryKey = true },
-                        new DatabaseColumnRequest(_options.ReplacementColumnName,new DatabaseTypeRequest(typeof(string), 255), false)]
-                    );
+                        new DatabaseColumnRequest(_options.ReplacementColumnName,new DatabaseTypeRequest(typeof(string), 255), false),
+                    ],
+                    schema: _table.Schema
+                );
             }
 
             if (_table.Exists())
