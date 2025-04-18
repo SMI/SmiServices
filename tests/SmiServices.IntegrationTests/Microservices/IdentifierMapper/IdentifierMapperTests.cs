@@ -25,6 +25,8 @@ using DatabaseType = FAnsi.DatabaseType;
 namespace SmiServices.IntegrationTests.Microservices.IdentifierMapper;
 
 [RequiresRelationalDb(DatabaseType.MicrosoftSQLServer)]
+[RequiresRelationalDb(DatabaseType.MySql)]
+[RequiresRelationalDb(DatabaseType.PostgreSql)]
 public class IdentifierMapperTests : DatabaseTests
 {
     [OneTimeSetUp]
@@ -35,6 +37,7 @@ public class IdentifierMapperTests : DatabaseTests
 
     [TestCase(DatabaseType.MicrosoftSQLServer)]
     [TestCase(DatabaseType.MySql)]
+    [TestCase(DatabaseType.PostgreSql)]
     public void TestIdentifierSwap(DatabaseType type)
     {
         var mappingDataTable = new DataTable("IdMap");
@@ -42,12 +45,15 @@ public class IdentifierMapperTests : DatabaseTests
         mappingDataTable.Columns.Add("pub");
         mappingDataTable.Rows.Add("010101", "020202");
 
+        PostgresFixes.GetCleanedServerPostgresFix(TestDatabaseSettings, type);
         var db = GetCleanedServer(type);
+        var table = db.CreateTable("IdMap", mappingDataTable);
 
         var options = new IdentifierMapperOptions
         {
             MappingConnectionString = db.Server.Builder.ConnectionString,
-            MappingTableName = db.CreateTable("IdMap", mappingDataTable).GetFullyQualifiedName(),
+            MappingTableSchema = table.Schema,
+            MappingTableName = table.GetRuntimeName(),
             SwapColumnName = "priv",
             ReplacementColumnName = "pub",
             MappingDatabaseType = type,
@@ -70,6 +76,8 @@ public class IdentifierMapperTests : DatabaseTests
     [TestCase(DatabaseType.MicrosoftSQLServer, Test.ProperlyFormatedChi)]
     [TestCase(DatabaseType.MySql, Test.Normal)]
     [TestCase(DatabaseType.MySql, Test.ProperlyFormatedChi)]
+    [TestCase(DatabaseType.PostgreSql, Test.Normal)]
+    [TestCase(DatabaseType.PostgreSql, Test.ProperlyFormatedChi)]
     public void TestIdentifierSwap_NoCache(DatabaseType type, Test test)
     {
         var mappingDataTable = new DataTable("IdMap");
@@ -78,12 +86,15 @@ public class IdentifierMapperTests : DatabaseTests
         mappingDataTable.Rows.Add("010101", "020202");
         mappingDataTable.Rows.Add("0101010101", "0202020202");
 
+        PostgresFixes.GetCleanedServerPostgresFix(TestDatabaseSettings, type);
         var db = GetCleanedServer(type);
+        var table = db.CreateTable("IdMap", mappingDataTable);
 
         var options = new IdentifierMapperOptions
         {
             MappingConnectionString = db.Server.Builder.ConnectionString,
-            MappingTableName = db.CreateTable("IdMap", mappingDataTable).GetFullyQualifiedName(),
+            MappingTableSchema = table.Schema,
+            MappingTableName = table.GetRuntimeName(),
             SwapColumnName = "priv",
             ReplacementColumnName = "pub",
             MappingDatabaseType = type,
@@ -117,6 +128,7 @@ public class IdentifierMapperTests : DatabaseTests
 
     [TestCase(DatabaseType.MicrosoftSQLServer, 8), RequiresRabbit]
     [TestCase(DatabaseType.MySql, 8), RequiresRabbit]
+    [TestCase(DatabaseType.PostgreSql, 8), RequiresRabbit]
     public void TestIdentifierSwap_RegexVsDeserialize(DatabaseType type, int batchSize)
     {
 
@@ -128,11 +140,13 @@ public class IdentifierMapperTests : DatabaseTests
         mappingDataTable.Rows.Add("010101", "020202");
         mappingDataTable.Rows.Add("0101010101", "0202020202");
 
-
+        PostgresFixes.GetCleanedServerPostgresFix(TestDatabaseSettings, type);
         var db = GetCleanedServer(type);
+        var table = db.CreateTable("IdMap", mappingDataTable);
 
         options.IdentifierMapperOptions!.MappingConnectionString = db.Server.Builder.ConnectionString;
-        options.IdentifierMapperOptions.MappingTableName = db.CreateTable("IdMap", mappingDataTable).GetFullyQualifiedName();
+        options.IdentifierMapperOptions.MappingTableSchema = table.Schema;
+        options.IdentifierMapperOptions.MappingTableName = table.GetRuntimeName();
         options.IdentifierMapperOptions.SwapColumnName = "priv";
         options.IdentifierMapperOptions.ReplacementColumnName = "pub";
         options.IdentifierMapperOptions.MappingDatabaseType = type;
@@ -230,6 +244,7 @@ public class IdentifierMapperTests : DatabaseTests
     [Explicit("Slow, tests lookup scalability")]
     [TestCase(DatabaseType.MicrosoftSQLServer)]
     [TestCase(DatabaseType.MySql)]
+    [TestCase(DatabaseType.PostgreSql)]
     public void TestIdentifierSwap_MillionsOfRows(DatabaseType type)
     {
         Console.WriteLine("DatabaseType:" + type);
@@ -238,6 +253,8 @@ public class IdentifierMapperTests : DatabaseTests
         mappingDataTable.Columns.Add("priv");
         mappingDataTable.Columns.Add("pub");
         mappingDataTable.Rows.Add("abclkjlkjdefghijiklaskdf", Guid.NewGuid().ToString());
+
+        PostgresFixes.GetCleanedServerPostgresFix(TestDatabaseSettings, type);
         var db = GetCleanedServer(type);
 
         DiscoveredTable tbl;
@@ -295,6 +312,7 @@ public class IdentifierMapperTests : DatabaseTests
     [TestCase(DatabaseType.PostgreSql)]
     public void TestIdentifierSwapForGuid(DatabaseType dbType)
     {
+        PostgresFixes.GetCleanedServerPostgresFix(TestDatabaseSettings, dbType);
         var db = GetCleanedServer(dbType);
         var mapTbl = db.ExpectTable("Map");
 
@@ -302,7 +320,8 @@ public class IdentifierMapperTests : DatabaseTests
         var options = new IdentifierMapperOptions
         {
             MappingConnectionString = db.Server.Builder.ConnectionString,
-            MappingTableName = mapTbl.GetFullyQualifiedName(),
+            MappingTableSchema = mapTbl.Schema,
+            MappingTableName = mapTbl.GetRuntimeName(),
             SwapColumnName = "priv",
             ReplacementColumnName = "pub",
             MappingDatabaseType = dbType
@@ -338,6 +357,7 @@ public class IdentifierMapperTests : DatabaseTests
     [TestCase(DatabaseType.PostgreSql)]
     public void TestIdentifierSwap2ForGuids(DatabaseType dbType)
     {
+        PostgresFixes.GetCleanedServerPostgresFix(TestDatabaseSettings, dbType);
         var db = GetCleanedServer(dbType);
         var mapTbl = db.ExpectTable("Map");
 
@@ -345,7 +365,8 @@ public class IdentifierMapperTests : DatabaseTests
         var options = new IdentifierMapperOptions
         {
             MappingConnectionString = db.Server.Builder.ConnectionString,
-            MappingTableName = mapTbl.GetFullyQualifiedName(),
+            MappingTableSchema = mapTbl.Schema,
+            MappingTableName = mapTbl.GetRuntimeName(),
             SwapColumnName = "priv",
             ReplacementColumnName = "pub",
             MappingDatabaseType = dbType
@@ -386,6 +407,7 @@ public class IdentifierMapperTests : DatabaseTests
     [TestCase(DatabaseType.PostgreSql)]
     public void TestIdentifierSwap2ForGuids_WithSeperateSwappers(DatabaseType dbType)
     {
+        PostgresFixes.GetCleanedServerPostgresFix(TestDatabaseSettings, dbType);
         var db = GetCleanedServer(dbType);
         var mapTbl = db.ExpectTable("Map");
 
@@ -393,7 +415,8 @@ public class IdentifierMapperTests : DatabaseTests
         var options = new IdentifierMapperOptions
         {
             MappingConnectionString = db.Server.Builder.ConnectionString,
-            MappingTableName = mapTbl.GetFullyQualifiedName(),
+            MappingTableSchema = mapTbl.Schema,
+            MappingTableName = mapTbl.GetRuntimeName(),
             SwapColumnName = "priv",
             ReplacementColumnName = "pub",
             MappingDatabaseType = dbType
@@ -609,13 +632,15 @@ public class IdentifierMapperTests : DatabaseTests
         mappingDataTable.Rows.Add("CHI-1", "REP-1");
         mappingDataTable.Rows.Add("CHI-2", "REP-2");
 
-        DiscoveredDatabase db = GetCleanedServer(DatabaseType.MicrosoftSQLServer);
+        var db = GetCleanedServer(DatabaseType.MicrosoftSQLServer);
+        var table = db.CreateTable("IdMap", mappingDataTable);
 
         GlobalOptions options = new GlobalOptionsFactory().Load(nameof(TestSwapCache));
         options.IdentifierMapperOptions = new IdentifierMapperOptions
         {
             MappingConnectionString = db.Server.Builder.ConnectionString,
-            MappingTableName = db.CreateTable("IdMap", mappingDataTable).GetFullyQualifiedName(),
+            MappingTableSchema = table.Schema,
+            MappingTableName = table.GetRuntimeName(),
             SwapColumnName = "priv",
             ReplacementColumnName = "pub",
             MappingDatabaseType = DatabaseType.MicrosoftSQLServer,

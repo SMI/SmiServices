@@ -13,12 +13,15 @@ namespace SmiServices.IntegrationTests.Microservices.IdentifierMapper;
 
 [RequiresRelationalDb(DatabaseType.MicrosoftSQLServer)]
 [RequiresRelationalDb(DatabaseType.MySql)]
+[RequiresRelationalDb(DatabaseType.PostgreSql)]
 public class TableLookupWithGuidFallbackSwapperTests : DatabaseTests
 {
     [TestCase(DatabaseType.MySql)]
     [TestCase(DatabaseType.MicrosoftSQLServer)]
+    [TestCase(DatabaseType.PostgreSql)]
     public void Test_Cache1Hit1Miss(DatabaseType dbType)
     {
+        PostgresFixes.GetCleanedServerPostgresFix(TestDatabaseSettings, dbType);
         var db = GetCleanedServer(dbType);
 
         DiscoveredTable map;
@@ -34,7 +37,8 @@ public class TableLookupWithGuidFallbackSwapperTests : DatabaseTests
 
         var options = new IdentifierMapperOptions
         {
-            MappingTableName = map.GetFullyQualifiedName(),
+            MappingTableSchema = map.Schema,
+            MappingTableName = map.GetRuntimeName(),
             MappingConnectionString = db.Server.Builder.ConnectionString,
             SwapColumnName = "CHI",
             ReplacementColumnName = "ECHI",
@@ -111,8 +115,11 @@ public class TableLookupWithGuidFallbackSwapperTests : DatabaseTests
     [TestCase(DatabaseType.MySql, false)]
     [TestCase(DatabaseType.MicrosoftSQLServer, true)]
     [TestCase(DatabaseType.MicrosoftSQLServer, false)]
+    [TestCase(DatabaseType.PostgreSql, true)]
+    [TestCase(DatabaseType.PostgreSql, false)]
     public void Test_SwapValueTooLong(DatabaseType dbType, bool createGuidTableUpFront)
     {
+        PostgresFixes.GetCleanedServerPostgresFix(TestDatabaseSettings, dbType);
         var db = GetCleanedServer(dbType);
 
         DiscoveredTable map;
@@ -143,7 +150,8 @@ public class TableLookupWithGuidFallbackSwapperTests : DatabaseTests
 
         var options = new IdentifierMapperOptions
         {
-            MappingTableName = map.GetFullyQualifiedName(),
+            MappingTableSchema = map.Schema,
+            MappingTableName = map.GetRuntimeName(),
             MappingConnectionString = db.Server.Builder.ConnectionString,
             SwapColumnName = "CHI",
             ReplacementColumnName = "ECHI",

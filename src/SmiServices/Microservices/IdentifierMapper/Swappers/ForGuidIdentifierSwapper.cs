@@ -79,7 +79,7 @@ public class ForGuidIdentifierSwapper : SwapIdentifiers
                 FAnsi.DatabaseType.MySql =>
                     $"INSERT IGNORE INTO {_table!.GetFullyQualifiedName()} SET {_options.SwapColumnName} = '{toSwap}', {_options.ReplacementColumnName} = '{guid}';",
                 FAnsi.DatabaseType.PostgreSql =>
-                    $"INSERT INTO {_table!.GetFullyQualifiedName()} ({_options.SwapColumnName},{_options.ReplacementColumnName}) VALUES ('{toSwap}','{guid}') ON CONFLICT DO NOTHING;",
+                    $"INSERT INTO {_table!.GetFullyQualifiedName()} ({_table.GetQuerySyntaxHelper().EnsureWrapped(_options.SwapColumnName)},{_table.GetQuerySyntaxHelper().EnsureWrapped(_options.ReplacementColumnName)}) VALUES ('{toSwap}','{guid}') ON CONFLICT DO NOTHING;",
                 _ => throw new ArgumentOutOfRangeException(_options.MappingConnectionString)
             };
 
@@ -101,7 +101,7 @@ public class ForGuidIdentifierSwapper : SwapIdentifiers
                 //guid may not have been inserted.  Just because we don't have it in our cache doesn't mean that other people might
                 //not have allocated that one at the same time.
 
-                DbCommand cmd2 = _table.Database.Server.GetCommand($"SELECT {_options.ReplacementColumnName} FROM {_table.GetFullyQualifiedName()} WHERE {_options.SwapColumnName} = '{toSwap}'  ", con);
+                DbCommand cmd2 = _table.Database.Server.GetCommand($"SELECT {_table.GetQuerySyntaxHelper().EnsureWrapped(_options.ReplacementColumnName)} FROM {_table.GetFullyQualifiedName()} WHERE {_table.GetQuerySyntaxHelper().EnsureWrapped(_options.SwapColumnName)} = '{toSwap}'  ", con);
                 var syncAnswer = (string?)cmd2.ExecuteScalar() ?? throw new Exception("Replacement value was null");
 
                 _cachedAnswers.Add(toSwap, syncAnswer);

@@ -1,2 +1,3 @@
-﻿MySql: "server=127.0.0.1;Uid=root;Pwd=YourStrongPassw0rd;sslmode=None"
+MySql: "server=127.0.0.1;Uid=root;Pwd=YourStrongPassw0rd;sslmode=None"
 SqlServer: 'Server=(localdb)\MSSQLLocalDB;'
+PostgreSql: 'server=127.0.0.1;Uid=postgres;Pwd='

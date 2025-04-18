@@ -58,7 +58,7 @@ public class TableLookupSwapper : SwapIdentifiers
             con.Open();
 
             string sql =
-                $"SELECT {_options!.ReplacementColumnName} FROM {_swapTable!.GetFullyQualifiedName()} WHERE {_options.SwapColumnName}=@val";
+                $"SELECT {_server.GetQuerySyntaxHelper().EnsureWrapped(_options!.ReplacementColumnName)} FROM {_swapTable!.GetFullyQualifiedName()} WHERE {_server.GetQuerySyntaxHelper().EnsureWrapped(_options.SwapColumnName)}=@val";
 
             DbCommand cmd = _server.GetCommand(sql, con);
             _server.AddParameterWithValueToCommand("@val", cmd, toSwap);

@@ -13,14 +13,17 @@ namespace SmiServices.IntegrationTests.Microservices.IdentifierMapper;
 
 [RequiresRelationalDb(DatabaseType.MicrosoftSQLServer)]
 [RequiresRelationalDb(DatabaseType.MySql)]
+[RequiresRelationalDb(DatabaseType.PostgreSql)]
 class RedisSwapperTests : DatabaseTests
 {
     private const string TestRedisServer = "localhost";
 
     [TestCase(DatabaseType.MySql)]
     [TestCase(DatabaseType.MicrosoftSQLServer)]
-    public void Test_Redist_CacheUsage(DatabaseType dbType)
+    [TestCase(DatabaseType.PostgreSql)]
+    public void Test_Redis_CacheUsage(DatabaseType dbType)
     {
+        PostgresFixes.GetCleanedServerPostgresFix(TestDatabaseSettings, dbType);
         var db = GetCleanedServer(dbType);
 
         DiscoveredTable map;
@@ -36,7 +39,8 @@ class RedisSwapperTests : DatabaseTests
 
         var options = new IdentifierMapperOptions
         {
-            MappingTableName = map.GetFullyQualifiedName(),
+            MappingTableSchema = map.Schema,
+            MappingTableName = map.GetRuntimeName(),
             MappingConnectionString = db.Server.Builder.ConnectionString,
             SwapColumnName = "CHI",
             ReplacementColumnName = "ECHI",
@@ -84,13 +88,12 @@ class RedisSwapperTests : DatabaseTests
         });
     }
 
-
-
-
     [TestCase(DatabaseType.MySql)]
     [TestCase(DatabaseType.MicrosoftSQLServer)]
-    public void Test_Redist_CacheMisses(DatabaseType dbType)
+    [TestCase(DatabaseType.PostgreSql)]
+    public void Test_Redis_CacheMisses(DatabaseType dbType)
     {
+        PostgresFixes.GetCleanedServerPostgresFix(TestDatabaseSettings, dbType);
         var db = GetCleanedServer(dbType);
 
         DiscoveredTable map;
@@ -106,7 +109,8 @@ class RedisSwapperTests : DatabaseTests
 
         var options = new IdentifierMapperOptions
         {
-            MappingTableName = map.GetFullyQualifiedName(),
+            MappingTableSchema = map.Schema,
+            MappingTableName = map.GetRuntimeName(),
             MappingConnectionString = db.Server.Builder.ConnectionString,
             SwapColumnName = "CHI",
             ReplacementColumnName = "ECHI",
