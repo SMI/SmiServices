@@ -19,17 +19,20 @@ using System.Data;
 using System.Linq;
 using Tests.Common;
 
-
 namespace SmiServices.IntegrationTests.Applications.TriggerUpdates;
 
 [RequiresRabbit]
-class MapperSourceIntegrationTest : DatabaseTests
+[RequiresRelationalDb(DatabaseType.MicrosoftSQLServer)]
+[RequiresRelationalDb(DatabaseType.MySql)]
+[RequiresRelationalDb(DatabaseType.PostgreSql)]
+public class MapperSourceIntegrationTest : DatabaseTests
 {
-
     [TestCase(DatabaseType.MicrosoftSQLServer)]
     [TestCase(DatabaseType.MySql)]
+    [TestCase(DatabaseType.PostgreSql)]
     public void MapperSource_IntegrationTest(DatabaseType dbType)
     {
+        PostgresFixes.GetCleanedServerPostgresFix(TestDatabaseSettings, dbType);
         var db = GetCleanedServer(dbType);
 
         DataTable dt = new();
@@ -64,7 +67,8 @@ class MapperSourceIntegrationTest : DatabaseTests
 
         var mapperOptions = new IdentifierMapperOptions
         {
-            MappingTableName = map.GetFullyQualifiedName(),
+            MappingTableSchema = map.Schema,
+            MappingTableName = map.GetRuntimeName(),
             MappingConnectionString = db.Server.Builder.ConnectionString,
             SwapColumnName = "CHI",
             ReplacementColumnName = "ECHI",
