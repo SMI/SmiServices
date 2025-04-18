@@ -20,6 +20,12 @@
 				"service": "mssql"
 			},
 			{
+				"name": "postgres",
+				"tag": "15",
+				"digest": "fe45ed1a824b81c0c9c605890963b67501758ca8c946db89089c85ce0f88e974",
+				"service": "postgres"
+			},
+			{
 				"name": "rabbitmq",
 				"tag": "latest",
 				"digest": "1fc999fbdd8054b0c34c285901474f136792ad4a42d39186f3793ac40de04dba",
