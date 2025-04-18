@@ -94,7 +94,7 @@ class MapperSourceTests : DatabaseTests
         {
             {"CHI","0303030303" },
             {"ECHI","0C0C0C0C0C" },
-            {SpecialFieldNames.ValidFrom,DateTime.Now },
+            {SpecialFieldNames.ValidFrom,DateTime.UtcNow },
             {SpecialFieldNames.DataLoadRunID,55},
             });
 
@@ -266,7 +266,7 @@ class MapperSourceTests : DatabaseTests
         {
             {"CHI","0202020202" },
             {"ECHI","0X0X0X0X0X" },
-            {SpecialFieldNames.ValidFrom,DateTime.Now },
+            {SpecialFieldNames.ValidFrom,DateTime.UtcNow },
             {SpecialFieldNames.DataLoadRunID,55},
             });
 
