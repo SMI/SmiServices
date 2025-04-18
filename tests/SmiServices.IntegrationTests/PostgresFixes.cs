@@ -15,11 +15,6 @@ internal static class PostgresFixes
         if (server.GetCurrentDatabase() != null)
             return;
 
-        var testDatabaseName = TestDatabaseNames.GetConsistentName("ScratchArea");
         server.ChangeDatabase("postgres");
-        var database = server.ExpectDatabase(testDatabaseName);
-        if (!database.Exists())
-            database.Create();
     }
-
 }
