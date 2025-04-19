@@ -19,6 +19,12 @@
 				"digest": "8ca3956bcb1f3373e5b04f946a527abb24c07655c2044bd5c9c8852d02fbec7c",
 				"service": "mssql"
 			},
+            {
+                "name": "postgres",
+                "tag": "15",
+                "digest": "fe45ed1a824b81c0c9c605890963b67501758ca8c946db89089c85ce0f88e974",
+                "service": "postgres"
+            },
 			{
 				"name": "rabbitmq",
 				"tag": "latest",

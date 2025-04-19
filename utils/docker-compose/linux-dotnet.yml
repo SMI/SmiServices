@@ -35,3 +35,10 @@ services:
     command: mongod --replSet rs0
     ports:
       - 27017:27017
+  postgres:
+    container_name: postgres
+    image: postgres:15
+    environment:
+      - POSTGRES_HOST_AUTH_METHOD=trust
+    ports:
+      - 5432:5432

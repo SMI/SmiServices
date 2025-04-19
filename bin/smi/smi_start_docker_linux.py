@@ -36,6 +36,7 @@ def main() -> int:
             "redis /usr/local/bin/redis-cli PING",
             f"mssql /opt/mssql-tools18/bin/sqlcmd -U sa -P {args.db_password} -No -l 1 -Q 'SELECT @@VERSION'",
             "mongodb /usr/bin/mongo --quiet --eval 'db.stats().ok'",
+            "postgres pg_isready",
         ),
     )
 
