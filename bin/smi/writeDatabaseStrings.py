@@ -44,6 +44,9 @@ def main() -> int:
             f.write(
                 f"MySql: 'server=127.0.0.1;Uid=root;Pwd={args.db_password};sslmode=None'\n",
             )
+            f.write(
+                "PostgreSql: 'server=127.0.0.1;Uid=postgres;Pwd=;'\n",
+            )
 
     with open(_RELATIONAL_YAML) as f:
         print(f"{_RELATIONAL_YAML}:")
@@ -57,6 +60,9 @@ def main() -> int:
         if not (os.name == "nt" and common.is_ci()):
             f.write(
                 f"MySql: server=127.0.0.1;Uid=root;Pwd={args.db_password};sslmode=None\n",
+            )
+            f.write(
+                "PostgreSql: 'server=127.0.0.1;Uid=postgres;Pwd=;'\n",
             )
 
     with open(_TEST_DBS_TXT) as f:
