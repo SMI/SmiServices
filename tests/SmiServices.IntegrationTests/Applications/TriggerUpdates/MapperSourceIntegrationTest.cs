@@ -23,13 +23,18 @@ using Tests.Common;
 namespace SmiServices.IntegrationTests.Applications.TriggerUpdates;
 
 [RequiresRabbit]
+[RequiresRelationalDb(DatabaseType.MicrosoftSQLServer)]
+[RequiresRelationalDb(DatabaseType.MySql)]
+[RequiresRelationalDb(DatabaseType.PostgreSql)]
 class MapperSourceIntegrationTest : DatabaseTests
 {
 
     [TestCase(DatabaseType.MicrosoftSQLServer)]
     [TestCase(DatabaseType.MySql)]
+    [TestCase(DatabaseType.PostgreSql)]
     public void MapperSource_IntegrationTest(DatabaseType dbType)
     {
+        PostgresFixes.GetCleanedServerPostgresFix(TestDatabaseSettings, dbType);
         var db = GetCleanedServer(dbType);
 
         DataTable dt = new();
@@ -64,7 +69,8 @@ class MapperSourceIntegrationTest : DatabaseTests
 
         var mapperOptions = new IdentifierMapperOptions
         {
-            MappingTableName = map.GetFullyQualifiedName(),
+            MappingTableSchema = map.Schema,
+            MappingTableName = map.GetRuntimeName(),
             MappingConnectionString = db.Server.Builder.ConnectionString,
             SwapColumnName = "CHI",
             ReplacementColumnName = "ECHI",
@@ -110,7 +116,7 @@ class MapperSourceIntegrationTest : DatabaseTests
         {
             {"CHI","0303030303" },
             {"ECHI","0C0C0C0C0C" },
-            {SpecialFieldNames.ValidFrom,DateTime.Now },
+            {SpecialFieldNames.ValidFrom,DateTime.UtcNow },
             {SpecialFieldNames.DataLoadRunID,55},
             });
 
@@ -135,7 +141,8 @@ class MapperSourceIntegrationTest : DatabaseTests
         //make sure the identifier mapper goes to the right table
         globals.IdentifierMapperOptions!.MappingConnectionString = db.Server.Builder.ConnectionString;
         globals.IdentifierMapperOptions.MappingDatabaseType = dbType;
-        globals.IdentifierMapperOptions.MappingTableName = map.GetFullyQualifiedName();
+        globals.IdentifierMapperOptions.MappingTableSchema = map.Schema;
+        globals.IdentifierMapperOptions.MappingTableName = map.GetRuntimeName();
         globals.IdentifierMapperOptions.SwapperType = typeof(TableLookupWithGuidFallbackSwapper).FullName;
 
         using (var tester = new MicroserviceTester(globals.RabbitOptions!, globals.CohortExtractorOptions!))

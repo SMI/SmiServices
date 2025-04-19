@@ -17,6 +17,7 @@ namespace SmiServices.IntegrationTests.Applications.TriggerUpdates;
 
 [RequiresRelationalDb(DatabaseType.MicrosoftSQLServer)]
 [RequiresRelationalDb(DatabaseType.MySql)]
+[RequiresRelationalDb(DatabaseType.PostgreSql)]
 class MapperSourceTests : DatabaseTests
 {
     /// <summary>
@@ -31,6 +32,7 @@ class MapperSourceTests : DatabaseTests
     /// <param name="guids">true to create a <see cref="TableLookupWithGuidFallbackSwapper"/> otherwise creates a  <see cref="TableLookupSwapper"/></param>
     private void SetupMappers(DatabaseType dbType, out DiscoveredTable map, out DiscoveredTable? guidTable, out IdentifierMapperOptions mapperOptions, bool guids = true)
     {
+        PostgresFixes.GetCleanedServerPostgresFix(TestDatabaseSettings, dbType);
         var db = GetCleanedServer(dbType);
 
         using (var dt = new DataTable())
@@ -46,7 +48,8 @@ class MapperSourceTests : DatabaseTests
 
         mapperOptions = new IdentifierMapperOptions
         {
-            MappingTableName = map.GetFullyQualifiedName(),
+            MappingTableSchema = map.Schema,
+            MappingTableName = map.GetRuntimeName(),
             MappingConnectionString = db.Server.Builder.ConnectionString,
             SwapColumnName = "CHI",
             ReplacementColumnName = "ECHI",
@@ -81,6 +84,7 @@ class MapperSourceTests : DatabaseTests
 
     [TestCase(DatabaseType.MySql)]
     [TestCase(DatabaseType.MicrosoftSQLServer)]
+    [TestCase(DatabaseType.PostgreSql)]
     public void TestMapperSource_BrandNewMapping(DatabaseType dbType)
     {
         SetupMappers(dbType, out DiscoveredTable map, out DiscoveredTable? _, out IdentifierMapperOptions mapperOptions);
@@ -90,7 +94,7 @@ class MapperSourceTests : DatabaseTests
         {
             {"CHI","0303030303" },
             {"ECHI","0C0C0C0C0C" },
-            {SpecialFieldNames.ValidFrom,DateTime.Now },
+            {SpecialFieldNames.ValidFrom,DateTime.UtcNow },
             {SpecialFieldNames.DataLoadRunID,55},
             });
 
@@ -101,6 +105,7 @@ class MapperSourceTests : DatabaseTests
 
     [TestCase(DatabaseType.MySql)]
     [TestCase(DatabaseType.MicrosoftSQLServer)]
+    [TestCase(DatabaseType.PostgreSql)]
     public void TestMapperSource_NoArchiveTable(DatabaseType dbType)
     {
         SetupMappers(dbType, out DiscoveredTable map, out DiscoveredTable? guidTable, out IdentifierMapperOptions mapperOptions);
@@ -116,6 +121,7 @@ class MapperSourceTests : DatabaseTests
 
     [TestCase(DatabaseType.MySql)]
     [TestCase(DatabaseType.MicrosoftSQLServer)]
+    [TestCase(DatabaseType.PostgreSql)]
     public void TestMapperSource_UpdatedMapping(DatabaseType dbType)
     {
         SetupMappers(dbType, out DiscoveredTable map, out DiscoveredTable? _, out IdentifierMapperOptions mapperOptions);
@@ -124,7 +130,7 @@ class MapperSourceTests : DatabaseTests
         using (var con = map.Database.Server.GetConnection())
         {
             con.Open();
-            Assert.That(map.GetCommand($"UPDATE {map.GetFullyQualifiedName()} SET ECHI = '0Z0Z0Z0Z0Z' WHERE CHI = '0101010101'", con).ExecuteNonQuery(), Is.EqualTo(1));
+            Assert.That(map.GetCommand($"UPDATE {map.GetFullyQualifiedName()} SET {map.GetQuerySyntaxHelper().EnsureWrapped("ECHI")} = '0Z0Z0Z0Z0Z' WHERE {map.GetQuerySyntaxHelper().EnsureWrapped("CHI")} = '0101010101'", con).ExecuteNonQuery(), Is.EqualTo(1));
 
         }
 
@@ -156,6 +162,7 @@ class MapperSourceTests : DatabaseTests
 
     [TestCase(DatabaseType.MySql)]
     [TestCase(DatabaseType.MicrosoftSQLServer)]
+    [TestCase(DatabaseType.PostgreSql)]
     public void TestMapperSource_UpdatedMapping_WithExplicitDifferentColumnName(DatabaseType dbType)
     {
         SetupMappers(dbType, out DiscoveredTable map, out DiscoveredTable? _, out IdentifierMapperOptions mapperOptions);
@@ -164,7 +171,7 @@ class MapperSourceTests : DatabaseTests
         using (var con = map.Database.Server.GetConnection())
         {
             con.Open();
-            Assert.That(map.GetCommand($"UPDATE {map.GetFullyQualifiedName()} SET ECHI = '0Z0Z0Z0Z0Z' WHERE CHI = '0101010101'", con).ExecuteNonQuery(), Is.EqualTo(1));
+            Assert.That(map.GetCommand($"UPDATE {map.GetFullyQualifiedName()} SET {map.GetQuerySyntaxHelper().EnsureWrapped("ECHI")} = '0Z0Z0Z0Z0Z' WHERE {map.GetQuerySyntaxHelper().EnsureWrapped("CHI")} = '0101010101'", con).ExecuteNonQuery(), Is.EqualTo(1));
         }
 
         var archive = map.Database.ExpectTable(map.GetRuntimeName() + "_Archive");
@@ -202,6 +209,7 @@ class MapperSourceTests : DatabaseTests
 
     [TestCase(DatabaseType.MySql)]
     [TestCase(DatabaseType.MicrosoftSQLServer)]
+    [TestCase(DatabaseType.PostgreSql)]
     public void TestMapperSource_UpdatedMapping_Qualifier(DatabaseType dbType)
     {
         SetupMappers(dbType, out DiscoveredTable map, out DiscoveredTable? _, out IdentifierMapperOptions mapperOptions);
@@ -210,7 +218,7 @@ class MapperSourceTests : DatabaseTests
         using (var con = map.Database.Server.GetConnection())
         {
             con.Open();
-            Assert.That(map.GetCommand($"UPDATE {map.GetFullyQualifiedName()} SET ECHI = null WHERE CHI = '0101010101'", con).ExecuteNonQuery(), Is.EqualTo(1));
+            Assert.That(map.GetCommand($"UPDATE {map.GetFullyQualifiedName()} SET {map.GetQuerySyntaxHelper().EnsureWrapped("ECHI")} = null WHERE {map.GetQuerySyntaxHelper().EnsureWrapped("CHI")} = '0101010101'", con).ExecuteNonQuery(), Is.EqualTo(1));
         }
 
         var archive = map.Database.ExpectTable(map.GetRuntimeName() + "_Archive");
@@ -250,6 +258,7 @@ class MapperSourceTests : DatabaseTests
 
     [TestCase(DatabaseType.MySql)]
     [TestCase(DatabaseType.MicrosoftSQLServer)]
+    [TestCase(DatabaseType.PostgreSql)]
     public void TestMapperSource_GuidMappingNowExists(DatabaseType dbType)
     {
         SetupMappers(dbType, out DiscoveredTable map, out DiscoveredTable? guidTable, out IdentifierMapperOptions mapperOptions);
@@ -260,7 +269,7 @@ class MapperSourceTests : DatabaseTests
         {
             {"CHI","0202020202" },
             {"ECHI","0X0X0X0X0X" },
-            {SpecialFieldNames.ValidFrom,DateTime.Now },
+            {SpecialFieldNames.ValidFrom,DateTime.UtcNow },
             {SpecialFieldNames.DataLoadRunID,55},
             });
 
@@ -291,6 +300,7 @@ class MapperSourceTests : DatabaseTests
 
     [TestCase(DatabaseType.MySql)]
     [TestCase(DatabaseType.MicrosoftSQLServer)]
+    [TestCase(DatabaseType.PostgreSql)]
     public void Test_MapperSource_NoGuids(DatabaseType dbType)
     {
         SetupMappers(dbType, out DiscoveredTable map, out DiscoveredTable? _, out IdentifierMapperOptions mapperOptions, false);
@@ -299,7 +309,7 @@ class MapperSourceTests : DatabaseTests
         using (var con = map.Database.Server.GetConnection())
         {
             con.Open();
-            Assert.That(map.GetCommand($"UPDATE {map.GetFullyQualifiedName()} SET ECHI = '0Z0Z0Z0Z0Z' WHERE CHI = '0101010101'", con).ExecuteNonQuery(), Is.EqualTo(1));
+            Assert.That(map.GetCommand($"UPDATE {map.GetFullyQualifiedName()} SET {map.GetQuerySyntaxHelper().EnsureWrapped("ECHI")} = '0Z0Z0Z0Z0Z' WHERE {map.GetQuerySyntaxHelper().EnsureWrapped("CHI")} = '0101010101'", con).ExecuteNonQuery(), Is.EqualTo(1));
         }
 
         var archive = map.Database.ExpectTable(map.GetRuntimeName() + "_Archive");
