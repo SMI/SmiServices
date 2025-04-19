@@ -154,6 +154,7 @@ public class IdentifierMapperOptions : ConsumerOptions, IMappingTableOptions
     public string? MappingConnectionString { get; set; }
     public DatabaseType MappingDatabaseType { get; set; }
     public int TimeoutInSeconds { get; set; }
+    public string? MappingTableSchema { get; set; }
     public string? MappingTableName { get; set; }
     public string? SwapColumnName { get; set; }
     public string? ReplacementColumnName { get; set; }
@@ -185,26 +186,11 @@ public class IdentifierMapperOptions : ConsumerOptions, IMappingTableOptions
         if (string.IsNullOrWhiteSpace(MappingTableName))
             throw new ArgumentException($"MappingTableName must be set");
 
-        var idx = MappingTableName.LastIndexOf('.');
-        var tableNameUnqualified = MappingTableName[(idx + 1)..];
+        var database = server.GetCurrentDatabase();
+        if (database == null || !database.Exists())
+            throw new ArgumentException("Database must be set in cnonection string");
 
-        idx = MappingTableName.IndexOf('.');
-        if (idx == -1)
-            throw new ArgumentException($"MappingTableName did not contain the database/user section:'{MappingTableName}'");
-
-        // TODO This can definitely be simplified if we refactor code that calls this
-        if (server.DatabaseType == DatabaseType.PostgreSql)
-        {
-            var db = server.GetCurrentDatabase() ?? throw new ArgumentException("Database must be set in cnonection string");
-            var split = MappingTableName.Split('.');
-            return db.ExpectTable(split[1], schema: split[0]);
-        }
-
-        var databaseName = server.GetQuerySyntaxHelper().GetRuntimeName(MappingTableName[..idx]);
-        if (string.IsNullOrWhiteSpace(databaseName))
-            throw new ArgumentException($"Could not get database/username from MappingTableName {MappingTableName}");
-
-        return server.ExpectDatabase(databaseName).ExpectTable(tableNameUnqualified);
+        return database.ExpectTable(MappingTableName, schema: MappingTableSchema);
     }
 
     public IMappingTableOptions Clone()
@@ -216,6 +202,7 @@ public class IdentifierMapperOptions : ConsumerOptions, IMappingTableOptions
 public interface IMappingTableOptions : IOptions
 {
     string? MappingConnectionString { get; }
+    string? MappingTableSchema { get; set; }
     string? MappingTableName { get; set; }
     string? SwapColumnName { get; set; }
     string? ReplacementColumnName { get; set; }
@@ -363,7 +350,7 @@ public class CohortExtractorOptions : ConsumerOptions
     /// The Type of a class implementing IProjectPathResolver which is responsible for deciding the folder hierarchy to output into
     /// </summary>
     public string? ProjectPathResolverType { get; set; }
-    
+
     /// <summary>
     /// Controls how modalities are matched to Catalogues.  Must contain a single capture group which
     /// returns a modality code (e.g. CT) when applies to a Catalogue name.  E.g. ^([A-Z]+)_.*$ would result

@@ -39,7 +39,7 @@ public class TableLookupWithGuidFallbackSwapper : SwapIdentifiers
         _tableSwapper.Setup(mappingTableOptions);
 
         var guidOptions = mappingTableOptions.Clone();
-        guidOptions.MappingTableName = GetGuidTableIfAny(guidOptions)?.GetFullyQualifiedName();
+        guidOptions.MappingTableName = GetGuidTableIfAny(guidOptions)!.GetRuntimeName();
         guidOptions.ReplacementColumnName = GuidColumnName;
         _guidSwapper.Setup(guidOptions);
     }
