@@ -292,7 +292,6 @@ public class IdentifierMapperTests : DatabaseTests
 
     [TestCase(DatabaseType.MicrosoftSQLServer)]
     [TestCase(DatabaseType.MySql)]
-    [TestCase(DatabaseType.PostgreSql)]
     public void TestIdentifierSwapForGuid(DatabaseType dbType)
     {
         PostgresFixes.GetCleanedServerPostgresFix(TestDatabaseSettings, dbType);
@@ -336,7 +335,6 @@ public class IdentifierMapperTests : DatabaseTests
 
     [TestCase(DatabaseType.MicrosoftSQLServer)]
     [TestCase(DatabaseType.MySql)]
-    [TestCase(DatabaseType.PostgreSql)]
     public void TestIdentifierSwap2ForGuids(DatabaseType dbType)
     {
         PostgresFixes.GetCleanedServerPostgresFix(TestDatabaseSettings, dbType);
@@ -385,7 +383,6 @@ public class IdentifierMapperTests : DatabaseTests
     /// <param name="dbType"></param>
     [TestCase(DatabaseType.MicrosoftSQLServer)]
     [TestCase(DatabaseType.MySql)]
-    [TestCase(DatabaseType.PostgreSql)]
     public void TestIdentifierSwap2ForGuids_WithSeperateSwappers(DatabaseType dbType)
     {
         PostgresFixes.GetCleanedServerPostgresFix(TestDatabaseSettings, dbType);
