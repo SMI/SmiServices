@@ -11,6 +11,16 @@ A raw git diff can be seen [here][unreleased].
 
 <!--next-->
 
+## [6.1.0] 2025-04-19
+
+### Feature
+
+- [#2140](https://github.com/SMI/SmiServices/pull/2140) by rkm. Enable postgres in CI tests
+
+### Fix
+
+- [#2141](https://github.com/SMI/SmiServices/pull/2141) by rkm. Fix identifier-mapper to work with postgres. Adds `MappingTableSchema` to `IdentifierMapperOptions`.
+
 ## [6.0.0] 2025-01-08
 
 ### Feature
@@ -1514,4 +1524,5 @@ First stable release after importing the repository from the private
 [5.8.0]: https://github.com/SMI/SmiServices/compare/v5.7.2...v5.8.0
 [5.9.0]: https://github.com/SMI/SmiServices/compare/v5.8.0...v5.9.0
 [6.0.0]: https://github.com/SMI/SmiServices/compare/v5.10.3...v6.0.0
-[unreleased]: https://github.com/SMI/SmiServices/compare/v6.0.0...main
+[6.1.0]: https://github.com/SMI/SmiServices/compare/v6.0.0...v6.1.0
+[unreleased]: https://github.com/SMI/SmiServices/compare/v6.1.0...main
