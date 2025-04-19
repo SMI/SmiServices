@@ -295,6 +295,7 @@ public class IdentifierMapperTests : DatabaseTests
     [TestCase(DatabaseType.PostgreSql)]
     public void TestIdentifierSwapForGuid(DatabaseType dbType)
     {
+        PostgresFixes.GetCleanedServerPostgresFix(TestDatabaseSettings, dbType);
         var db = GetCleanedServer(dbType);
         var mapTbl = db.ExpectTable("Map");
 
@@ -338,6 +339,7 @@ public class IdentifierMapperTests : DatabaseTests
     [TestCase(DatabaseType.PostgreSql)]
     public void TestIdentifierSwap2ForGuids(DatabaseType dbType)
     {
+        PostgresFixes.GetCleanedServerPostgresFix(TestDatabaseSettings, dbType);
         var db = GetCleanedServer(dbType);
         var mapTbl = db.ExpectTable("Map");
 
@@ -386,6 +388,7 @@ public class IdentifierMapperTests : DatabaseTests
     [TestCase(DatabaseType.PostgreSql)]
     public void TestIdentifierSwap2ForGuids_WithSeperateSwappers(DatabaseType dbType)
     {
+        PostgresFixes.GetCleanedServerPostgresFix(TestDatabaseSettings, dbType);
         var db = GetCleanedServer(dbType);
         var mapTbl = db.ExpectTable("Map");
 

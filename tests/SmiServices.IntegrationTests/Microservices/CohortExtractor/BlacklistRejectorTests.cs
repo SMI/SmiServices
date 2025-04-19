@@ -16,6 +16,7 @@ class BlacklistRejectorTests : DatabaseTests
     [TestCase(DatabaseType.PostgreSql)]
     public void TestBlacklistOn_Study(DatabaseType dbType)
     {
+        PostgresFixes.GetCleanedServerPostgresFix(TestDatabaseSettings, dbType);
         var db = GetCleanedServer(dbType);
 
         using var dt = new DataTable();
@@ -41,6 +42,7 @@ class BlacklistRejectorTests : DatabaseTests
     [TestCase(DatabaseType.PostgreSql)]
     public void TestBlacklistOn_Series(DatabaseType dbType)
     {
+        PostgresFixes.GetCleanedServerPostgresFix(TestDatabaseSettings, dbType);
         var db = GetCleanedServer(dbType);
 
         using var dt = new DataTable();
@@ -66,6 +68,7 @@ class BlacklistRejectorTests : DatabaseTests
     [TestCase(DatabaseType.PostgreSql)]
     public void TestBlacklistOn_SOPInstanceUID(DatabaseType dbType)
     {
+        PostgresFixes.GetCleanedServerPostgresFix(TestDatabaseSettings, dbType);
         var db = GetCleanedServer(dbType);
 
         using var dt = new DataTable();
@@ -91,6 +94,7 @@ class BlacklistRejectorTests : DatabaseTests
     [TestCase(DatabaseType.PostgreSql)]
     public void TestBlacklistOn_AllThree(DatabaseType dbType)
     {
+        PostgresFixes.GetCleanedServerPostgresFix(TestDatabaseSettings, dbType);
         var db = GetCleanedServer(dbType);
 
         using var dt = new DataTable();
