@@ -44,9 +44,9 @@
       },
       "MongoDB.Analyzer": {
         "type": "Direct",
-        "requested": "[1.5.0, )",
-        "resolved": "1.5.0",
-        "contentHash": "ujrUe6NeLGW9q8ABseYY/NFx7pc1G/LshtVfLMONV02+fEy0jUDsXLHU7YvuARjJhJI7Mgz88tfvCncccUmerw=="
+        "requested": "[2.0.0, )",
+        "resolved": "2.0.0",
+        "contentHash": "RA/KDGvXPjRZR82mT1OwTheIQ6CVtwyB0O9vnSoIgErEvRDA9O2ZXsyJ7WEMt0bGVBVlrW9DuvD589LFt0rlYA=="
       },
       "Moq": {
         "type": "Direct",
@@ -969,7 +969,7 @@
           "LineReader": "[0.1.0, )",
           "Microsoft.CodeAnalysis.CSharp.Scripting": "[4.13.0, )",
           "Microsoft.Extensions.Caching.Memory": "[9.0.4, )",
-          "MongoDB.Analyzer": "[1.5.0, )",
+          "MongoDB.Analyzer": "[2.0.0, )",
           "MongoDB.Bson": "[3.3.0, )",
           "MongoDB.Driver": "[3.3.0, )",
           "NLog": "[5.4.0, )",
