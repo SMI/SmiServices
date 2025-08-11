@@ -50,13 +50,13 @@
       },
       "HIC.Rdmp.Dicom": {
         "type": "Direct",
-        "requested": "[7.1.3, )",
-        "resolved": "7.1.3",
-        "contentHash": "TIWSRdC8xmQVi6Xj3pglQIDz/a7J0Py+AMzVzwOwb5okjU35RoWRK/867f2q5mIzAWQqdhEjxLWiwC/YEOBkhQ==",
+        "requested": "[7.1.6, )",
+        "resolved": "7.1.6",
+        "contentHash": "IqgGHFsOl2vgIAB4LLi5I+fhBEC/xvbwxDZJZ6z5NnPadJ4cPQzEoweUmfK3WVMdCCFb6USW87BAz6MqX3PmFw==",
         "dependencies": {
           "HIC.DicomTypeTranslation": "4.1.5",
-          "HIC.RDMP.Plugin": "7.1.3",
-          "fo-dicom": "5.1.5"
+          "HIC.RDMP.Plugin": "7.1.6",
+          "fo-dicom": "5.2.2"
         }
       },
       "HIC.RDMP.Plugin": {
@@ -1011,8 +1011,8 @@
       "fo-dicom": {
         "type": "CentralTransitive",
         "requested": "[5.1.5, )",
-        "resolved": "5.2.1",
-        "contentHash": "Oa6raonOj/Xm+a1j3O89OlUXJIF55jLAKjCuXKINYJMJ+hJ/9Al1YOxPs1hut8DBKvHbgYtgdRFtqGNS+Qt6Uw==",
+        "resolved": "5.2.2",
+        "contentHash": "vZR0j7Js8CjAm2GQWH4x+nb/eA9Rq1t8/Gsv6lfTFXfZ4ryJ5tFTyQbAp8EHJf1UZBQib8bsAUQRbBR346sHkw==",
         "dependencies": {
           "CommunityToolkit.HighPerformance": "8.3.2",
           "Microsoft.Bcl.AsyncInterfaces": "8.0.0",
