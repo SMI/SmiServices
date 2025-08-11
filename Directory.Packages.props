@@ -6,7 +6,7 @@
   </PropertyGroup>
   <ItemGroup>
     <PackageVersion Include="CommandLineParser" Version="2.9.1" />
-    <PackageVersion Include="CsvHelper" Version="33.0.1" />
+    <PackageVersion Include="CsvHelper" Version="33.1.0" />
     <PackageVersion Include="Equ" Version="2.3.0" />
     <PackageVersion Include="fo-dicom" Version="5.1.5" />
     <PackageVersion Include="fo-dicom.Imaging.ImageSharp" Version="5.1.4" />
