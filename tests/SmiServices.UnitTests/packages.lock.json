@@ -59,9 +59,9 @@
       },
       "NLog": {
         "type": "Direct",
-        "requested": "[5.4.0, )",
-        "resolved": "5.4.0",
-        "contentHash": "LwMcGSW3soF3/SL68rlJN3Eh3ktrAPycC3zZR/07OYBPraZUu0bygEC7kIN10lUQgMXT4s84Fi1chglGdGrQEg=="
+        "requested": "[6.0.3, )",
+        "resolved": "6.0.3",
+        "contentHash": "5RMrpvadysflvDOi5ozD7aK1P+YL2DyZbQSxzE8qBKkw2pxPNOQA6vJtumcT6SuzE9qxhwGkQwMkLLaKnALwiw=="
       },
       "NUnit": {
         "type": "Direct",
@@ -972,7 +972,7 @@
           "MongoDB.Analyzer": "[1.5.0, )",
           "MongoDB.Bson": "[3.3.0, )",
           "MongoDB.Driver": "[3.3.0, )",
-          "NLog": "[5.4.0, )",
+          "NLog": "[6.0.3, )",
           "Newtonsoft.Json": "[13.0.3, )",
           "RabbitMQ.Client": "[6.8.1, )",
           "StackExchange.Redis": "[2.8.31, )",

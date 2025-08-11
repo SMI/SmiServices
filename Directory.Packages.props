@@ -23,7 +23,7 @@
     <PackageVersion Include="MongoDB.Bson" Version="3.3.0" />
     <PackageVersion Include="MongoDB.Driver" Version="3.3.0" />
     <PackageVersion Include="Newtonsoft.Json" Version="13.0.3" />
-    <PackageVersion Include="NLog" Version="5.4.0" />
+    <PackageVersion Include="NLog" Version="6.0.3" />
     <PackageVersion Include="RabbitMQ.Client" Version="6.8.1" />
     <PackageVersion Include="Spectre.Console" Version="0.49.1" />
     <PackageVersion Include="StackExchange.Redis" Version="2.8.31" />
