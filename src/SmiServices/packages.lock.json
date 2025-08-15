@@ -61,33 +61,33 @@
       },
       "HIC.RDMP.Plugin": {
         "type": "Direct",
-        "requested": "[8.4.2, )",
-        "resolved": "8.4.2",
-        "contentHash": "M5iYSamxek3CDq+7+viF8tdnmdwmv9XPFfZ0aHJEicWxBrflCQE+ySbc3ExbVxowSZ8CGEjPT6Qxy9kOqfQECg==",
+        "requested": "[8.4.4, )",
+        "resolved": "8.4.4",
+        "contentHash": "JYylY6/i1K5pqjnq2Z5m0UCUmmtQ09OJx0hgtvhbJojmKbtJdfLxrmOpXcHI6tnYzD7gvKHVXSLzB969VIdNNA==",
         "dependencies": {
-          "AWSSDK.S3": "3.7.408.1",
-          "AWSSDK.SSO": "3.7.400.58",
-          "AWSSDK.SSOOIDC": "3.7.400.58",
-          "AWSSDK.SecurityToken": "3.7.401.7",
+          "AWSSDK.S3": "3.7.416.16",
+          "AWSSDK.SSO": "3.7.400.140",
+          "AWSSDK.SSOOIDC": "3.7.401.18",
+          "AWSSDK.SecurityToken": "3.7.401.89",
           "CommandLineParser": "2.9.1",
           "ExcelNumberFormat": "1.1.0",
-          "FluentFTP": "52.0.0",
+          "FluentFTP": "52.1.0",
           "HIC.FAnsiSql": "3.2.7",
           "HIC.SynthEHR": "2.0.1",
           "LibArchive.Net": "0.1.5",
-          "Microsoft.Bcl.AsyncInterfaces": "9.0.0",
-          "MongoDB.Driver": "3.0.0",
-          "NLog": "5.3.4",
-          "NPOI": "2.7.2",
+          "Microsoft.Bcl.AsyncInterfaces": "9.0.4",
+          "MongoDB.Driver": "3.3.0",
+          "NLog": "5.4.0",
+          "NPOI": "2.7.3",
           "Newtonsoft.Json": "13.0.3",
-          "SSH.NET": "2024.2.0",
-          "SixLabors.ImageSharp": "3.1.6",
-          "SixLabors.ImageSharp.Drawing": "2.1.4",
-          "Spectre.Console": "0.49.1",
+          "SSH.NET": "2025.0.0",
+          "SixLabors.ImageSharp": "3.1.8",
+          "SixLabors.ImageSharp.Drawing": "2.1.5",
+          "Spectre.Console": "0.50.0",
           "System.Private.Uri": "4.3.2",
-          "System.Resources.Extensions": "9.0.0",
-          "Terminal.Gui": "1.17.1",
-          "YamlDotNet": "16.2.1"
+          "System.Resources.Extensions": "9.0.4",
+          "Terminal.Gui": "1.18.1",
+          "YamlDotNet": "16.3.0"
         }
       },
       "IsIdentifiable": {
@@ -242,39 +242,39 @@
       },
       "AWSSDK.Core": {
         "type": "Transitive",
-        "resolved": "3.7.400.58",
-        "contentHash": "tsNRJMOxCpd6FXZq/3y3ei3MMEWmHO6uFgIg8GAkZS74hxtfDB6zyycAqd9vbo9UJBbX7lmtYfDPQ0sg2CUDRw=="
+        "resolved": "3.7.402.46",
+        "contentHash": "/W2Y/8PmNilP4qONoPJz5/AgHwvwblmE8wvf1nG+oqqd2fX88vUNRToHmdVxZUqjLtx64VryI7iGKRaPUDMkTA=="
       },
       "AWSSDK.S3": {
         "type": "Transitive",
-        "resolved": "3.7.408.1",
-        "contentHash": "73PmGWtNhpVXM/9oQeZsH9y6zuS2mA2soif7ZoU71CDvl8l58zHsOMCqzUUCk+B49BH7qGO2uV/sNtPkEY3w5w==",
+        "resolved": "3.7.416.16",
+        "contentHash": "ny3iI0bZqh7sIr3TpiI73vmLN/9KlV7LNzJQ+Vxota6h2jGVtnelzQHh9HPBh5wI7KrFU9z4/gTR4xcicKjUuA==",
         "dependencies": {
-          "AWSSDK.Core": "[3.7.400.58, 4.0.0)"
+          "AWSSDK.Core": "[3.7.402.46, 4.0.0)"
         }
       },
       "AWSSDK.SecurityToken": {
         "type": "Transitive",
-        "resolved": "3.7.401.7",
-        "contentHash": "boZu+IcOuG/K7mcgq8i/Ii1sNS1S3i6cdD8z9L3EIgbc4EUGgJMZr4igMg69L8VjD6nMjDpArAJKarZI7ThKTA==",
+        "resolved": "3.7.401.89",
+        "contentHash": "HZ/tPaMoxKYlgTW7k0nLC/9QjyDXY3i+1yI7ptMKlZR378ikmFe4QgMf73MQeG+dIhAKf1SBTAXDytdlPtttcg==",
         "dependencies": {
-          "AWSSDK.Core": "[3.7.400.58, 4.0.0)"
+          "AWSSDK.Core": "[3.7.402.46, 4.0.0)"
         }
       },
       "AWSSDK.SSO": {
         "type": "Transitive",
-        "resolved": "3.7.400.58",
-        "contentHash": "tN0ISK7ehmciB/g4f3bqJItXa4DWTKrXHxRDsGbBAh0AUMiWeUvi4cUUl0jb+YwfEtz8o+MJW1xjKyMqrsMNsw==",
+        "resolved": "3.7.400.140",
+        "contentHash": "EjBq1yDgT7yWHJJNktJpfZAvM1i5zlbLM8NZA4oKUGQKOTEz8aqPXJvMPm3cnlfWr/7au65cPAGKkYtijCRrJg==",
         "dependencies": {
-          "AWSSDK.Core": "[3.7.400.58, 4.0.0)"
+          "AWSSDK.Core": "[3.7.402.46, 4.0.0)"
         }
       },
       "AWSSDK.SSOOIDC": {
         "type": "Transitive",
-        "resolved": "3.7.400.58",
-        "contentHash": "xZ2ArrY7tIMdDAnVYtpaf8Gvf9bm3a2hcD0LUZSAQClN3vy/qxakR6SMBWA8jkm/rJGhMgiMDhZoKtPOw7VfkA==",
+        "resolved": "3.7.401.18",
+        "contentHash": "f0SGgHAX4nQFuCStsDoX8M+2+hd7JlaTB0OpxXCX0Xn+KyjIQ1Wt1sg9NrqU9+DQAFBHjjxcs9aFbymvQQNdZQ==",
         "dependencies": {
-          "AWSSDK.Core": "[3.7.400.58, 4.0.0)"
+          "AWSSDK.Core": "[3.7.402.46, 4.0.0)"
         }
       },
       "Azure.Core": {
@@ -308,8 +308,8 @@
       },
       "BouncyCastle.Cryptography": {
         "type": "Transitive",
-        "resolved": "2.4.0",
-        "contentHash": "SwXsAV3sMvAU/Nn31pbjhWurYSjJ+/giI/0n6tCrYoupEK34iIHCuk3STAd9fx8yudM85KkLSVdn951vTng/vQ=="
+        "resolved": "2.5.1",
+        "contentHash": "zy8TMeTP+1FH2NrLaNZtdRbBdq7u5MI+NFZQOBSM69u5RFkciinwzV2eveY6Kjf5MzgsYvvl6kTStsj3JrXqkg=="
       },
       "CommunityToolkit.HighPerformance": {
         "type": "Transitive",
@@ -341,8 +341,8 @@
       },
       "FluentFTP": {
         "type": "Transitive",
-        "resolved": "52.0.0",
-        "contentHash": "8wR9CCB++2eM4Y1b+HV6heWv5EDSOk3wiBWz4G9bNKjsEnTq4UUH9/g4RjmcmdN2mszIPclWS0cEuVMdqEuu1g=="
+        "resolved": "52.1.0",
+        "contentHash": "d5RnVIr/tnuaS8agbTePwfY0YDN7FTlYP4cFb8Vk3GYcpVSjAEV2VNgPLosU8hrLkOhC5IRsLLVgQz8yiHv11Q=="
       },
       "HIC.SynthEHR": {
         "type": "Transitive",
@@ -382,8 +382,8 @@
       },
       "Microsoft.Bcl.AsyncInterfaces": {
         "type": "Transitive",
-        "resolved": "9.0.0",
-        "contentHash": "owmu2Cr3IQ8yQiBleBHlGk8dSQ12oaF2e7TpzwJKEl4m84kkZJjEY1n33L67Y3zM5jPOjmmbdHjbfiL0RqcMRQ=="
+        "resolved": "9.0.4",
+        "contentHash": "9VGI5kxIvrNG2mqLQZnUR6y/3fcnygD8eNpHR+CqfbnIXvea6nehnYknDKQTxZVPMpzpNca+7DxLBmpdB3q0Bw=="
       },
       "Microsoft.Bcl.HashCode": {
         "type": "Transitive",
@@ -625,8 +625,8 @@
       },
       "NPOI": {
         "type": "Transitive",
-        "resolved": "2.7.2",
-        "contentHash": "hKJeAQOuVl8b2qiQQg0ph8uhqm5ihq94SDSnmPu5ytCLIRTVcg2rFA274ow+IacrORImdvo0Q3K51L1t3vLqpw==",
+        "resolved": "2.7.3",
+        "contentHash": "iCZx3DSwUSwaV61E8tXgPlPuxYmcYV/Zi405nGlxQvWaGTAbuc0KvSBjsLucQUJ92iMeetT8iK9makLfF4uZ3g==",
         "dependencies": {
           "BouncyCastle.Cryptography": "2.3.1",
           "Enums.NET": "4.0.1",
@@ -635,7 +635,7 @@
           "Microsoft.IO.RecyclableMemoryStream": "3.0.0",
           "SharpZipLib": "1.4.2",
           "SixLabors.Fonts": "1.0.1",
-          "SixLabors.ImageSharp": "2.1.9",
+          "SixLabors.ImageSharp": "2.1.10",
           "System.Security.Cryptography.Pkcs": "8.0.1",
           "System.Security.Cryptography.Xml": "8.0.2"
         }
@@ -679,21 +679,21 @@
       },
       "SixLabors.Fonts": {
         "type": "Transitive",
-        "resolved": "2.0.4",
-        "contentHash": "4+NKz8W36injp98lmmM07ncp08HAK8c6FZz8vLoKxRPfJeEVWpBHlLYEbQa5rcqKKYqxUv/RVCrb8XcPhfMKUQ=="
+        "resolved": "2.0.8",
+        "contentHash": "psTLKJVKaD8PKm+Bz/mSSNo4m0VCTYoJ97TF/ynxEWkn4sFUipI0rzE2V/KBtfU0TOn/gF/+1XBOEvusGZZMhA=="
       },
       "SixLabors.ImageSharp": {
         "type": "Transitive",
-        "resolved": "3.1.7",
-        "contentHash": "9fIOOAsyLFid6qKypM2Iy0Z3Q9yoanV8VoYAHtI2sYGMNKzhvRTjgFDHonIiVe+ANtxIxM6SuqUzj0r91nItpA=="
+        "resolved": "3.1.8",
+        "contentHash": "8eJkROLGh6DBQLR666q2aOpAaean2puZaZ6Ur9YxoyGzjaZhv8OJSxtnDou54+OXMkXtLUdyQC0so47sOsqZjg=="
       },
       "SixLabors.ImageSharp.Drawing": {
         "type": "Transitive",
-        "resolved": "2.1.4",
-        "contentHash": "p4VwtAABggDUhUS5zXldCZHVGfjJl76+SrBHY4biNQ8+890igFK6RL87qIv9GqvEjMcYOar1sPkf2iMQ6uq9/g==",
+        "resolved": "2.1.5",
+        "contentHash": "cER1JfvshYDmTxw+gUy/x5e1xoNWhrD6s3AFf8rRUx9hWSXYdOFreQfUrM/QooMj0rF7+hkVtvGnV3EdMx4dxA==",
         "dependencies": {
-          "SixLabors.Fonts": "2.0.4",
-          "SixLabors.ImageSharp": "3.1.5"
+          "SixLabors.Fonts": "2.0.8",
+          "SixLabors.ImageSharp": "3.1.6"
         }
       },
       "Snappier": {
@@ -703,10 +703,11 @@
       },
       "SSH.NET": {
         "type": "Transitive",
-        "resolved": "2024.2.0",
-        "contentHash": "9r+4UF2P51lTztpd+H7SJywk7WgmlWB//Cm2o96c6uGVZU5r58ys2/cD9pCgTk0zCdSkfflWL1WtqQ9I4IVO9Q==",
+        "resolved": "2025.0.0",
+        "contentHash": "AKYbB+q2zFkNQbBFx5gXdv+Wje0baBtADQ35WnMKi4bg1ka74wTQtWoPd+fOWcydohdfsD0nfT8ErMOAPxtSfA==",
         "dependencies": {
-          "BouncyCastle.Cryptography": "2.4.0"
+          "BouncyCastle.Cryptography": "2.5.1",
+          "Microsoft.Extensions.Logging.Abstractions": "8.0.3"
         }
       },
       "System.Buffers": {
@@ -725,8 +726,8 @@
       },
       "System.CodeDom": {
         "type": "Transitive",
-        "resolved": "8.0.0",
-        "contentHash": "WTlRjL6KWIMr/pAaq3rYqh0TJlzpouaQ/W1eelssHgtlwHAH25jXTkUphTYx9HaIIf7XA6qs/0+YhtLEQRkJ+Q=="
+        "resolved": "9.0.4",
+        "contentHash": "aJdv7Z87PoPW8ijvGIincocooYRbH3Umtlz7OrJKf6GDInbdu1bvk5X1fFlmbl7WP+9ntoIBd7NjKz+siVFdHA=="
       },
       "System.Collections.Immutable": {
         "type": "Transitive",
@@ -775,8 +776,8 @@
       },
       "System.Formats.Nrbf": {
         "type": "Transitive",
-        "resolved": "9.0.0",
-        "contentHash": "F/6tNE+ckmdFeSQAyQo26bQOqfPFKEfZcuqnp4kBE6/7jP26diP+QTHCJJ6vpEfaY6bLy+hBLiIQUSxSmNwLkA=="
+        "resolved": "9.0.4",
+        "contentHash": "HuDjUInoaQvnX+3bRg2lX+KLD2raiDJA0v3c4hmukAHSQT8rpa6+2NKRoz+1W8Jmbu5ocvc+xPPKgHMVjeJpOg=="
       },
       "System.IdentityModel.Tokens.Jwt": {
         "type": "Transitive",
@@ -822,16 +823,16 @@
       },
       "System.Management": {
         "type": "Transitive",
-        "resolved": "8.0.0",
-        "contentHash": "jrK22i5LRzxZCfGb+tGmke2VH7oE0DvcDlJ1HAKYU8cPmD8XnpUT0bYn2Gy98GEhGjtfbR/sxKTVb+dE770pfA==",
+        "resolved": "9.0.4",
+        "contentHash": "MfY9+SrkSvchAoFiChTkhQYCAjBaQQ9u3LwiKmho7oTbujucnxCzORlPgLhId/ChLSptsQ/1UmtPGLZaKYVdsA==",
         "dependencies": {
-          "System.CodeDom": "8.0.0"
+          "System.CodeDom": "9.0.4"
         }
       },
       "System.Memory": {
         "type": "Transitive",
-        "resolved": "4.5.5",
-        "contentHash": "XIWiDvKPXaTveaB7HVganDlOCRoj03l+jrwNvcge/t8vhGYKvqV+dMv6G4SAX2NoNmN0wZfVPTAlFwZcZvVOUw=="
+        "resolved": "4.6.3",
+        "contentHash": "qdcDOgnFZY40+Q9876JUHnlHu7bosOHX8XISRoH94fwk6hgaeQGSgfZd8srWRZNt5bV9ZW2TljcegDNxsf+96A=="
       },
       "System.Memory.Data": {
         "type": "Transitive",
@@ -857,10 +858,10 @@
       },
       "System.Resources.Extensions": {
         "type": "Transitive",
-        "resolved": "9.0.0",
-        "contentHash": "tvhuT1D2OwPROdL1kRWtaTJliQo0WdyhvwDpd8RM997G7m3Hya5nhbYhNTS75x6Vu+ypSOgL5qxDCn8IROtCxw==",
+        "resolved": "9.0.4",
+        "contentHash": "X1oj5i1gy6O4TDU8Z48djqbDJJz4qkT+LgvD0Z2pbCsXieJNms9H5yBbvahXdEJad07Ntai5bST4J5XWoNmMsg==",
         "dependencies": {
-          "System.Formats.Nrbf": "9.0.0"
+          "System.Formats.Nrbf": "9.0.4"
         }
       },
       "System.Runtime": {
@@ -1039,9 +1040,12 @@
       },
       "Spectre.Console": {
         "type": "CentralTransitive",
-        "requested": "[0.49.1, )",
-        "resolved": "0.49.1",
-        "contentHash": "USV+pdu49OJ3nCjxNuw1K9Zw/c1HCBbwbjXZp0EOn6wM99tFdAtN34KEBZUMyRuJuXlUMDqhd8Yq9obW2MslYA=="
+        "requested": "[0.50.0, )",
+        "resolved": "0.50.0",
+        "contentHash": "gkwYncFqMjlPF6Yz8KeVsKWpdfv15sr6uKm+vXVa/8Q4tvx52LPzMQOO5m+bXwI3AGGFeY3cok3ZJbguYizswg==",
+        "dependencies": {
+          "System.Memory": "4.6.3"
+        }
       },
       "System.IO.FileSystem": {
         "type": "CentralTransitive",
@@ -1061,12 +1065,12 @@
       },
       "Terminal.Gui": {
         "type": "CentralTransitive",
-        "requested": "[1.17.1, )",
-        "resolved": "1.17.1",
-        "contentHash": "jKw0FzRZXFh6SWXQoTM7y098QjIvTNi6JzJyNkIo+IHzRlfOF85a1U9mmOKDoYVFFIV/wKGO5ZvQE2gy6BVA5Q==",
+        "requested": "[1.18.1, )",
+        "resolved": "1.18.1",
+        "contentHash": "x2W591/Y/290I0tQbhjJKY6ivO6w5fQmufBETmZM4drnS+aLhQUFVQM/10jUPP8MSgoPyLXEf/ICGeg7v9gBTg==",
         "dependencies": {
           "NStack.Core": "1.1.1",
-          "System.Management": "8.0.0"
+          "System.Management": "9.0.4"
         }
       }
     },
@@ -1375,10 +1379,10 @@
       },
       "System.Management": {
         "type": "Transitive",
-        "resolved": "8.0.0",
-        "contentHash": "jrK22i5LRzxZCfGb+tGmke2VH7oE0DvcDlJ1HAKYU8cPmD8XnpUT0bYn2Gy98GEhGjtfbR/sxKTVb+dE770pfA==",
+        "resolved": "9.0.4",
+        "contentHash": "MfY9+SrkSvchAoFiChTkhQYCAjBaQQ9u3LwiKmho7oTbujucnxCzORlPgLhId/ChLSptsQ/1UmtPGLZaKYVdsA==",
         "dependencies": {
-          "System.CodeDom": "8.0.0"
+          "System.CodeDom": "9.0.4"
         }
       },
       "System.Reflection": {
@@ -1872,10 +1876,10 @@
       },
       "System.Management": {
         "type": "Transitive",
-        "resolved": "8.0.0",
-        "contentHash": "jrK22i5LRzxZCfGb+tGmke2VH7oE0DvcDlJ1HAKYU8cPmD8XnpUT0bYn2Gy98GEhGjtfbR/sxKTVb+dE770pfA==",
+        "resolved": "9.0.4",
+        "contentHash": "MfY9+SrkSvchAoFiChTkhQYCAjBaQQ9u3LwiKmho7oTbujucnxCzORlPgLhId/ChLSptsQ/1UmtPGLZaKYVdsA==",
         "dependencies": {
-          "System.CodeDom": "8.0.0"
+          "System.CodeDom": "9.0.4"
         }
       },
       "System.Reflection": {
@@ -2269,10 +2273,10 @@
       },
       "System.Management": {
         "type": "Transitive",
-        "resolved": "8.0.0",
-        "contentHash": "jrK22i5LRzxZCfGb+tGmke2VH7oE0DvcDlJ1HAKYU8cPmD8XnpUT0bYn2Gy98GEhGjtfbR/sxKTVb+dE770pfA==",
+        "resolved": "9.0.4",
+        "contentHash": "MfY9+SrkSvchAoFiChTkhQYCAjBaQQ9u3LwiKmho7oTbujucnxCzORlPgLhId/ChLSptsQ/1UmtPGLZaKYVdsA==",
         "dependencies": {
-          "System.CodeDom": "8.0.0"
+          "System.CodeDom": "9.0.4"
         }
       },
       "System.Reflection": {
