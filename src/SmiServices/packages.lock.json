@@ -159,9 +159,9 @@
       },
       "MongoDB.Bson": {
         "type": "Direct",
-        "requested": "[3.3.0, )",
-        "resolved": "3.3.0",
-        "contentHash": "6y1uFFmU3O7tIAOcWmOkFImar+VtSeaia3bzaZTDXc30CP1zsPaUNLhM8CzUCzEzGc02rQlEaWQwV/LzA0NlXA==",
+        "requested": "[3.4.3, )",
+        "resolved": "3.4.3",
+        "contentHash": "ZB2nCdlWtmDGItkDFh2E2kfYlXaItG414t9Np7CZhpftLypemYnxtdI52H+0b8RPqoUJD7bUvrf598sDTJd5iA==",
         "dependencies": {
           "System.Memory": "4.5.5",
           "System.Runtime.CompilerServices.Unsafe": "5.0.0"
