@@ -31,7 +31,7 @@ jobs:
       matrix: ${{ steps.matrix.outputs.matrix }}
       build_ref: ${{ steps.build_ref.outputs.build_ref }}
     steps:
-      - uses: actions/setup-python@v5
+      - uses: actions/setup-python@v6
         with:
           python-version: ${{ env.python-version }}
       - name: checkout
@@ -62,7 +62,7 @@ jobs:
       - name: "[linux] enable disk caching"
         if: ${{ matrix.os == 'linux' }}
         run: sudo apt-get install -y libeatmydata1
-      - uses: actions/setup-python@v5
+      - uses: actions/setup-python@v6
         with:
           python-version: ${{ env.python-version }}
       - name: checkout
@@ -143,7 +143,7 @@ jobs:
       matrix: ${{ fromJson(needs.init.outputs.matrix) }}
     runs-on: ${{ matrix.image }}
     steps:
-      - uses: actions/setup-python@v5
+      - uses: actions/setup-python@v6
         with:
           python-version: ${{ env.python-version }}
       - name: "[linux] enable disk caching"

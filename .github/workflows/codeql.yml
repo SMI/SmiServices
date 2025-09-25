@@ -26,7 +26,7 @@ jobs:
       matrix:
         language: ["csharp", "java", "python"]
     steps:
-      - uses: actions/setup-python@v5
+      - uses: actions/setup-python@v6
         with:
           python-version: ${{ env.python-version }}
       - name: Checkout repository
