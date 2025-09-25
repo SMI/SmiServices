@@ -118,7 +118,7 @@ jobs:
               "$cov"
       - name: upload coverage to codecov
         if: ${{ matrix.os == 'linux' }}
-        uses: codecov/codecov-action@v5.4.3
+        uses: codecov/codecov-action@v5.5.1
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
           directory: coverage/
